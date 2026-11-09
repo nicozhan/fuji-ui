@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>暂停服务 - Fuji Electric</title>
+  <style>
+    :root {
+      --blue: #0877c9;
+      --blue-dark: #075b9e;
+      --blue-deep: #064b83;
+      --blue-soft: #e9f5fc;
+      --ink: #102d43;
+      --muted: #6d8494;
+      --line: #dbe9f3;
+      --warn: #e0912f;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-width: 860px; }
+    body {
+      color: var(--ink);
+      background: #f4f8fb;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    button { font: inherit; }
+    button:focus-visible { outline: 3px solid rgba(8,119,201,.3); outline-offset: 3px; }
+
+    .fault-page {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100vh;
+      min-height: 700px;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 50% 30%, rgba(178,216,243,.34), transparent 42%),
+        radial-gradient(circle at 8% 78%, rgba(200,229,246,.28), transparent 32%),
+        radial-gradient(circle at 92% 72%, rgba(200,229,246,.28), transparent 32%),
+        linear-gradient(180deg, #fbfdff 0%, #f4f9fd 62%, #e9f3fa 100%);
+    }
+    .fault-page::before,
+    .fault-page::after {
+      position: absolute;
+      z-index: 0;
+      border: 1px solid rgba(120,180,220,.14);
+      border-radius: 50%;
+      content: "";
+      pointer-events: none;
+    }
+    .fault-page::before { top: -180px; left: -140px; width: 620px; height: 620px; }
+    .fault-page::after { right: -190px; bottom: -220px; width: 720px; height: 720px; }
+
+    /* ── 顶部状态栏 ── */
+    .status-bar {
+      position: relative;
+      z-index: 20;
+      display: flex;
+      flex: 0 0 72px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 28px;
+      padding: 0 34px;
+      color: #eaf5fd;
+      background: var(--blue-dark);
+      font-size: 15px;
+      letter-spacing: .01em;
+      box-shadow: 0 6px 20px rgba(7,91,158,.14);
+    }
+    .status-left, .status-right { display: flex; align-items: center; gap: 30px; }
+    .status-item { display: flex; align-items: center; gap: 9px; white-space: nowrap; }
+    .status-item svg { width: 18px; height: 18px; }
+    .machine-id { color: #c7e3f6; }
+    .machine-id strong {
+      color: #fff;
+      font-weight: 700;
+      letter-spacing: .06em;
+    }
+    .contact-label { color: #c7e3f6; }
+    .contact-value { color: #fff; font-weight: 700; letter-spacing: .04em; }
+
+    .demo-home {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      height: 36px;
+      padding: 0 17px 0 13px;
+      border: 1px solid rgba(255,255,255,.34);
+      border-radius: 999px;
+      color: #fff;
+      background: rgba(255,255,255,.12);
+      font-size: 13px;
+      font-weight: 650;
+      letter-spacing: .02em;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: background .18s ease, border-color .18s ease;
+    }
+    .demo-home:hover { background: rgba(255,255,255,.24); border-color: rgba(255,255,255,.62); }
+    .demo-home svg { width: 16px; height: 16px; }
+
+    /* ── 主内容 ── */
+    .fault-body {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex: 1 1 auto;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 0;
+      padding: 24px 40px 8px;
+      text-align: center;
+    }
+
+    .pause-wrap { position: relative; display: flex; align-items: center; justify-content: center; }
+    .pause-halo {
+      position: absolute;
+      width: 430px;
+      height: 430px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(140,196,236,.26), rgba(190,224,246,.14) 58%, transparent 66%);
+    }
+    .pause-ring {
+      position: absolute;
+      width: 352px;
+      height: 352px;
+      border: 1px dashed rgba(120,180,220,.34);
+      border-radius: 50%;
+      animation: ring-spin 26s linear infinite;
+    }
+    @keyframes ring-spin { to { transform: rotate(360deg); } }
+
+    .pause-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(12px, 1.9vh, 20px);
+      width: clamp(196px, 29.4vh, 318px);
+      height: clamp(196px, 29.4vh, 318px);
+      border: 1px solid #d4e7f6;
+      border-radius: clamp(28px, 4.3vh, 46px);
+      background: linear-gradient(158deg, #ffffff 0%, #eaf5ff 54%, #d8ecfd 100%);
+      box-shadow:
+        0 30px 66px rgba(9,80,140,.14),
+        inset 0 1px 0 #fff;
+    }
+    .pause-card::after {
+      position: absolute;
+      inset: clamp(10px, 1.5vh, 16px);
+      border: 1px solid rgba(154,203,235,.5);
+      border-radius: clamp(20px, 3.2vh, 34px);
+      content: "";
+      pointer-events: none;
+    }
+    .pause-glyph { display: flex; gap: clamp(12px, 2vh, 21px); }
+    .pause-glyph i {
+      display: block;
+      width: clamp(15px, 2.4vh, 25px);
+      height: clamp(54px, 8.6vh, 92px);
+      border-radius: clamp(7px, 1.1vh, 11px);
+      background: linear-gradient(180deg, #3ba3e4, #0877c9);
+      box-shadow: inset 0 -4px 8px rgba(4,60,110,.16);
+    }
+    .pause-caption {
+      font-size: clamp(9.5px, 1.15vh, 12px);
+      font-weight: 750;
+      line-height: 1.75;
+      letter-spacing: .32em;
+      text-indent: .32em;
+      color: #5d89a9;
+      text-transform: uppercase;
+    }
+
+    .fault-title {
+      margin: clamp(18px, 4vh, 44px) 0 0;
+      font-size: clamp(30px, 5.4vh, 58px);
+      font-weight: 750;
+      line-height: 1.24;
+      letter-spacing: .015em;
+      color: #0d3b5d;
+    }
+    .fault-message {
+      margin: clamp(10px, 1.7vh, 18px) 0 0;
+      max-width: 880px;
+      color: var(--muted);
+      font-size: clamp(15px, 2.15vh, 23px);
+      font-weight: 450;
+      line-height: 1.85;
+    }
+
+    .phone-card {
+      display: flex;
+      align-items: center;
+      gap: clamp(12px, 1.9vh, 20px);
+      margin-top: clamp(15px, 4.2vh, 46px);
+      padding: clamp(10px, 1.7vh, 20px) clamp(26px, 4.4vh, 50px) clamp(10px, 1.7vh, 20px) clamp(16px, 2.4vh, 28px);
+      border: 1px solid var(--line);
+      border-radius: clamp(17px, 2.4vh, 24px);
+      background: rgba(255,255,255,.94);
+      box-shadow: 0 16px 40px rgba(9,80,140,.08);
+    }
+    .phone-icon {
+      display: flex;
+      flex: 0 0 auto;
+      align-items: center;
+      justify-content: center;
+      width: clamp(44px, 6.2vh, 66px);
+      height: clamp(44px, 6.2vh, 66px);
+      border-radius: 50%;
+      color: var(--blue);
+      background: var(--blue-soft);
+    }
+    .phone-icon svg { width: clamp(21px, 2.8vh, 30px); height: clamp(21px, 2.8vh, 30px); }
+    .phone-copy { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; }
+    .phone-label {
+      color: #7d93a3;
+      font-size: clamp(11.5px, 1.4vh, 15px);
+      font-weight: 650;
+      letter-spacing: .14em;
+    }
+    .phone-number {
+      color: var(--blue-deep);
+      font-size: clamp(26px, 4.1vh, 44px);
+      font-weight: 750;
+      letter-spacing: .045em;
+      line-height: 1.15;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .fault-thanks {
+      margin: clamp(12px, 3.4vh, 36px) 0 0;
+      color: #8ba2b1;
+      font-size: clamp(13.5px, 1.7vh, 18px);
+      letter-spacing: .06em;
+    }
+
+    /* ── 底部：自动返回提示 ── */
+    .fault-footer {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex: 0 0 auto;
+      flex-direction: column;
+      align-items: center;
+      gap: clamp(7px, 1.1vh, 12px);
+      padding: 0 40px clamp(14px, 3.5vh, 38px);
+      color: #93a8b6;
+      font-size: clamp(12.5px, 1.4vh, 15px);
+      letter-spacing: .03em;
+    }
+    .auto-return { display: flex; align-items: center; gap: 8px; }
+    .auto-return strong {
+      color: var(--blue-dark);
+      font-size: clamp(14px, 1.6vh, 17px);
+      font-weight: 750;
+      font-variant-numeric: tabular-nums;
+    }
+    .auto-track {
+      width: 260px;
+      height: 4px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: rgba(125,170,200,.22);
+    }
+    .auto-track i {
+      display: block;
+      width: 100%;
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #58b0e6, var(--blue));
+      transform-origin: left center;
+      transition: transform 1s linear;
+    }
+
+    @media (max-width: 1400px) {
+      .pause-halo, .pause-ring { display: none; }
+    }
+    @media (max-height: 720px) {
+      .fault-body { padding: 12px 32px 4px; }
+      .fault-page { min-height: 600px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="fault-page" aria-label="Machine out of service">
+    <section class="status-bar">
+      <div class="status-left">
+        <div class="status-item machine-id">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="5" y="2.5" width="14" height="19" rx="3"/><path d="M9 6h6M9 18h6"/></svg>
+          <span>Machine ID：<strong>fuji12345678</strong></span>
+        </div>
+      </div>
+      <div class="status-right">
+        <div class="status-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6.5 4h3l1.5 4-2 1.6a11 11 0 0 0 5.4 5.4L16 13l4 1.5v3a2 2 0 0 1-2.2 2A14.5 14.5 0 0 1 4 5.2 2 2 0 0 1 6 3z"/></svg>
+          <span><span class="contact-label" data-i18n="contact">联系方式</span>：<span class="contact-value">800-1234-5678</span></span>
+        </div>
+        <button class="demo-home" id="demoHomeButton" type="button" data-i18n-aria="homeAria" aria-label="返回首页（Demo）" title="Demo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 10.6 12 3.6l8.5 7"/><path d="M5.6 9.9V20h12.8V9.9"/></svg>
+          <span data-i18n="home">首页</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="fault-body">
+      <div class="pause-wrap">
+        <div class="pause-halo" aria-hidden="true"></div>
+        <div class="pause-ring" aria-hidden="true"></div>
+        <div class="pause-card" role="img" aria-label="Service unavailable">
+          <div class="pause-glyph" aria-hidden="true"><i></i><i></i></div>
+          <div class="pause-caption">Service<br>Unavailable</div>
+        </div>
+      </div>
+
+      <h1 class="fault-title" data-i18n="title">暂时无法提供服务</h1>
+      <p class="fault-message" data-i18n-html="message">非常抱歉，设备目前正在维护中。<br>请稍后再来或联系工作人员。</p>
+
+      <div class="phone-card">
+        <span class="phone-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 4h3l1.5 4-2 1.6a11 11 0 0 0 5.4 5.4L16 13l4 1.5v3a2 2 0 0 1-2.2 2A14.5 14.5 0 0 1 4 5.2 2 2 0 0 1 6 3z"/></svg>
+        </span>
+        <span class="phone-copy">
+          <span class="phone-label" data-i18n="phoneLabel">客服电话</span>
+          <span class="phone-number">800-1234-5678</span>
+        </span>
+      </div>
+
+      <p class="fault-thanks" data-i18n="thanks">感谢您的理解与支持</p>
+    </section>
+
+    <footer class="fault-footer">
+      <div class="auto-return">
+        <span data-i18n="autoReturn">设备恢复后将自动返回首页</span>
+        <span>·</span>
+        <span><strong id="countdownValue">60</strong> <span data-i18n="seconds">秒</span></span>
+      </div>
+      <div class="auto-track" aria-hidden="true"><i id="autoProgress"></i></div>
+    </footer>
+  </main>
+
+  <script>
+    const AUTO_RETURN_SECONDS = 60;
+    const params = new URLSearchParams(window.location.search);
+    const I18N = {
+      zh: {
+        htmlLang: "zh-CN",
+        docTitle: "暂停服务",
+        contact: "联系方式",
+        home: "首页",
+        homeAria: "返回首页（Demo）",
+        title: "暂时无法提供服务",
+        message: "非常抱歉，设备目前正在维护中。<br>请稍后再来或联系工作人员。",
+        phoneLabel: "客服电话",
+        thanks: "感谢您的理解与支持",
+        autoReturn: "设备恢复后将自动返回首页",
+        seconds: "秒"
+      },
+      ja: {
+        htmlLang: "ja",
+        docTitle: "サービス停止中",
+        contact: "お問い合わせ",
+        home: "ホーム",
+        homeAria: "ホームに戻る（Demo）",
+        title: "ただいまサービスを停止しています",
+        message: "誠に申し訳ございません。<br>現在メンテナンス中のため、ご利用いただけません。<br>しばらくしてから再度お試しいただくか、係員までお問い合わせください。",
+        phoneLabel: "お問い合わせ電話番号",
+        thanks: "ご理解とご協力をお願いいたします",
+        autoReturn: "復旧後は自動的にホーム画面に戻ります",
+        seconds: "秒"
+      },
+      en: {
+        htmlLang: "en",
+        docTitle: "Out of service",
+        contact: "Contact",
+        home: "Home",
+        homeAria: "Back to home (Demo)",
+        title: "Service temporarily unavailable",
+        message: "We are sorry — this machine is currently under maintenance.<br>Please come back later or contact our staff.",
+        phoneLabel: "Customer service",
+        thanks: "Thank you for your understanding",
+        autoReturn: "This screen returns home automatically once service resumes",
+        seconds: "sec"
+      },
+      ko: {
+        htmlLang: "ko",
+        docTitle: "서비스 중지",
+        contact: "문의처",
+        home: "홈",
+        homeAria: "홈으로 이동 (Demo)",
+        title: "현재 서비스를 이용할 수 없습니다",
+        message: "죄송합니다. 현재 장비 점검 중입니다.<br>잠시 후 다시 이용하시거나 직원에게 문의해 주세요.",
+        phoneLabel: "고객센터 전화",
+        thanks: "양해해 주셔서 감사합니다",
+        autoReturn: "복구되면 자동으로 홈 화면으로 돌아갑니다",
+        seconds: "초"
+      }
+    };
+
+    function resolveLanguage() {
+      const requested = params.get("lang");
+      if (requested && I18N[requested]) return requested;
+      try {
+        const saved = localStorage.getItem("fujiLanguage");
+        if (saved && I18N[saved]) return saved;
+      } catch (error) { console.warn(error); }
+      return "zh";
+    }
+
+    let language = resolveLanguage();
+    const dictionary = I18N[language];
+    const t = key => dictionary[key] || key;
+
+    document.documentElement.lang = dictionary.htmlLang;
+    document.title = `${dictionary.docTitle} - Fuji Electric`;
+    document.querySelectorAll("[data-i18n]").forEach(element => {
+      element.textContent = t(element.dataset.i18n);
+    });
+    document.querySelectorAll("[data-i18n-html]").forEach(element => {
+      element.innerHTML = t(element.dataset.i18nHtml);
+    });
+    const homeButton = document.getElementById("demoHomeButton");
+    homeButton.setAttribute("aria-label", t("homeAria"));
+    homeButton.setAttribute("title", t("homeAria"));
+    document.querySelector(".fault-page").setAttribute("aria-label", dictionary.docTitle);
+
+    function goHome() {
+      window.clearInterval(countdownTimer);
+      window.location.href = `welcome.html?lang=${language}`;
+    }
+
+    const countdownNode = document.getElementById("countdownValue");
+    const progressNode = document.getElementById("autoProgress");
+    let deadline = Date.now() + AUTO_RETURN_SECONDS * 1000;
+    let countdownTimer = null;
+
+    function tickCountdown() {
+      const remaining = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+      countdownNode.textContent = String(remaining);
+      progressNode.style.transform = `scaleX(${Math.max(0, Math.min(1, remaining / AUTO_RETURN_SECONDS))})`;
+      if (remaining <= 0) goHome();
+    }
+
+    countdownNode.textContent = String(AUTO_RETURN_SECONDS);
+    countdownTimer = window.setInterval(tickCountdown, 1000);
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) tickCountdown();
+    });
+    homeButton.addEventListener("click", goHome);
+  </script>
+</body>
+</html>
