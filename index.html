@@ -214,71 +214,46 @@
     }
 
     .ad-sidebar {
-      display: flex;
+      position: relative;
       flex: 0 0 420px;
-      flex-direction: column;
       min-width: 0;
-      padding: clamp(28px, 3vw, 54px) clamp(24px, 2.5vw, 46px) 32px;
       overflow: hidden;
       background: #e8f5fd;
     }
-    .ad-eyebrow {
-      display: inline-flex;
-      align-items: center;
-      align-self: flex-start;
-      gap: 7px;
-      margin-bottom: 22px;
-      padding: 5px 9px;
-      border: 1px solid #c3dfef;
-      border-radius: 999px;
-      color: var(--accent-dark);
-      font-size: 10px;
-      font-weight: 800;
-      letter-spacing: .13em;
+    .ad-slides { position: absolute; inset: 0; }
+    .ad-slide {
+      position: absolute;
+      inset: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      opacity: 0;
+      transition: opacity .7s ease;
+      user-select: none;
+      -webkit-user-drag: none;
     }
-    .ad-sidebar h1 {
-      margin: 0;
-      color: #073d61;
-      font-size: clamp(25px, 1.9vw, 37px);
-      font-weight: 750;
-      line-height: 1.52;
-      letter-spacing: .02em;
-    }
-    .ad-subtitle {
-      margin: 17px 0 0;
-      color: #4e7a97;
-      font-family: Georgia, "Times New Roman", serif;
-      font-size: clamp(16px, 1.15vw, 22px);
-      letter-spacing: .02em;
-    }
-    .ad-description {
-      margin: 22px 0 0;
-      color: #65879c;
-      font-size: 13px;
-      line-height: 1.8;
-    }
-    .ad-visual {
-      position: relative;
-      width: min(100%, 35vh);
-      aspect-ratio: 1;
-      margin: auto auto 0;
-      overflow: hidden;
-      border: 8px solid rgba(255,255,255,.58);
-      border-radius: 50%;
-      background: #dceef7;
-    }
-    .ad-visual img { width: 100%; height: 100%; object-fit: cover; }
+    .ad-slide.active { opacity: 1; }
     .ad-dots {
       position: absolute;
       right: 0;
-      bottom: 17px;
+      bottom: 18px;
       left: 0;
       display: flex;
       justify-content: center;
-      gap: 7px;
+      gap: 8px;
+      pointer-events: none;
     }
-    .ad-dots span { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.7); }
-    .ad-dots span:first-child { width: 20px; border-radius: 999px; background: var(--accent); }
+    .ad-dots span {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.58);
+      box-shadow: 0 1px 5px rgba(12,45,70,.35);
+      transition: width .3s ease, background .3s ease;
+    }
+    .ad-dots span.active { width: 22px; background: #fff; }
 
     .product-stage {
       position: relative;
@@ -794,7 +769,6 @@
       .category-button { min-width: 105px; padding: 0 14px; font-size: 13px; }
       .language-button { padding: 0 16px; }
       .product-stage { padding-right: 26px; padding-left: 26px; }
-      .ad-description { display: none; }
     }
 
     @media (max-width: 1050px) {
@@ -901,14 +875,11 @@
 
     <section class="workspace" id="workspace" aria-label="商品選択エリア">
       <aside class="ad-sidebar" id="adSidebar" aria-label="コーヒー広告">
-        <div class="ad-eyebrow">FUJI SELECTION · AD</div>
-        <h1>カフェの一杯を、<br>もっと身近に</h1>
-        <p class="ad-subtitle">Coffee &amp; Milk Tea</p>
-        <p class="ad-description">厳選した豆とミルクで、<br>毎日のひと息を心地よく。</p>
-        <div class="ad-visual">
-          <img src="assets/latte.jpg" alt="カフェラテの広告">
-          <div class="ad-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+        <div class="ad-slides" id="adSlides">
+          <img class="ad-slide active" src="assets/ad-poster-1.jpg" alt="こだわりのコーヒー体験" width="848" height="1855" fetchpriority="high">
+          <img class="ad-slide" src="assets/ad-poster-2.jpg" alt="上島珈琲店のこだわりの一杯" width="848" height="1855">
         </div>
+        <div class="ad-dots" aria-hidden="true"><span class="active"></span><span></span></div>
       </aside>
 
       <div class="product-stage">
@@ -1275,6 +1246,34 @@
 
     document.getElementById("demoHomeButton").addEventListener("click", () => {
       window.location.href = "welcome.html";
+    });
+
+    const adSlides = Array.from(document.querySelectorAll(".ad-slide"));
+    const adDots = Array.from(document.querySelectorAll(".ad-dots span"));
+    let adSlideIndex = 0;
+    let adSlideTimer = null;
+
+    function showAdSlide(nextIndex) {
+      adSlideIndex = (nextIndex + adSlides.length) % adSlides.length;
+      adSlides.forEach((slide, index) => slide.classList.toggle("active", index === adSlideIndex));
+      adDots.forEach((dot, index) => dot.classList.toggle("active", index === adSlideIndex));
+    }
+
+    function startAdRotation() {
+      if (adSlideTimer !== null || adSlides.length < 2) return;
+      adSlideTimer = window.setInterval(() => showAdSlide(adSlideIndex + 1), 6000);
+    }
+
+    function stopAdRotation() {
+      if (adSlideTimer === null) return;
+      window.clearInterval(adSlideTimer);
+      adSlideTimer = null;
+    }
+
+    startAdRotation();
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) stopAdRotation();
+      else startAdRotation();
     });
 
     productGrid.addEventListener("click", event => {
