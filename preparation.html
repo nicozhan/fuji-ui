@@ -160,9 +160,14 @@
     .completion-products.count-1 .completion-item { width: 280px; height: 320px; }
     .completion-products.count-1 .completion-item img { width: 220px; height: 270px; }
 
-    .return-countdown { display: flex; flex: 0 0 70px; align-items: center; justify-content: center; gap: 12px; min-width: 390px; margin: -5px auto 18px; padding: 0 26px; border: 1px solid #d5e8f2; border-radius: 999px; color: var(--muted); background: rgba(255,255,255,.8); box-shadow: 0 8px 24px rgba(33,92,124,.05); font-size: 15px; }
+    .return-bar { display: flex; flex: 0 0 70px; align-items: center; justify-content: center; gap: 14px; width: 100%; margin: -5px auto 18px; }
+    .return-countdown { display: flex; flex: 0 1 auto; align-items: center; justify-content: center; gap: 12px; min-width: 390px; height: 100%; padding: 0 26px; border: 1px solid #d5e8f2; border-radius: 999px; color: var(--muted); background: rgba(255,255,255,.8); box-shadow: 0 8px 24px rgba(33,92,124,.05); font-size: 15px; }
     .return-countdown svg { width: 23px; height: 23px; color: var(--blue); }
     .return-countdown strong { min-width: 68px; color: var(--blue); font-size: 25px; font-variant-numeric: tabular-nums; text-align: center; }
+    .return-home-button { display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; gap: 10px; height: 100%; padding: 0 30px; border: 0; border-radius: 999px; color: #fff; background: linear-gradient(135deg, #2b8fd6, #1470b5); box-shadow: 0 12px 26px rgba(20,112,181,.26); font-size: 17px; font-weight: 700; white-space: nowrap; cursor: pointer; transition: transform .18s ease, box-shadow .18s ease; }
+    .return-home-button:hover { transform: translateY(-1px); box-shadow: 0 16px 32px rgba(20,112,181,.32); }
+    .return-home-button:active { transform: translateY(0); }
+    .return-home-button svg { width: 20px; height: 20px; }
 
     .order-progress-card {
       flex: 0 0 196px;
@@ -220,7 +225,9 @@
       .order-progress-card { flex-basis: 180px; padding-top: 14px; padding-bottom: 15px; }
       .order-progress-top { margin-bottom: 10px; }
       .cup-card { height: 108px; }
-      .return-countdown { flex-basis: 58px; margin-bottom: 12px; }
+      .return-bar { flex-basis: 58px; margin-bottom: 12px; }
+      .return-countdown { font-size: 14px; }
+      .return-home-button { padding: 0 22px; font-size: 15px; }
     }
     @media (max-width: 1250px) {
       .demo-bar { gap: 14px; padding: 0 20px; }
@@ -275,9 +282,15 @@
         <div class="completion-products" id="completionProducts"></div>
       </section>
 
-      <div class="return-countdown" id="returnCountdown" role="timer" aria-live="polite" hidden>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-        <strong id="countdownValue">60 秒</strong><span data-i18n="returnHint">后自动返回首页</span>
+      <div class="return-bar" id="returnCountdown" hidden>
+        <div class="return-countdown" role="timer" aria-live="polite">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+          <strong id="countdownValue">60 秒</strong><span data-i18n="returnHint">后自动返回首页</span>
+        </div>
+        <button class="return-home-button" id="returnHomeNow" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 10.6 12 3.6l8.5 7"/><path d="M5.6 9.9V20h12.8V9.9"/></svg>
+          <span data-i18n="homeNow">立即回到首页</span>
+        </button>
       </div>
 
       <section class="order-progress-card" aria-label="订单制作进度">
@@ -296,28 +309,28 @@
       zh: {
         htmlLang: "zh-CN", title: "饮品制作", demoTitle: "制作过程页面", demoFirst: "制作第一杯", demoSecond: "制作第二杯", demoComplete: "制作完成（请取杯）",
         making: "饮品正在制作中", makingFor: "正在为您制作第 {current} / {total} 杯", pickup: "请拿走您的饮品", complete: "您的饮品已全部制作完成，感谢光临！",
-        orderProgress: "订单制作进度", cups: "共 {n} 杯", done: "已完成", working: "制作中", waiting: "等待制作", next: "下一杯：{name}", seconds: "{n} 秒", returnHint: "后自动返回首页",
+        orderProgress: "订单制作进度", cups: "共 {n} 杯", done: "已完成", working: "制作中", waiting: "等待制作", next: "下一杯：{name}", seconds: "{n} 秒", returnHint: "后自动返回首页", homeNow: "立即回到首页",
         size: { small: "小杯", regular: "中杯", medium: "中杯", large: "大杯" }, temperature: { hot: "热饮", iced: "冷饮" },
         sweetness: { none: "无糖", light: "微糖", half: "半糖", less: "少糖", standard: "标准糖" }, milk: { milk: "牛奶", lowfat: "低脂奶", oat: "燕麦奶", soy: "豆奶" }
       },
       ja: {
         htmlLang: "ja", title: "ドリンク製造", demoTitle: "製造プロセス DEMO", demoFirst: "1杯目を製造", demoSecond: "2杯目を製造", demoComplete: "製造完了（お受け取り）",
         making: "ドリンクを製造しています", makingFor: "{total}杯中 {current}杯目を製造しています", pickup: "ドリンクをお受け取りください", complete: "すべてのドリンクが完成しました。ありがとうございました。",
-        orderProgress: "注文の製造状況", cups: "合計 {n} 杯", done: "完成", working: "製造中", waiting: "待機中", next: "次：{name}", seconds: "{n} 秒", returnHint: "後にホームへ戻ります",
+        orderProgress: "注文の製造状況", cups: "合計 {n} 杯", done: "完成", working: "製造中", waiting: "待機中", next: "次：{name}", seconds: "{n} 秒", returnHint: "後にホームへ戻ります", homeNow: "ホームへ戻る",
         size: { small: "S", regular: "M", medium: "M", large: "L" }, temperature: { hot: "ホット", iced: "アイス" },
         sweetness: { none: "無糖", light: "微糖", half: "半糖", less: "少なめ", standard: "標準" }, milk: { milk: "ミルク", lowfat: "低脂肪乳", oat: "オーツミルク", soy: "豆乳" }
       },
       en: {
         htmlLang: "en", title: "Drink Preparation", demoTitle: "Preparation Demo", demoFirst: "Making cup 1", demoSecond: "Making cup 2", demoComplete: "Complete (pickup)",
         making: "Your drink is being prepared", makingFor: "Preparing cup {current} of {total}", pickup: "Please collect your drinks", complete: "All your drinks are ready. Thank you!",
-        orderProgress: "ORDER PROGRESS", cups: "{n} cups", done: "Ready", working: "Preparing", waiting: "Waiting", next: "Next: {name}", seconds: "{n} sec", returnHint: "until automatic return home",
+        orderProgress: "ORDER PROGRESS", cups: "{n} cups", done: "Ready", working: "Preparing", waiting: "Waiting", next: "Next: {name}", seconds: "{n} sec", returnHint: "until automatic return home", homeNow: "Back to home",
         size: { small: "Small", regular: "Medium", medium: "Medium", large: "Large" }, temperature: { hot: "Hot", iced: "Iced" },
         sweetness: { none: "No sugar", light: "Light", half: "Half", less: "Less", standard: "Standard" }, milk: { milk: "Milk", lowfat: "Low-fat", oat: "Oat milk", soy: "Soy milk" }
       },
       ko: {
         htmlLang: "ko", title: "음료 제조", demoTitle: "제조 과정 DEMO", demoFirst: "첫 번째 잔 제조", demoSecond: "두 번째 잔 제조", demoComplete: "제조 완료（수령）",
         making: "음료를 제조하고 있습니다", makingFor: "총 {total}잔 중 {current}번째 잔을 제조 중입니다", pickup: "음료를 가져가 주세요", complete: "모든 음료가 완성되었습니다. 감사합니다!",
-        orderProgress: "주문 제조 현황", cups: "총 {n}잔", done: "완료", working: "제조 중", waiting: "대기 중", next: "다음: {name}", seconds: "{n}초", returnHint: "후 홈으로 자동 이동",
+        orderProgress: "주문 제조 현황", cups: "총 {n}잔", done: "완료", working: "제조 중", waiting: "대기 중", next: "다음: {name}", seconds: "{n}초", returnHint: "후 홈으로 자동 이동", homeNow: "홈으로 바로가기",
         size: { small: "S", regular: "M", medium: "M", large: "L" }, temperature: { hot: "핫", iced: "아이스" },
         sweetness: { none: "무설탕", light: "약간", half: "반", less: "적게", standard: "표준" }, milk: { milk: "우유", lowfat: "저지방", oat: "오트밀크", soy: "두유" }
       }
@@ -548,6 +561,7 @@
         setPreparationState(button.dataset.demoState);
       });
     });
+    document.getElementById("returnHomeNow").addEventListener("click", goHome);
     document.addEventListener("visibilitychange", () => {
       if (document.hidden) {
         if (productionTimer !== null) window.clearInterval(productionTimer);

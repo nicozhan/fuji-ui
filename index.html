@@ -304,10 +304,11 @@
 
     .product-grid {
       --cols: 3;
+      --rows: 2;
       display: grid;
       flex: 1 1 auto;
       grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
-      grid-template-rows: repeat(2, minmax(0, 1fr));
+      grid-template-rows: repeat(var(--rows), minmax(0, 1fr));
       align-content: stretch;
       justify-content: stretch;
       justify-items: stretch;
@@ -316,7 +317,9 @@
       min-height: 0;
     }
     .workspace.ad-off .ad-sidebar { display: none; }
-    .workspace.ad-off .product-grid { --cols: 4; }
+    .workspace.ad-off .product-stage { padding: 20px 26px 0; }
+    .workspace.ad-off .product-grid { --cols: 4; --rows: 2; }
+    .workspace.ad-off .product-card { grid-template-rows: 74% 26%; }
 
     .product-card {
       position: relative;
@@ -464,7 +467,7 @@
       color: #fff;
       background: var(--accent-dark);
     }
-    .cart-title { display: flex; align-items: center; gap: 13px; margin: 0; font-size: 24px; font-weight: 700; }
+    .cart-title { display: flex; align-items: center; gap: 13px; margin: 0; font-size: 26px; font-weight: 720; }
     .cart-title > svg { width: 27px; height: 27px; }
     .cart-count {
       display: inline-flex;
@@ -494,36 +497,53 @@
     .cart-items { flex: 1 1 auto; min-height: 0; overflow-y: hidden; }
     .cart-items.scrollable { overflow-y: auto; }
     .cart-item {
-      position: relative;
       display: grid;
-      grid-template-columns: clamp(76px, 5.5vw, 105px) minmax(0, 1fr) auto;
-      grid-template-rows: auto auto;
-      gap: 13px 20px;
-      padding: 25px 38px;
+      grid-template-columns: clamp(84px, 5.9vw, 114px) minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 16px 22px;
+      padding: 24px 38px;
       border-bottom: 1px solid #edf1f4;
     }
     .cart-thumb {
-      grid-row: 1 / 3;
-      align-self: start;
       width: 100%;
-      height: clamp(76px, 5.5vw, 105px);
+      height: clamp(84px, 5.9vw, 114px);
       aspect-ratio: 1 / 1;
       object-fit: contain;
-      border-radius: 12px;
+      border-radius: 14px;
       background: #edf2f4;
     }
     .cart-item-main { min-width: 0; }
-    .cart-item-name { margin: 3px 28px 5px 0; font-size: 16px; font-weight: 700; line-height: 1.35; }
-    .cart-item-variant { color: var(--text-2); font-size: 12px; }
+    .cart-item-name {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 9px;
+      font-size: 19px;
+      font-weight: 750;
+      line-height: 1.25;
+    }
+    .cart-item-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cart-item-qty {
+      flex: none;
+      padding: 3px 10px;
+      border-radius: 999px;
+      color: var(--accent-dark);
+      background: #eaf2fa;
+      font-size: 13px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .cart-item-variant { margin: 0; color: var(--text-2); font-size: 14px; line-height: 1.45; }
+    .cart-item-tail { display: flex; flex-direction: column; align-items: flex-end; gap: 12px; }
+    .cart-item-price { font-size: 18px; font-weight: 750; letter-spacing: -.01em; white-space: nowrap; }
     .remove-item {
-      width: 30px;
-      height: 30px;
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
       color: #5e7180;
     }
-    .remove-item:hover { color: var(--accent); }
+    .remove-item:hover { color: var(--accent); background: #f0f6fa; }
     .remove-item svg { width: 18px; height: 18px; }
-    .cart-item-qty { margin-left: 7px; color: var(--text); font-weight: 700; white-space: nowrap; }
-    .cart-item-price { align-self: end; grid-column: 3; grid-row: 2; justify-self: end; font-size: 14px; font-weight: 650; }
     .empty-cart { padding: 70px 30px; color: var(--text-2); text-align: center; }
 
     .cart-footer {
@@ -533,8 +553,8 @@
       background: #fff;
     }
     .cart-total-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 23px; }
-    .cart-total-label { font-size: 17px; font-weight: 650; }
-    .cart-total { font-size: 31px; font-weight: 800; letter-spacing: -.02em; }
+    .cart-total-label { font-size: 19px; font-weight: 650; }
+    .cart-total { font-size: 34px; font-weight: 800; letter-spacing: -.02em; }
     .checkout-button {
       display: flex;
       align-items: center;
@@ -741,6 +761,70 @@
     .add-order-button:hover { background: var(--accent-dark); }
     .add-order-button svg { width: 24px; height: 24px; }
 
+    .order-limit-layer {
+      position: fixed;
+      z-index: 80;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .22s ease;
+    }
+    .order-limit-layer.show { opacity: 1; pointer-events: auto; }
+    .order-limit-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(10,36,54,.42);
+      backdrop-filter: blur(3px);
+    }
+    .order-limit-dialog {
+      position: relative;
+      width: min(560px, 74vw);
+      padding: 44px 50px 52px;
+      overflow: hidden;
+      border-radius: 26px;
+      background: #fff;
+      box-shadow: 0 28px 72px rgba(9,38,58,.3);
+      text-align: center;
+      transform: translateY(16px) scale(.97);
+      transition: transform .26s cubic-bezier(.22,.8,.28,1);
+    }
+    .order-limit-layer.show .order-limit-dialog { transform: translateY(0) scale(1); }
+    .order-limit-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 84px;
+      height: 84px;
+      margin-bottom: 26px;
+      border-radius: 50%;
+      color: #d98510;
+      background: #fff4e5;
+    }
+    .order-limit-icon svg { width: 42px; height: 42px; }
+    .order-limit-title { margin: 0 0 12px; font-size: 27px; font-weight: 780; letter-spacing: -.01em; }
+    .order-limit-text { margin: 0; color: var(--text-2); font-size: 17px; line-height: 1.65; }
+    .order-limit-hint { display: block; margin-top: 18px; color: #93a6b3; font-size: 13px; }
+    .order-limit-progress {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      height: 4px;
+      background: #eef3f7;
+    }
+    .order-limit-progress i {
+      display: block;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, #f0a72e, #f8cb70);
+      transform-origin: left center;
+      animation: order-limit-drain 5s linear forwards;
+    }
+    @keyframes order-limit-drain { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+
     .toast {
       position: fixed;
       z-index: 60;
@@ -762,15 +846,16 @@
 
     @media (max-height: 850px) {
       .cart-header { flex-basis: 80px; padding-right: 28px; padding-left: 28px; }
-      .cart-title { font-size: 20px; }
+      .cart-title { font-size: 21px; }
       .cart-item {
-        grid-template-columns: 64px minmax(0, 1fr) auto;
-        gap: 6px 14px;
-        padding: 14px 28px;
+        grid-template-columns: 70px minmax(0, 1fr) auto;
+        gap: 10px 16px;
+        padding: 16px 26px;
       }
-      .cart-thumb { height: 64px; }
-      .cart-item-name { margin: 0 24px 3px 0; font-size: 14px; }
-      .cart-item-variant { font-size: 11px; }
+      .cart-thumb { height: 70px; }
+      .cart-item-name { margin-bottom: 6px; font-size: 16px; }
+      .cart-item-variant { font-size: 12px; }
+      .cart-item-price { font-size: 15px; }
       .cart-footer { padding: 16px 28px 20px; }
       .cart-total-row { margin-bottom: 12px; }
       .cart-total-label { font-size: 15px; }
@@ -1054,6 +1139,19 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+  <div class="order-limit-layer" id="orderLimitLayer" role="alertdialog" aria-modal="true" aria-labelledby="orderLimitTitle" aria-describedby="orderLimitText" hidden>
+    <div class="order-limit-backdrop" data-limit-close></div>
+    <section class="order-limit-dialog">
+      <span class="order-limit-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.4v5.6M12 16.7h.01"/></svg>
+      </span>
+      <h2 class="order-limit-title" id="orderLimitTitle">已达单笔订单上限</h2>
+      <p class="order-limit-text" id="orderLimitText">单笔订单最多 3 件商品，请先从购物车移除后再添加。</p>
+      <span class="order-limit-hint" id="orderLimitHint">本提示 5 秒后自动关闭</span>
+      <span class="order-limit-progress" aria-hidden="true"><i></i></span>
+    </section>
+  </div>
+
   <script>
     const I18N = {
       ja: {
@@ -1084,6 +1182,8 @@
         added: "{name}をカートに追加しました。",
         addedCustom: "{name} × {qty}を注文に追加しました。",
         limitReached: "1回の注文は最大 {max} 点までです。カートから商品を削除してください。",
+        limitTitle: "1回のご注文は{max}点までです",
+        limitHint: "このご案内は5秒後に自動的に閉じます",
         customizeAria: "{name}をカスタマイズ",
         addAria: "{name}をカートに追加",
         removeAria: "{name}を削除",
@@ -1136,6 +1236,8 @@
         added: "已将{name}加入购物车。",
         addedCustom: "已添加 {name} × {qty}。",
         limitReached: "单笔订单最多 {max} 件商品，请先从购物车删除商品。",
+        limitTitle: "已达单笔订单上限",
+        limitHint: "本提示 5 秒后自动关闭",
         customizeAria: "定制{name}",
         addAria: "将{name}加入购物车",
         removeAria: "删除{name}",
@@ -1188,6 +1290,8 @@
         added: "{name} added to cart.",
         addedCustom: "{name} × {qty} added to your order.",
         limitReached: "A single order can contain up to {max} items. Please remove an item first.",
+        limitTitle: "Order limit reached",
+        limitHint: "This message closes automatically in 5 seconds",
         customizeAria: "Customize {name}",
         addAria: "Add {name} to cart",
         removeAria: "Remove {name}",
@@ -1240,6 +1344,8 @@
         added: "{name}을(를) 장바구니에 담았습니다.",
         addedCustom: "{name} × {qty}을(를) 주문에 추가했습니다.",
         limitReached: "주문은 최대 {max}개까지 가능합니다. 장바구니에서 상품을 먼저 삭제해 주세요.",
+        limitTitle: "주문 한도에 도달했습니다",
+        limitHint: "이 안내는 5초 후 자동으로 닫힙니다",
         customizeAria: "{name} 커스터마이즈",
         addAria: "{name} 장바구니에 담기",
         removeAria: "{name} 삭제",
@@ -1352,7 +1458,9 @@
     function renderProducts() {
       const list = visibleProducts();
       workspace.classList.toggle("ad-off", !state.adEnabled);
-      productGrid.style.setProperty("--cols", state.adEnabled || list.length <= 6 ? "3" : "4");
+      const cols = list.length >= 7 ? 4 : 3;
+      productGrid.style.setProperty("--cols", String(cols));
+      productGrid.style.setProperty("--rows", String(Math.max(1, Math.ceil(list.length / cols))));
       adToggle.setAttribute("aria-checked", String(state.adEnabled));
       adState.textContent = state.adEnabled ? "ON" : "OFF";
       visibleCount.textContent = t("items", { n: list.length });
@@ -1402,11 +1510,13 @@
         <article class="cart-item">
           <img class="cart-thumb" src="${product.image}" alt="${name}" width="210" height="210">
           <div class="cart-item-main">
-            <h3 class="cart-item-name">${name}</h3>
-            <div class="cart-item-variant">${variantLabel(variant)}<span class="cart-item-qty">× ${quantity}</span></div>
+            <h3 class="cart-item-name"><span class="cart-item-title" title="${name}">${name}</span><span class="cart-item-qty">× ${quantity}</span></h3>
+            <p class="cart-item-variant">${variantLabel(variant)}</p>
           </div>
-          <button class="remove-item" type="button" data-remove="${product.id}" aria-label="${t("removeAria", { name })}">${icons.trash}</button>
-          <span class="cart-item-price">${yen(product.price * quantity)}</span>
+          <div class="cart-item-tail">
+            <span class="cart-item-price">${yen(product.price * quantity)}</span>
+            <button class="remove-item" type="button" data-remove="${product.id}" aria-label="${t("removeAria", { name })}">${icons.trash}</button>
+          </div>
         </article>
       `;
       }).join("");
@@ -1423,9 +1533,40 @@
       return [...state.cart.values()].reduce((sum, quantity) => sum + (Number(quantity) || 0), 0);
     }
 
-    function showOrderLimit() {
-      showToast(t("limitReached", { max: MAX_ORDER_ITEMS }));
+    const orderLimitLayer = document.getElementById("orderLimitLayer");
+    const orderLimitBar = orderLimitLayer.querySelector(".order-limit-progress i");
+    let orderLimitTimer;
+    let orderLimitCloseTimer;
+
+    function hideOrderLimit() {
+      window.clearTimeout(orderLimitTimer);
+      window.clearTimeout(orderLimitCloseTimer);
+      orderLimitLayer.classList.remove("show");
+      orderLimitCloseTimer = window.setTimeout(() => {
+        orderLimitLayer.hidden = true;
+      }, 240);
     }
+
+    function showOrderLimit() {
+      window.clearTimeout(orderLimitTimer);
+      window.clearTimeout(orderLimitCloseTimer);
+      document.getElementById("orderLimitTitle").textContent = t("limitTitle", { max: MAX_ORDER_ITEMS });
+      document.getElementById("orderLimitText").textContent = t("limitReached", { max: MAX_ORDER_ITEMS });
+      document.getElementById("orderLimitHint").textContent = t("limitHint");
+      orderLimitLayer.hidden = false;
+      orderLimitBar.style.animation = "none";
+      void orderLimitBar.offsetWidth;
+      orderLimitBar.style.animation = "";
+      requestAnimationFrame(() => orderLimitLayer.classList.add("show"));
+      orderLimitTimer = window.setTimeout(hideOrderLimit, 5000);
+    }
+
+    orderLimitLayer.addEventListener("click", event => {
+      if (event.target.closest("[data-limit-close]")) hideOrderLimit();
+    });
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape" && !orderLimitLayer.hidden) hideOrderLimit();
+    });
 
     function addToCart(id) {
       if (cartItemCount() >= MAX_ORDER_ITEMS) {
