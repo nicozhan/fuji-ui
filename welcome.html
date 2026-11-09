@@ -29,9 +29,22 @@
       overflow: hidden;
       background: #eaf1f3;
     }
-    .welcome-background {
+    .welcome-carousel {
       position: absolute;
       inset: 0;
+      overflow: hidden;
+      background: #eaf1f3;
+    }
+    .welcome-track {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      transform: translateX(0);
+      transition: transform .9s cubic-bezier(.45, .05, .25, 1);
+      will-change: transform;
+    }
+    .welcome-background {
+      flex: 0 0 100%;
       display: block;
       width: 100%;
       height: 100%;
@@ -129,7 +142,14 @@
 </head>
 <body>
   <main class="welcome-screen">
-    <img class="welcome-background" src="assets/welcome-home-bg.jpg" alt="" width="1672" height="941">
+    <div class="welcome-carousel" aria-hidden="true">
+      <div class="welcome-track" id="welcomeTrack">
+        <img class="welcome-background" src="assets/welcome-slide-1.jpg" alt="" width="1672" height="941" fetchpriority="high">
+        <img class="welcome-background" src="assets/welcome-slide-2.jpg" alt="" width="1671" height="941">
+        <img class="welcome-background" src="assets/welcome-slide-3.jpg" alt="" width="1672" height="941">
+        <img class="welcome-background" src="assets/welcome-slide-1.jpg" alt="" width="1672" height="941">
+      </div>
+    </div>
 
     <div class="start-control">
       <button class="start-button" id="startButton" type="button">
@@ -157,6 +177,58 @@
       </button>
     </div>
   </main>
+
+  <script>
+    (function initWelcomeCarousel() {
+      const track = document.getElementById("welcomeTrack");
+      if (!track) return;
+      const slideCount = 3;
+      const interval = 5000;
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      let index = 0;
+      let timer = null;
+
+      function render(nextIndex) {
+        index = nextIndex;
+        track.style.transform = `translateX(-${index * 100}%)`;
+      }
+
+      function advance() {
+        if (reduceMotion) {
+          render((index + 1) % slideCount);
+          return;
+        }
+        render(index + 1);
+      }
+
+      track.addEventListener("transitionend", event => {
+        if (event.target !== track || event.propertyName !== "transform") return;
+        if (index < slideCount) return;
+        track.style.transition = "none";
+        render(0);
+        void track.offsetWidth;
+        track.style.transition = "";
+      });
+
+      function start() {
+        stop();
+        timer = window.setInterval(advance, interval);
+      }
+
+      function stop() {
+        if (timer !== null) {
+          window.clearInterval(timer);
+          timer = null;
+        }
+      }
+
+      start();
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) stop();
+        else start();
+      });
+    })();
+  </script>
 
   <script>
     const languageConfig = {
