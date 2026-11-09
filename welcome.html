@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome</title>
+  <style>
+    :root {
+      --fuji-blue: #075b9e;
+      --fuji-blue-soft: rgba(7, 91, 158, .88);
+      --text: #17384e;
+      --white: #ffffff;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; margin: 0; }
+    body {
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    button { font: inherit; }
+    button:focus-visible { outline: 3px solid rgba(255,255,255,.9); outline-offset: 4px; }
+
+    .welcome-screen {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: #eaf1f3;
+    }
+    .welcome-background {
+      position: absolute;
+      inset: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    .start-control {
+      position: absolute;
+      z-index: 2;
+      left: 10.5%;
+      bottom: 20%;
+    }
+    .start-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 28px;
+      width: 268px;
+      min-height: 78px;
+      padding: 0 32px;
+      border: 1px solid rgba(255,255,255,.38);
+      border-radius: 16px;
+      color: var(--white);
+      background: var(--fuji-blue-soft);
+      box-shadow: 0 8px 24px rgba(28,62,82,.14);
+      font-size: 22px;
+      font-weight: 650;
+      letter-spacing: .04em;
+      cursor: pointer;
+      transition: background .18s ease, transform .18s ease;
+    }
+    .start-button:hover { background: rgba(7,91,158,.96); transform: translateY(-2px); }
+    .start-button:active { transform: translateY(0); }
+    .start-button svg { width: 24px; height: 24px; }
+
+    .language-control {
+      position: absolute;
+      z-index: 2;
+      left: 12%;
+      bottom: 7%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .language-button {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 132px;
+      min-height: 78px;
+      padding: 10px 12px;
+      border: 1px solid rgba(255,255,255,.82);
+      border-radius: 13px;
+      color: var(--text);
+      background: rgba(255,255,255,.72);
+      box-shadow: 0 5px 16px rgba(28,62,82,.08);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      cursor: pointer;
+      transition: color .18s ease, background .18s ease, border-color .18s ease;
+    }
+    .language-button:hover { border-color: rgba(7,91,158,.48); background: rgba(255,255,255,.9); }
+    .language-button.active {
+      border-color: var(--fuji-blue);
+      color: var(--white);
+      background: rgba(7,91,158,.88);
+    }
+    .language-flag { font-size: 24px; line-height: 1; }
+    .language-name { font-size: 14px; font-weight: 600; line-height: 1.2; white-space: nowrap; }
+
+    @media (max-width: 1000px) {
+      .start-control { left: 7%; bottom: 22%; }
+      .language-control { right: 6%; left: 6%; bottom: 6%; gap: 8px; }
+      .language-button { flex: 1 1 0; width: auto; min-width: 0; }
+    }
+
+    @media (max-height: 700px) {
+      .start-control { bottom: 24%; }
+      .start-button { min-height: 64px; font-size: 19px; }
+      .language-control { bottom: 5%; }
+      .language-button { min-height: 66px; padding: 8px; }
+      .language-flag { font-size: 21px; }
+      .language-name { font-size: 12px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="welcome-screen">
+    <img class="welcome-background" src="assets/welcome-bg.jpg" alt="" width="1920" height="1080">
+
+    <div class="start-control">
+      <button class="start-button" id="startButton" type="button">
+        <span id="startLabel">开始点餐</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 12h15M14 7l5 5-5 5"/></svg>
+      </button>
+    </div>
+
+    <div class="language-control" role="group" aria-label="Language">
+      <button class="language-button" type="button" data-language="ja" aria-pressed="false">
+        <span class="language-flag" aria-hidden="true">🇯🇵</span>
+        <span class="language-name">日本語</span>
+      </button>
+      <button class="language-button active" type="button" data-language="zh" aria-pressed="true">
+        <span class="language-flag" aria-hidden="true">🇨🇳</span>
+        <span class="language-name">简体中文</span>
+      </button>
+      <button class="language-button" type="button" data-language="en" aria-pressed="false">
+        <span class="language-flag" aria-hidden="true">🇺🇸</span>
+        <span class="language-name">English</span>
+      </button>
+      <button class="language-button" type="button" data-language="ko" aria-pressed="false">
+        <span class="language-flag" aria-hidden="true">🇰🇷</span>
+        <span class="language-name">한국어</span>
+      </button>
+    </div>
+  </main>
+
+  <script>
+    const languageConfig = {
+      ja: { htmlLang: "ja", startLabel: "注文を始める" },
+      zh: { htmlLang: "zh-CN", startLabel: "开始点餐" },
+      en: { htmlLang: "en", startLabel: "Start Order" },
+      ko: { htmlLang: "ko", startLabel: "주문 시작" }
+    };
+
+    const languageButtons = document.querySelectorAll("[data-language]");
+    const startLabel = document.getElementById("startLabel");
+
+    function selectLanguage(language) {
+      const config = languageConfig[language] || languageConfig.zh;
+      document.documentElement.lang = config.htmlLang;
+      startLabel.textContent = config.startLabel;
+      languageButtons.forEach(button => {
+        const active = button.dataset.language === language;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-pressed", String(active));
+      });
+      try {
+        localStorage.setItem("fujiLanguage", language);
+      } catch (error) {
+        console.warn("语言偏好无法保存。", error);
+      }
+    }
+
+    languageButtons.forEach(button => {
+      button.addEventListener("click", () => selectLanguage(button.dataset.language));
+    });
+
+    document.getElementById("startButton").addEventListener("click", () => {
+      window.location.href = "index.html";
+    });
+
+    let initialLanguage = "zh";
+    try {
+      const savedLanguage = localStorage.getItem("fujiLanguage");
+      if (languageConfig[savedLanguage]) initialLanguage = savedLanguage;
+    } catch (error) {
+      console.warn("使用默认语言。", error);
+    }
+    selectLanguage(initialLanguage);
+  </script>
+</body>
+</html>

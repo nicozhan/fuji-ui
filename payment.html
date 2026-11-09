@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>请选择支付方式 - Fuji Electric</title>
+  <style>
+    :root {
+      --bg: #f4f7fa;
+      --surface: #ffffff;
+      --border: #e3ebf0;
+      --text: #102d43;
+      --text-2: #6c7e8c;
+      --accent: #0877c9;
+      --accent-dark: #075b9e;
+      --accent-weak: #e8f4fd;
+      --status-h: 56px;
+      --header-h: 104px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-width: 760px; }
+    body {
+      color: var(--text);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    button { font: inherit; }
+    button:focus-visible, a:focus-visible { outline: 3px solid rgba(8,119,201,.28); outline-offset: 3px; }
+
+    .payment-page {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100vh;
+      min-height: 640px;
+      overflow: hidden;
+    }
+
+    .status-bar {
+      display: flex;
+      flex: 0 0 var(--status-h);
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 0 32px;
+      color: #fff;
+      background: var(--accent-dark);
+      font-size: 13px;
+    }
+    .status-left, .status-right, .machine-id, .demo-methods {
+      display: flex;
+      align-items: center;
+    }
+    .status-left, .status-right { gap: 28px; }
+    .machine-id { gap: 9px; white-space: nowrap; }
+    .machine-id svg { width: 17px; height: 17px; }
+    .machine-id span { color: #cfe8f8; }
+    .machine-id strong { color: #fff; font-weight: 600; }
+
+    .demo-methods {
+      gap: 5px;
+      padding: 4px;
+      border: 1px solid rgba(255,255,255,.25);
+      border-radius: 999px;
+      background: rgba(0,0,0,.1);
+    }
+    .demo-label {
+      padding: 0 8px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .09em;
+    }
+    .demo-title { margin-right: 3px; color: #d8edf9; font-size: 11px; }
+    .demo-count {
+      width: 27px;
+      height: 25px;
+      padding: 0;
+      border: 0;
+      border-radius: 999px;
+      color: #fff;
+      background: transparent;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .demo-count.active { color: var(--accent-dark); background: #fff; }
+
+    .main-header {
+      display: flex;
+      flex: 0 0 var(--header-h);
+      align-items: center;
+      padding: 0 48px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      color: #101c26;
+      font-size: 22px;
+      font-weight: 750;
+    }
+    .brand-mark {
+      color: var(--accent);
+      font-size: 33px;
+      font-style: italic;
+      font-weight: 900;
+      letter-spacing: -.12em;
+      transform: skew(-8deg);
+    }
+    .header-actions { display: flex; align-items: center; gap: 18px; margin-left: auto; }
+    .header-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-width: 132px;
+      min-height: 54px;
+      padding: 0 23px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--text);
+      background: #fff;
+      cursor: pointer;
+    }
+    .header-button:hover { border-color: #b9d9ed; background: var(--accent-weak); }
+    .header-button svg { width: 20px; height: 20px; }
+
+    .payment-main {
+      display: flex;
+      flex: 1 1 auto;
+      flex-direction: column;
+      width: 100%;
+      max-width: 1824px;
+      min-height: 0;
+      margin: 0 auto;
+      padding: 36px 48px 42px;
+    }
+    .page-title {
+      flex: 0 0 auto;
+      margin: 0 0 24px;
+      font-size: 32px;
+      font-weight: 750;
+      line-height: 1.25;
+      letter-spacing: .01em;
+    }
+
+    .order-summary {
+      display: flex;
+      flex: 0 0 132px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 32px;
+      padding: 24px 34px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: var(--surface);
+    }
+    .order-total { display: flex; align-items: baseline; gap: 30px; }
+    .order-total-label { color: var(--text-2); font-size: 17px; }
+    .order-total-value { font-size: 42px; font-weight: 800; letter-spacing: -.025em; }
+    .order-products { display: flex; align-items: center; gap: 25px; }
+    .order-count { color: var(--text-2); font-size: 16px; white-space: nowrap; }
+    .order-thumbnails { display: flex; align-items: center; gap: 12px; }
+    .order-thumbnail {
+      display: block;
+      width: 82px;
+      height: 82px;
+      aspect-ratio: 1 / 1;
+      border: 1px solid #e5ecef;
+      border-radius: 12px;
+      object-fit: cover;
+      background: #edf2f4;
+    }
+
+    .payment-grid {
+      display: grid;
+      flex: 1 1 auto;
+      gap: 28px;
+      width: 100%;
+      min-height: 0;
+      margin: 28px auto 0;
+    }
+    .payment-grid.count-1 {
+      grid-template-columns: minmax(0, 680px);
+      justify-content: center;
+      max-width: 1400px;
+    }
+    .payment-grid.count-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      max-width: 1400px;
+    }
+    .payment-grid.count-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      max-width: 1728px;
+    }
+
+    .payment-card {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      min-height: 0;
+      padding: 28px 36px 32px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: var(--surface);
+      box-shadow: 0 7px 22px rgba(33,73,101,.055);
+      animation: card-in .22s ease both;
+    }
+    @keyframes card-in {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .payment-name {
+      flex: 0 0 auto;
+      margin: 0;
+      text-align: center;
+      font-size: 26px;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+    .payment-illustration {
+      display: flex;
+      flex: 1 1 auto;
+      align-items: center;
+      justify-content: center;
+      min-height: 0;
+      padding: 18px 0;
+    }
+    .payment-illustration svg {
+      display: block;
+      width: min(100%, 320px);
+      height: min(100%, 270px);
+    }
+    .pay-button {
+      display: flex;
+      flex: 0 0 64px;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      width: 100%;
+      border: 0;
+      border-radius: 999px;
+      color: #fff;
+      background: var(--accent);
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .18s ease;
+    }
+    .pay-button:hover { background: var(--accent-dark); }
+    .pay-button svg { width: 21px; height: 21px; }
+
+    .toast {
+      position: fixed;
+      z-index: 50;
+      bottom: 24px;
+      left: 50%;
+      max-width: min(520px, 80vw);
+      padding: 12px 20px;
+      border-radius: 999px;
+      color: #fff;
+      background: rgba(16,45,67,.95);
+      font-size: 13px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, 10px);
+      transition: opacity .2s ease, transform .2s ease;
+    }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+    @media (max-height: 850px) {
+      .payment-main { padding: 24px 40px 28px; }
+      .page-title { margin-bottom: 18px; font-size: 28px; }
+      .order-summary { flex-basis: 110px; padding: 18px 28px; }
+      .order-total-value { font-size: 34px; }
+      .order-thumbnail { width: 70px; height: 70px; }
+      .payment-grid { margin-top: 20px; }
+      .payment-card { padding: 20px 28px 24px; }
+      .payment-name { font-size: 22px; }
+      .payment-illustration { padding: 10px 0; }
+      .payment-illustration svg { height: min(100%, 210px); }
+      .pay-button { flex-basis: 54px; font-size: 16px; }
+    }
+
+    @media (max-width: 1100px) {
+      .status-left, .status-right { gap: 14px; }
+      .demo-title { display: none; }
+      .main-header { padding: 0 30px; }
+      .payment-main { padding-right: 28px; padding-left: 28px; }
+      .payment-grid { gap: 16px; }
+      .payment-card { padding-right: 20px; padding-left: 20px; }
+      .payment-name { font-size: 20px; }
+      .order-products { gap: 15px; }
+      .order-thumbnails { gap: 8px; }
+      .order-thumbnail { width: 62px; height: 62px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="payment-page">
+    <section class="status-bar" aria-label="机器状态">
+      <div class="status-left">
+        <div class="machine-id">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="5" y="2.5" width="14" height="19" rx="3"/><path d="M9 6h6M9 18h6"/></svg>
+          <span>机器 ID：<strong>fuji12345678</strong></span>
+        </div>
+        <div>联系方式：800-1234-5678</div>
+      </div>
+      <div class="status-right">
+        <div class="demo-methods" aria-label="Demo 支付方式数量">
+          <span class="demo-label">DEMO</span>
+          <span class="demo-title">支付方式</span>
+          <button class="demo-count" type="button" data-method-count="1" aria-pressed="false">1</button>
+          <button class="demo-count active" type="button" data-method-count="2" aria-pressed="true">2</button>
+          <button class="demo-count" type="button" data-method-count="3" aria-pressed="false">3</button>
+        </div>
+        <time datetime="2026-11-04T23:42">11月4日 23:42</time>
+        <svg width="18" height="16" viewBox="0 0 18 16" fill="currentColor" aria-label="网络状态"><rect x="1" y="11" width="3" height="4" rx="1"/><rect x="6" y="7" width="3" height="8" rx="1"/><rect x="11" y="3" width="3" height="12" rx="1"/></svg>
+      </div>
+    </section>
+
+    <header class="main-header">
+      <div class="brand" aria-label="Fuji Electric">
+        <span class="brand-mark">FE</span>
+        <span>Fuji Electric</span>
+      </div>
+      <div class="header-actions">
+        <button class="header-button" type="button" data-toast="帮助：请拨打服务热线 800-1234-5678。">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.8 9a2.3 2.3 0 1 1 3.3 2.1c-.8.4-1.1.9-1.1 1.9M12 16.8h.01"/></svg>
+          帮助
+        </button>
+        <button class="header-button" type="button" data-toast="当前语言：中文">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
+          中文
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m7 9 5 5 5-5"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <section class="payment-main" aria-labelledby="pageTitle">
+      <h1 class="page-title" id="pageTitle">请选择支付方式</h1>
+
+      <section class="order-summary" aria-label="订单摘要">
+        <div class="order-total">
+          <span class="order-total-label">合计金额</span>
+          <strong class="order-total-value" id="orderTotal">¥1,000</strong>
+        </div>
+        <div class="order-products">
+          <span class="order-count" id="orderCount">购买商品（3件）</span>
+          <div class="order-thumbnails" id="orderThumbnails" aria-label="订单商品图片"></div>
+        </div>
+      </section>
+
+      <section class="payment-grid count-2" id="paymentGrid" aria-label="支付方式"></section>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const arrowIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 12h15M14 7l5 5-5 5"/></svg>';
+
+    const paymentMethods = {
+      qr: {
+        id: "qr",
+        name: "扫码支付",
+        action: "显示付款码",
+        illustration: `
+          <svg viewBox="0 0 320 250" fill="none" role="img" aria-label="扫码支付示意图">
+            <rect x="82" y="14" width="156" height="222" rx="24" fill="#e8f4fd" stroke="#0877c9" stroke-width="4"/>
+            <rect x="99" y="36" width="122" height="154" rx="10" fill="#ffffff" stroke="#bfd9ea" stroke-width="2"/>
+            <path d="M112 72V51h21M187 51h21v21M208 154v21h-21M133 175h-21v-21" stroke="#0877c9" stroke-width="6" stroke-linecap="round"/>
+            <g fill="#102d43">
+              <rect x="116" y="58" width="25" height="25" rx="2"/><rect x="179" y="58" width="25" height="25" rx="2"/><rect x="116" y="143" width="25" height="25" rx="2"/>
+              <rect x="149" y="58" width="9" height="9"/><rect x="162" y="71" width="9" height="9"/><rect x="149" y="86" width="9" height="9"/>
+              <rect x="116" y="94" width="9" height="9"/><rect x="129" y="105" width="9" height="9"/><rect x="116" y="119" width="9" height="9"/>
+              <rect x="151" y="105" width="12" height="12"/><rect x="169" y="94" width="9" height="9"/><rect x="185" y="105" width="19" height="9"/>
+              <rect x="149" y="128" width="9" height="9"/><rect x="163" y="139" width="12" height="12"/><rect x="185" y="128" width="9" height="9"/>
+              <rect x="187" y="151" width="17" height="17"/><rect x="149" y="158" width="9" height="9"/>
+            </g>
+            <rect x="137" y="207" width="46" height="5" rx="2.5" fill="#0877c9"/>
+            <path d="M59 72h-20v106h20M261 72h20v106h-20" stroke="#75b9e5" stroke-width="4" stroke-linecap="round"/>
+            <path d="m51 60-12 12 12 12M269 60l12 12-12 12" stroke="#75b9e5" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>`
+      },
+      pos: {
+        id: "pos",
+        name: "POS 机支付",
+        action: "使用 POS 机支付",
+        illustration: `
+          <svg viewBox="0 0 320 250" fill="none" role="img" aria-label="POS 机支付示意图">
+            <path d="M96 52h128a18 18 0 0 1 18 18v143a18 18 0 0 1-18 18H96a18 18 0 0 1-18-18V70a18 18 0 0 1 18-18Z" fill="#e8f4fd" stroke="#0877c9" stroke-width="4"/>
+            <rect x="96" y="72" width="128" height="69" rx="9" fill="#ffffff" stroke="#bfd9ea" stroke-width="2"/>
+            <path d="M117 111h57M117 123h83" stroke="#75b9e5" stroke-width="6" stroke-linecap="round"/>
+            <circle cx="198" cy="91" r="8" fill="#0877c9"/>
+            <g fill="#ffffff" stroke="#75b9e5" stroke-width="2">
+              <rect x="98" y="158" width="25" height="19" rx="4"/><rect x="132" y="158" width="25" height="19" rx="4"/><rect x="166" y="158" width="25" height="19" rx="4"/><rect x="200" y="158" width="25" height="19" rx="4"/>
+              <rect x="98" y="185" width="25" height="19" rx="4"/><rect x="132" y="185" width="25" height="19" rx="4"/><rect x="166" y="185" width="25" height="19" rx="4"/><rect x="200" y="185" width="25" height="19" rx="4"/>
+            </g>
+            <path d="M111 39V19h98v20" stroke="#0877c9" stroke-width="4" stroke-linejoin="round"/>
+            <path d="M121 29h78" stroke="#75b9e5" stroke-width="4" stroke-linecap="round"/>
+            <rect x="41" y="79" width="27" height="111" rx="13.5" fill="#ffffff" stroke="#0877c9" stroke-width="4" transform="rotate(-12 41 79)"/>
+            <path d="m42 111 28-6M46 133l18-4" stroke="#75b9e5" stroke-width="4" stroke-linecap="round"/>
+            <path d="M259 93c11 9 11 23 0 32M272 82c18 15 18 41 0 55" stroke="#0877c9" stroke-width="4" stroke-linecap="round"/>
+          </svg>`
+      },
+      mobile: {
+        id: "mobile",
+        name: "手机支付",
+        action: "开始支付",
+        illustration: `
+          <svg viewBox="0 0 320 250" fill="none" role="img" aria-label="手机支付示意图">
+            <rect x="94" y="13" width="132" height="224" rx="27" fill="#e8f4fd" stroke="#0877c9" stroke-width="4"/>
+            <rect x="108" y="43" width="104" height="155" rx="12" fill="#ffffff"/>
+            <rect x="137" y="26" width="46" height="5" rx="2.5" fill="#75b9e5"/>
+            <circle cx="160" cy="119" r="43" fill="#e8f4fd" stroke="#0877c9" stroke-width="3"/>
+            <path d="M171 91h-17a12 12 0 0 0 0 24h13a12 12 0 0 1 0 24h-19M160 82v66" stroke="#0877c9" stroke-width="5" stroke-linecap="round"/>
+            <path d="M143 215h34" stroke="#0877c9" stroke-width="5" stroke-linecap="round"/>
+            <path d="M239 80c14 12 14 32 0 44M253 65c24 21 24 55 0 76M81 80c-14 12-14 32 0 44M67 65c-24 21-24 55 0 76" stroke="#75b9e5" stroke-width="4" stroke-linecap="round"/>
+            <path d="m246 172 16 16 29-33" stroke="#0877c9" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>`
+      }
+    };
+
+    const methodOrder = ["qr", "pos", "mobile"];
+    const paymentGrid = document.getElementById("paymentGrid");
+    const toast = document.getElementById("toast");
+    let activeMethods = [];
+    let toastTimer;
+
+    const defaultOrder = {
+      items: [
+        { name: "カフェラテ", price: 300, quantity: 1, image: "assets/latte.jpg" },
+        { name: "タピオカミルクティー", price: 360, quantity: 1, image: "assets/tapioca.jpg" },
+        { name: "抹茶ラテ", price: 340, quantity: 1, image: "assets/matcha.jpg" }
+      ]
+    };
+
+    function loadOrder() {
+      try {
+        const saved = JSON.parse(localStorage.getItem("fujiOrder"));
+        if (saved && Array.isArray(saved.items) && saved.items.length) return saved;
+      } catch (error) {
+        console.warn("使用默认演示订单。", error);
+      }
+      return defaultOrder;
+    }
+
+    function renderOrder() {
+      const order = loadOrder();
+      const items = order.items.filter(item => item && item.image);
+      const quantity = items.reduce((sum, item) => sum + (Number(item.quantity) || 1), 0);
+      const total = items.reduce((sum, item) => sum + Number(item.price || 0) * (Number(item.quantity) || 1), 0);
+      document.getElementById("orderTotal").textContent = `¥${total.toLocaleString("zh-CN")}`;
+      document.getElementById("orderCount").textContent = `购买商品（${quantity}件）`;
+      document.getElementById("orderThumbnails").innerHTML = items.slice(0, 3).map(item => `
+        <img class="order-thumbnail" src="${item.image}" alt="${item.name}" title="${item.name}" width="164" height="164">
+      `).join("");
+    }
+
+    function showToast(message) {
+      window.clearTimeout(toastTimer);
+      toast.textContent = message;
+      toast.classList.add("show");
+      toastTimer = window.setTimeout(() => toast.classList.remove("show"), 2200);
+    }
+
+    function renderPaymentMethods() {
+      const count = activeMethods.length;
+      paymentGrid.className = `payment-grid count-${count}`;
+      paymentGrid.innerHTML = activeMethods.map((method, index) => `
+        <article class="payment-card" data-method="${method.id}" style="animation-delay:${index * 35}ms">
+          <h2 class="payment-name">${method.name}</h2>
+          <div class="payment-illustration">${method.illustration}</div>
+          <button class="pay-button" type="button" data-pay="${method.id}">${method.action}${arrowIcon}</button>
+        </article>
+      `).join("");
+      document.querySelectorAll("[data-method-count]").forEach(button => {
+        const active = Number(button.dataset.methodCount) === count;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-pressed", String(active));
+      });
+    }
+
+    // 后台配置入口：传入实际启用的支付方式 ID，组件自动切换 1/2/3 列。
+    function configurePaymentMethods(methodIds) {
+      const uniqueIds = [...new Set(methodIds)].filter(id => paymentMethods[id]).slice(0, 3);
+      const validIds = uniqueIds.length ? uniqueIds : ["qr"];
+      activeMethods = validIds.map(id => paymentMethods[id]);
+      renderPaymentMethods();
+    }
+
+    window.configurePaymentMethods = configurePaymentMethods;
+
+    document.querySelectorAll("[data-method-count]").forEach(button => {
+      button.addEventListener("click", () => {
+        const count = Number(button.dataset.methodCount);
+        configurePaymentMethods(methodOrder.slice(0, count));
+        const url = new URL(window.location.href);
+        url.searchParams.set("methods", String(count));
+        window.history.replaceState(null, "", url);
+      });
+    });
+
+    paymentGrid.addEventListener("click", event => {
+      const button = event.target.closest("[data-pay]");
+      if (!button) return;
+      const method = paymentMethods[button.dataset.pay];
+      if (method.id === "qr") {
+        window.location.href = "qr-payment.html";
+        return;
+      }
+      showToast(`${method.name}：${method.action}（Demo）`);
+    });
+
+    document.querySelectorAll("[data-toast]").forEach(button => {
+      button.addEventListener("click", () => showToast(button.dataset.toast));
+    });
+
+    const requestedCount = Math.min(3, Math.max(1, Number(new URLSearchParams(window.location.search).get("methods")) || 2));
+    renderOrder();
+    configurePaymentMethods(methodOrder.slice(0, requestedCount));
+  </script>
+</body>
+</html>

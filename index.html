@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fuji Beverage Vending UI</title>
+  <style>
+    :root {
+      --bg: #f4f7fa;
+      --surface: #ffffff;
+      --surface-2: #eef5fa;
+      --border: #e4ebf0;
+      --text: #102d43;
+      --text-2: #6c7e8c;
+      --accent: #0877c9;
+      --accent-dark: #075b9e;
+      --accent-deep: #064b83;
+      --accent-weak: #e8f4fd;
+      --danger: #8a9aa6;
+      --radius: 14px;
+      --radius-sm: 8px;
+      --status-h: 56px;
+      --header-h: 104px;
+      --pager-h: 64px;
+      --grid-gap: 12px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { margin: 0; min-width: 760px; }
+
+    body {
+      color: var(--text);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Yu Gothic", "Noto Sans JP", "PingFang SC", "Microsoft YaHei", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button { font: inherit; }
+    button, [role="switch"] { -webkit-tap-highlight-color: transparent; }
+    button:focus-visible { outline: 3px solid rgba(8, 119, 201, .28); outline-offset: 3px; }
+    .hidden { display: none !important; }
+
+    .vending-app {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100vh;
+      min-height: 640px;
+      overflow: hidden;
+    }
+
+    .status-bar {
+      z-index: 30;
+      display: flex;
+      flex: 0 0 var(--status-h);
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 0 28px;
+      color: #fff;
+      background: var(--accent-dark);
+      font-size: 13px;
+      letter-spacing: .01em;
+    }
+
+    .status-left, .status-right, .status-item, .demo-control {
+      display: flex;
+      align-items: center;
+    }
+
+    .status-left, .status-right { gap: 28px; }
+    .status-item { gap: 8px; white-space: nowrap; }
+    .status-item svg { width: 16px; height: 16px; }
+    .machine-id { color: #cfe8f8; }
+    .machine-id strong { color: #fff; font-weight: 600; }
+
+    .demo-control {
+      gap: 9px;
+      padding: 4px 8px 4px 5px;
+      border: 1px solid rgba(255,255,255,.28);
+      border-radius: 999px;
+      color: #fff;
+      background: rgba(0,0,0,.12);
+      cursor: pointer;
+    }
+
+    .demo-badge {
+      padding: 3px 7px;
+      border-radius: 999px;
+      color: var(--accent-deep);
+      background: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .09em;
+    }
+
+    .demo-label { font-size: 12px; }
+    .switch-track {
+      position: relative;
+      width: 34px;
+      height: 19px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.32);
+      transition: background .2s ease;
+    }
+    .switch-thumb {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: #fff;
+      transition: transform .2s ease;
+    }
+    .demo-control[aria-checked="true"] .switch-track { background: #64d7ff; }
+    .demo-control[aria-checked="true"] .switch-thumb { transform: translateX(15px); }
+
+    .main-header {
+      z-index: 25;
+      display: flex;
+      flex: 0 0 var(--header-h);
+      align-items: center;
+      gap: 24px;
+      padding: 0 34px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .brand {
+      display: flex;
+      flex: 0 0 auto;
+      align-items: center;
+      gap: 10px;
+      color: #101c26;
+      font-size: 20px;
+      font-weight: 750;
+      white-space: nowrap;
+    }
+    .brand-mark {
+      color: var(--accent);
+      font-size: 31px;
+      font-style: italic;
+      font-weight: 900;
+      letter-spacing: -.12em;
+      transform: skew(-8deg);
+    }
+
+    .pill-button, .category-button, .language-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      min-height: 52px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--text);
+      background: var(--surface);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background .18s ease, color .18s ease, border-color .18s ease;
+    }
+    .pill-button { padding: 0 23px; }
+    .pill-button svg, .language-button svg { width: 20px; height: 20px; }
+    .pill-button:hover, .category-button:hover { border-color: #b9d9ed; background: var(--accent-weak); }
+
+    .category-nav {
+      display: flex;
+      flex: 1 1 auto;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      min-width: 0;
+    }
+    .category-button {
+      min-width: 132px;
+      padding: 0 24px;
+      border-color: transparent;
+      font-size: 15px;
+      font-weight: 650;
+    }
+    .category-button svg { width: 18px; height: 18px; }
+    .category-button.active { color: #fff; background: var(--accent); }
+    .category-button .chevron { width: 14px; height: 14px; margin-left: 5px; }
+    .language-button { flex: 0 0 auto; padding: 0 21px; }
+
+    .workspace {
+      position: relative;
+      display: flex;
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .ad-sidebar {
+      display: flex;
+      flex: 0 0 420px;
+      flex-direction: column;
+      min-width: 0;
+      padding: clamp(28px, 3vw, 54px) clamp(24px, 2.5vw, 46px) 32px;
+      overflow: hidden;
+      background: #e8f5fd;
+    }
+    .ad-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      align-self: flex-start;
+      gap: 7px;
+      margin-bottom: 22px;
+      padding: 5px 9px;
+      border: 1px solid #c3dfef;
+      border-radius: 999px;
+      color: var(--accent-dark);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .13em;
+    }
+    .ad-sidebar h1 {
+      margin: 0;
+      color: #073d61;
+      font-size: clamp(25px, 1.9vw, 37px);
+      font-weight: 750;
+      line-height: 1.52;
+      letter-spacing: .02em;
+    }
+    .ad-subtitle {
+      margin: 17px 0 0;
+      color: #4e7a97;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(16px, 1.15vw, 22px);
+      letter-spacing: .02em;
+    }
+    .ad-description {
+      margin: 22px 0 0;
+      color: #65879c;
+      font-size: 13px;
+      line-height: 1.8;
+    }
+    .ad-visual {
+      position: relative;
+      width: min(100%, 35vh);
+      aspect-ratio: 1;
+      margin: auto auto 0;
+      overflow: hidden;
+      border: 8px solid rgba(255,255,255,.58);
+      border-radius: 50%;
+      background: #dceef7;
+    }
+    .ad-visual img { width: 100%; height: 100%; object-fit: cover; }
+    .ad-dots {
+      position: absolute;
+      right: 0;
+      bottom: 17px;
+      left: 0;
+      display: flex;
+      justify-content: center;
+      gap: 7px;
+    }
+    .ad-dots span { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.7); }
+    .ad-dots span:first-child { width: 20px; border-radius: 999px; background: var(--accent); }
+
+    .product-stage {
+      position: relative;
+      display: flex;
+      flex: 1 1 auto;
+      flex-direction: column;
+      min-width: 0;
+      min-height: 0;
+      padding: 28px 32px 0;
+      overflow: hidden;
+    }
+
+    .product-grid {
+      --cols: 3;
+      display: grid;
+      flex: 1 1 auto;
+      grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+      grid-template-rows: repeat(2, minmax(0, 1fr));
+      align-content: stretch;
+      justify-content: stretch;
+      justify-items: stretch;
+      gap: var(--grid-gap);
+      width: 100%;
+      min-height: 0;
+    }
+    .workspace.ad-off .ad-sidebar { display: none; }
+    .workspace.ad-off .product-grid { --cols: 4; }
+
+    .product-card {
+      position: relative;
+      display: grid;
+      grid-template-rows: 70% 30%;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      border: 1px solid rgba(218,229,236,.8);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: 0 5px 18px rgba(33,73,101,.06);
+      animation: card-in .24s ease both;
+    }
+    @keyframes card-in {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .product-media {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      overflow: hidden;
+      background: #e8edf0;
+    }
+    .product-media img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform .25s ease;
+    }
+    .product-card:hover .product-media img { transform: scale(1.025); }
+    .temperature-tag {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      color: #fff;
+      background: var(--accent);
+      font-size: clamp(10px, .68vw, 13px);
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .product-info {
+      z-index: 2;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 10px;
+      min-height: 0;
+      padding: clamp(8px, .85vw, 16px) clamp(11px, 1vw, 19px);
+      background: rgba(255,255,255,.88);
+    }
+    .product-copy { min-width: 0; }
+    .product-name {
+      overflow: hidden;
+      margin: 0 0 4px;
+      font-size: clamp(12px, .9vw, 17px);
+      font-weight: 700;
+      line-height: 1.18;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .product-price {
+      margin: 0;
+      color: #172d3c;
+      font-size: clamp(13px, .95vw, 19px);
+      font-weight: 750;
+      line-height: 1.15;
+    }
+    .add-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: clamp(31px, 2.25vw, 43px);
+      aspect-ratio: 1;
+      padding: 0;
+      border: 1px solid #c9e2f1;
+      border-radius: 50%;
+      color: var(--accent);
+      background: rgba(255,255,255,.88);
+      cursor: pointer;
+      transition: color .18s ease, background .18s ease;
+    }
+    .add-button:hover { color: #fff; background: var(--accent); }
+    .add-button svg { width: 45%; height: 45%; }
+
+    .pagination {
+      display: flex;
+      flex: 0 0 var(--pager-h);
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      color: var(--text-2);
+      font-size: 13px;
+    }
+    .page-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 31px;
+      height: 31px;
+      padding: 0;
+      border: 0;
+      border-radius: 7px;
+      color: var(--text-2);
+      background: transparent;
+      cursor: pointer;
+    }
+    .page-button.active { color: #fff; background: var(--accent); }
+    .page-button.next { color: #fff; background: var(--accent); border-radius: 999px; }
+    .page-button svg { width: 15px; height: 15px; }
+    .page-summary { margin-left: 8px; white-space: nowrap; }
+
+    .cart-panel {
+      position: absolute;
+      z-index: 20;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      flex-direction: column;
+      width: clamp(390px, 34.8vw, 668px);
+      overflow: hidden;
+      border-left: 1px solid rgba(7,91,158,.1);
+      border-radius: 22px 0 0 22px;
+      background: var(--surface);
+      box-shadow: -14px 0 38px rgba(21,54,77,.15);
+      transform: translateX(0);
+      transition: transform .28s ease;
+    }
+    .cart-panel.closed { pointer-events: none; transform: translateX(calc(100% + 30px)); }
+    .cart-header {
+      display: flex;
+      flex: 0 0 100px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 38px;
+      color: #fff;
+      background: var(--accent-dark);
+    }
+    .cart-title { display: flex; align-items: center; gap: 13px; margin: 0; font-size: 24px; font-weight: 700; }
+    .cart-title > svg { width: 27px; height: 27px; }
+    .cart-count {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 29px;
+      height: 29px;
+      padding: 0 8px;
+      border-radius: 999px;
+      color: var(--accent-dark);
+      background: #fff;
+      font-size: 15px;
+      font-weight: 800;
+    }
+    .close-cart, .remove-item {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+    }
+    .close-cart { width: 40px; height: 40px; color: #fff; }
+    .close-cart svg { width: 26px; height: 26px; }
+
+    .cart-items { flex: 1 1 auto; min-height: 0; overflow-y: hidden; }
+    .cart-items.scrollable { overflow-y: auto; }
+    .cart-item {
+      position: relative;
+      display: grid;
+      grid-template-columns: clamp(76px, 5.5vw, 105px) minmax(0, 1fr) auto;
+      grid-template-rows: auto auto;
+      gap: 13px 20px;
+      padding: 25px 38px;
+      border-bottom: 1px solid #edf1f4;
+    }
+    .cart-thumb {
+      grid-row: 1 / 3;
+      align-self: start;
+      width: 100%;
+      height: clamp(76px, 5.5vw, 105px);
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      border-radius: 12px;
+      background: #edf2f4;
+    }
+    .cart-item-main { min-width: 0; }
+    .cart-item-name { margin: 3px 28px 5px 0; font-size: 16px; font-weight: 700; line-height: 1.35; }
+    .cart-item-variant { color: var(--text-2); font-size: 12px; }
+    .remove-item {
+      width: 30px;
+      height: 30px;
+      color: #5e7180;
+    }
+    .remove-item:hover { color: var(--accent); }
+    .remove-item svg { width: 18px; height: 18px; }
+    .quantity-control { display: flex; align-items: center; align-self: end; gap: 12px; }
+    .quantity-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 29px;
+      height: 29px;
+      padding: 0;
+      border: 1px solid #d4e5ee;
+      border-radius: 50%;
+      color: var(--accent);
+      background: #fff;
+      cursor: pointer;
+    }
+    .quantity-button svg { width: 13px; height: 13px; }
+    .quantity-value { min-width: 15px; text-align: center; font-size: 14px; }
+    .cart-item-price { align-self: end; font-size: 14px; font-weight: 650; }
+    .empty-cart { padding: 70px 30px; color: var(--text-2); text-align: center; }
+
+    .cart-footer {
+      flex: 0 0 auto;
+      padding: 25px 38px 34px;
+      border-top: 1px solid var(--border);
+      background: #fff;
+    }
+    .cart-total-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 23px; }
+    .cart-total-label { font-size: 17px; font-weight: 650; }
+    .cart-total { font-size: 31px; font-weight: 800; letter-spacing: -.02em; }
+    .checkout-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      width: 100%;
+      min-height: 64px;
+      border: 0;
+      border-radius: 999px;
+      color: #fff;
+      background: var(--accent);
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .checkout-button:hover { background: var(--accent-dark); }
+    .checkout-button svg { width: 21px; height: 21px; }
+
+    .open-cart-button {
+      position: absolute;
+      z-index: 15;
+      right: 28px;
+      bottom: 22px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 52px;
+      padding: 0 22px;
+      border: 0;
+      border-radius: 999px;
+      color: #fff;
+      background: var(--accent);
+      box-shadow: 0 8px 20px rgba(8,119,201,.22);
+      cursor: pointer;
+    }
+    .open-cart-button svg { width: 21px; height: 21px; }
+    .open-cart-button .cart-count { min-width: 25px; height: 25px; color: var(--accent); }
+
+    .product-media {
+      padding: 0;
+      border: 0;
+      color: inherit;
+      cursor: pointer;
+    }
+
+    .customization-layer {
+      position: fixed;
+      z-index: 100;
+      inset: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: visibility 0s linear .34s;
+    }
+    .customization-layer.open {
+      visibility: visible;
+      pointer-events: auto;
+      transition-delay: 0s;
+    }
+    .customization-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(9, 28, 42, .44);
+      opacity: 0;
+      transition: opacity .3s ease;
+    }
+    .customization-layer.open .customization-backdrop { opacity: 1; }
+    .customization-sheet {
+      position: absolute;
+      right: 24px;
+      bottom: 0;
+      left: 24px;
+      display: flex;
+      flex-direction: column;
+      height: min(960px, 90vh);
+      overflow: hidden;
+      border-radius: 28px 28px 0 0;
+      background: #fff;
+      box-shadow: 0 -18px 55px rgba(13,43,62,.2);
+      transform: translateY(105%);
+      transition: transform .34s cubic-bezier(.22,.8,.28,1);
+    }
+    .customization-layer.open .customization-sheet { transform: translateY(0); }
+    .customization-header {
+      position: relative;
+      display: flex;
+      flex: 0 0 96px;
+      align-items: center;
+      justify-content: center;
+      border-bottom: 1px solid var(--border);
+    }
+    .customization-title { margin: 0; font-size: 28px; font-weight: 750; }
+    .sheet-control {
+      position: absolute;
+      top: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 64px;
+      height: 64px;
+      padding: 0;
+      border: 1px solid #d9e6ed;
+      border-radius: 50%;
+      color: var(--accent-dark);
+      background: #fff;
+      cursor: pointer;
+    }
+    .sheet-control:hover { background: var(--accent-weak); }
+    .sheet-control.collapse { left: 28px; }
+    .sheet-control.close { right: 28px; }
+    .sheet-control svg { width: 30px; height: 30px; }
+    .customization-body {
+      display: grid;
+      flex: 1 1 auto;
+      grid-template-columns: 450px minmax(0, 1fr);
+      gap: 44px;
+      min-height: 0;
+      padding: 20px 44px 26px;
+      overflow: hidden;
+    }
+    .custom-product { min-width: 0; }
+    .custom-product-image {
+      display: block;
+      width: 450px;
+      height: 450px;
+      aspect-ratio: 1 / 1;
+      border-radius: 18px;
+      object-fit: cover;
+      background: #edf2f4;
+    }
+    .custom-product-name { margin: 22px 0 5px; font-size: 30px; font-weight: 750; }
+    .custom-product-price { margin: 0; color: var(--accent-dark); font-size: 26px; font-weight: 800; }
+    .custom-product-description { margin: 15px 0 0; color: var(--text-2); font-size: 16px; line-height: 1.75; }
+    .custom-options {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-width: 0;
+      min-height: 0;
+      overflow-y: auto;
+    }
+    .option-row { padding: 8px 0 22px; border-bottom: 1px solid var(--border); }
+    .option-row:last-child { padding-bottom: 8px; border-bottom: 0; }
+    .option-label { display: block; margin-bottom: 16px; font-size: 18px; font-weight: 700; }
+    .option-buttons { display: flex; flex-wrap: wrap; gap: 12px; }
+    .option-button {
+      min-width: 108px;
+      min-height: 52px;
+      padding: 0 23px;
+      border: 1px solid #cedfe8;
+      border-radius: 999px;
+      color: var(--text);
+      background: #fff;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .option-button:hover { border-color: var(--accent); }
+    .option-button.active { border-color: var(--accent); color: #fff; background: var(--accent); }
+    .customization-footer {
+      display: flex;
+      flex: 0 0 120px;
+      align-items: center;
+      gap: 34px;
+      padding: 20px 44px;
+      border-top: 1px solid var(--border);
+      background: #fff;
+      box-shadow: 0 -8px 22px rgba(33,73,101,.045);
+    }
+    .custom-quantity { display: flex; align-items: center; gap: 20px; }
+    .custom-quantity-label { margin-right: 5px; font-size: 19px; font-weight: 700; }
+    .custom-quantity-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 52px;
+      height: 52px;
+      padding: 0;
+      border: 1px solid #c9dfe9;
+      border-radius: 50%;
+      color: var(--accent);
+      background: #fff;
+      cursor: pointer;
+    }
+    .custom-quantity-button svg { width: 22px; height: 22px; }
+    .custom-quantity-value { min-width: 32px; text-align: center; font-size: 24px; font-weight: 700; }
+    .custom-total { display: flex; align-items: baseline; gap: 18px; margin-left: auto; }
+    .custom-total-label { color: var(--text-2); font-size: 18px; }
+    .custom-total-value { font-size: 36px; font-weight: 800; }
+    .add-order-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      width: 350px;
+      min-height: 72px;
+      border: 0;
+      border-radius: 999px;
+      color: #fff;
+      background: var(--accent);
+      font-size: 20px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .add-order-button:hover { background: var(--accent-dark); }
+    .add-order-button svg { width: 24px; height: 24px; }
+
+    .toast {
+      position: fixed;
+      z-index: 60;
+      bottom: 24px;
+      left: 50%;
+      max-width: min(520px, 80vw);
+      padding: 12px 20px;
+      border-radius: 999px;
+      color: #fff;
+      background: rgba(16,45,67,.94);
+      box-shadow: 0 8px 24px rgba(16,45,67,.18);
+      font-size: 13px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, 10px);
+      transition: opacity .2s ease, transform .2s ease;
+    }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+    @media (max-height: 850px) {
+      .cart-header { flex-basis: 80px; padding-right: 28px; padding-left: 28px; }
+      .cart-title { font-size: 20px; }
+      .cart-item {
+        grid-template-columns: 64px minmax(0, 1fr) auto;
+        gap: 6px 14px;
+        padding: 14px 28px;
+      }
+      .cart-thumb { height: 64px; }
+      .cart-item-name { margin: 0 24px 3px 0; font-size: 14px; }
+      .cart-item-variant { font-size: 11px; }
+      .quantity-control { gap: 8px; }
+      .quantity-button { width: 24px; height: 24px; }
+      .cart-footer { padding: 16px 28px 20px; }
+      .cart-total-row { margin-bottom: 12px; }
+      .cart-total-label { font-size: 15px; }
+      .cart-total { font-size: 25px; }
+      .checkout-button { min-height: 50px; }
+      .product-info { padding: 5px 9px; }
+      .product-name { margin-bottom: 2px; font-size: 11px; }
+      .product-price { font-size: 12px; }
+    }
+
+    @media (max-width: 1380px) {
+      .main-header { gap: 15px; padding: 0 24px; }
+      .brand { font-size: 17px; }
+      .brand-mark { font-size: 27px; }
+      .pill-button { padding: 0 17px; }
+      .category-nav { gap: 5px; }
+      .category-button { min-width: 105px; padding: 0 14px; font-size: 13px; }
+      .language-button { padding: 0 16px; }
+      .product-stage { padding-right: 26px; padding-left: 26px; }
+      .ad-description { display: none; }
+    }
+
+    @media (max-width: 1050px) {
+      .status-left, .status-right { gap: 14px; }
+      .contact-item { display: none; }
+      .brand-name { display: none; }
+      .help-label { display: none; }
+      .pill-button { width: 48px; padding: 0; }
+      .category-button { min-width: 0; }
+      .category-button svg:not(.chevron) { display: none; }
+      .cart-panel { width: 400px; }
+      .cart-item { padding-right: 25px; padding-left: 25px; }
+      .cart-header, .cart-footer { padding-right: 25px; padding-left: 25px; }
+    }
+
+    @media (max-height: 850px) {
+      .customization-header { flex-basis: 80px; }
+      .sheet-control { top: 8px; }
+      .customization-body { grid-template-columns: 340px minmax(0,1fr); gap: 30px; padding: 16px 32px 18px; }
+      .custom-product-image { width: 340px; height: 340px; }
+      .custom-product-name { margin-top: 14px; font-size: 24px; }
+      .custom-product-price { font-size: 21px; }
+      .custom-product-description { margin-top: 8px; font-size: 14px; }
+      .option-row { padding: 4px 0 12px; }
+      .option-label { margin-bottom: 10px; font-size: 15px; }
+      .option-button { min-width: 88px; min-height: 42px; padding: 0 17px; font-size: 14px; }
+      .customization-footer { flex-basis: 96px; padding: 14px 32px; }
+      .add-order-button { min-height: 62px; }
+    }
+
+    @media (max-width: 1200px) {
+      .customization-body { grid-template-columns: 340px minmax(0,1fr); gap: 28px; padding-right: 30px; padding-left: 30px; }
+      .custom-product-image { width: 340px; height: 340px; }
+      .customization-footer { gap: 20px; padding-right: 30px; padding-left: 30px; }
+      .add-order-button { width: 290px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="vending-app" aria-label="Fuji Electric 自動販売機">
+    <section class="status-bar" aria-label="マシン情報">
+      <div class="status-left">
+        <div class="status-item machine-id">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="5" y="2.5" width="14" height="19" rx="3"/><path d="M9 6h6M9 18h6"/></svg>
+          <span>Machine ID：<strong>fuji12345678</strong></span>
+        </div>
+        <div class="status-item contact-item">
+          <span>お問い合わせ：800-1234-5678</span>
+        </div>
+      </div>
+      <div class="status-right">
+        <button class="demo-control" id="adToggle" type="button" role="switch" aria-checked="true" aria-label="左側広告を切り替える">
+          <span class="demo-badge">DEMO</span>
+          <span class="demo-label">広告 <strong id="adState">ON</strong></span>
+          <span class="switch-track" aria-hidden="true"><span class="switch-thumb"></span></span>
+        </button>
+        <time class="status-item" datetime="2026-11-04T23:40">11月4日 23:40</time>
+        <svg width="18" height="16" viewBox="0 0 18 16" fill="currentColor" aria-label="電波状況"><rect x="1" y="11" width="3" height="4" rx="1"/><rect x="6" y="7" width="3" height="8" rx="1"/><rect x="11" y="3" width="3" height="12" rx="1"/></svg>
+      </div>
+    </section>
+
+    <header class="main-header">
+      <div class="brand" aria-label="Fuji Electric">
+        <span class="brand-mark">FE</span>
+        <span class="brand-name">Fuji Electric</span>
+      </div>
+      <button class="pill-button" type="button" data-toast="ヘルプ：係員にお問い合わせください。">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.8 9a2.3 2.3 0 1 1 3.3 2.1c-.8.4-1.1.9-1.1 1.9M12 16.8h.01"/></svg>
+        <span class="help-label">ヘルプ</span>
+      </button>
+      <nav class="category-nav" aria-label="商品カテゴリー">
+        <button class="category-button" type="button" data-category="すべて">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.3-5.7L4 8.6M4 4v4.6h4.6"/></svg>
+          すべて
+        </button>
+        <button class="category-button active" type="button" data-category="コーヒー" aria-current="page">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 8h11v6a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5V8ZM16 10h1.5a2.5 2.5 0 0 1 0 5H16M4 22h14"/></svg>
+          コーヒー
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+        </button>
+        <button class="category-button" type="button" data-category="ミルクティー">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 7h12l-1 13H7L6 7ZM8 4h8M9 11h6"/></svg>
+          ミルクティー
+        </button>
+        <button class="category-button" type="button" data-category="その他のドリンク">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M7 3h10l-1 18H8L7 3ZM8 9h8M12 3l3-2"/></svg>
+          その他のドリンク
+        </button>
+      </nav>
+      <button class="language-button" type="button" data-toast="言語：日本語">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
+        日本語
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m7 9 5 5 5-5"/></svg>
+      </button>
+    </header>
+
+    <section class="workspace" id="workspace" aria-label="商品選択エリア">
+      <aside class="ad-sidebar" id="adSidebar" aria-label="コーヒー広告">
+        <div class="ad-eyebrow">FUJI SELECTION · AD</div>
+        <h1>カフェの一杯を、<br>もっと身近に</h1>
+        <p class="ad-subtitle">Coffee &amp; Milk Tea</p>
+        <p class="ad-description">厳選した豆とミルクで、<br>毎日のひと息を心地よく。</p>
+        <div class="ad-visual">
+          <img src="assets/latte.jpg" alt="カフェラテの広告">
+          <div class="ad-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+        </div>
+      </aside>
+
+      <div class="product-stage">
+        <div class="product-grid" id="productGrid" aria-live="polite"></div>
+        <div class="pagination" aria-label="ページネーション">
+          <button class="page-button" type="button" aria-label="前のページ" data-toast="最初のページです。">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg>
+          </button>
+          <button class="page-button active" type="button" aria-current="page">1</button>
+          <button class="page-button" type="button" data-toast="デモでは1ページ目を表示しています。">2</button>
+          <button class="page-button" type="button" data-toast="デモでは1ページ目を表示しています。">3</button>
+          <button class="page-button" type="button" data-toast="デモでは1ページ目を表示しています。">4</button>
+          <span class="page-summary">1 / 4　<span id="visibleCount">6商品</span></span>
+          <button class="page-button next" type="button" aria-label="次のページ" data-toast="デモでは1ページ目を表示しています。">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <aside class="cart-panel" id="cartPanel" aria-label="ショッピングカート">
+        <div class="cart-header">
+          <h2 class="cart-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 4h2l2.2 11.2a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 2-1.6L20 8H6M10 21h.01M17 21h.01"/></svg>
+            カート <span class="cart-count" data-cart-count>3</span>
+          </h2>
+          <button class="close-cart" id="closeCart" type="button" aria-label="カートを閉じる">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+          </button>
+        </div>
+        <div class="cart-items" id="cartItems"></div>
+        <div class="cart-footer">
+          <div class="cart-total-row">
+            <span class="cart-total-label">合計（<span data-cart-count>3</span>点）</span>
+            <strong class="cart-total" id="cartTotal">¥1,000</strong>
+          </div>
+          <button class="checkout-button" id="checkoutButton" type="button">
+            注文に進む
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 12h15M14 7l5 5-5 5"/></svg>
+          </button>
+        </div>
+      </aside>
+
+      <button class="open-cart-button hidden" id="openCart" type="button" aria-label="カートを開く">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 4h2l2.2 11.2a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 2-1.6L20 8H6M10 21h.01M17 21h.01"/></svg>
+        カート <span class="cart-count" data-cart-count>3</span>
+      </button>
+    </section>
+  </main>
+
+  <div class="customization-layer" id="customizationLayer" aria-hidden="true">
+    <div class="customization-backdrop" id="customizationBackdrop"></div>
+    <section class="customization-sheet" role="dialog" aria-modal="true" aria-labelledby="customizationTitle">
+      <header class="customization-header">
+        <button class="sheet-control collapse" id="collapseCustomization" type="button" aria-label="收起定制面板" title="收起">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <h2 class="customization-title" id="customizationTitle">定制饮品</h2>
+        <button class="sheet-control close" id="closeCustomization" type="button" aria-label="关闭并取消本次修改" title="关闭">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+        </button>
+      </header>
+
+      <div class="customization-body">
+        <section class="custom-product" aria-label="商品信息">
+          <img class="custom-product-image" id="customProductImage" src="assets/latte.jpg" alt="カフェラテ" width="450" height="450">
+          <h3 class="custom-product-name" id="customProductName">カフェラテ</h3>
+          <p class="custom-product-price" id="customProductPrice">¥300</p>
+          <p class="custom-product-description" id="customProductDescription">浓郁咖啡与香醇牛奶搭配，口感顺滑。</p>
+        </section>
+
+        <section class="custom-options" aria-label="饮品定制选项">
+          <div class="option-row">
+            <span class="option-label">温度</span>
+            <div class="option-buttons" data-option-group="temperature">
+              <button class="option-button active" type="button" data-value="热饮" aria-pressed="true">热饮</button>
+              <button class="option-button" type="button" data-value="冷饮" aria-pressed="false">冷饮</button>
+            </div>
+          </div>
+          <div class="option-row">
+            <span class="option-label">杯型</span>
+            <div class="option-buttons" data-option-group="size">
+              <button class="option-button" type="button" data-value="小杯" aria-pressed="false">小杯</button>
+              <button class="option-button active" type="button" data-value="中杯" aria-pressed="true">中杯</button>
+              <button class="option-button" type="button" data-value="大杯" aria-pressed="false">大杯</button>
+            </div>
+          </div>
+          <div class="option-row">
+            <span class="option-label">甜度</span>
+            <div class="option-buttons" data-option-group="sweetness">
+              <button class="option-button" type="button" data-value="无糖" aria-pressed="false">无糖</button>
+              <button class="option-button" type="button" data-value="微糖" aria-pressed="false">微糖</button>
+              <button class="option-button" type="button" data-value="半糖" aria-pressed="false">半糖</button>
+              <button class="option-button" type="button" data-value="少糖" aria-pressed="false">少糖</button>
+              <button class="option-button active" type="button" data-value="标准糖" aria-pressed="true">标准糖</button>
+            </div>
+          </div>
+          <div class="option-row">
+            <span class="option-label">奶类</span>
+            <div class="option-buttons" data-option-group="milk">
+              <button class="option-button active" type="button" data-value="牛奶" aria-pressed="true">牛奶</button>
+              <button class="option-button" type="button" data-value="低脂奶" aria-pressed="false">低脂奶</button>
+              <button class="option-button" type="button" data-value="燕麦奶" aria-pressed="false">燕麦奶</button>
+              <button class="option-button" type="button" data-value="豆奶" aria-pressed="false">豆奶</button>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <footer class="customization-footer">
+        <div class="custom-quantity">
+          <span class="custom-quantity-label">数量</span>
+          <button class="custom-quantity-button" type="button" data-custom-quantity="decrease" aria-label="减少数量">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14"/></svg>
+          </button>
+          <span class="custom-quantity-value" id="customQuantity">1</span>
+          <button class="custom-quantity-button" type="button" data-custom-quantity="increase" aria-label="增加数量">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+        </div>
+        <div class="custom-total">
+          <span class="custom-total-label">合计</span>
+          <strong class="custom-total-value" id="customTotal">¥300</strong>
+        </div>
+        <button class="add-order-button" id="addCustomizedOrder" type="button">
+          加入订单
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 12h15M14 7l5 5-5 5"/></svg>
+        </button>
+      </footer>
+    </section>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const products = [
+      { id: 1, name: "カフェラテ", price: 300, image: "assets/latte.jpg", temperature: "ホット", variant: "ホット / レギュラー" },
+      { id: 2, name: "アイスコーヒー", price: 280, image: "assets/iced-coffee.jpg", temperature: "アイス", variant: "アイス / レギュラー" },
+      { id: 3, name: "キャラメルマキアート", price: 360, image: "assets/caramel.jpg", temperature: "アイス", variant: "アイス / レギュラー" },
+      { id: 4, name: "エスプレッソ", price: 320, image: "assets/espresso.jpg", temperature: "ホット", variant: "ホット / レギュラー" },
+      { id: 5, name: "カフェラテ 2", price: 310, image: "assets/latte.jpg", temperature: "ホット", variant: "ホット / レギュラー" },
+      { id: 6, name: "アイスコーヒー 2", price: 290, image: "assets/iced-coffee.jpg", temperature: "アイス", variant: "アイス / レギュラー" },
+      { id: 7, name: "タピオカミルクティー", price: 360, image: "assets/tapioca.jpg", temperature: "アイス", variant: "アイス / レギュラー" },
+      { id: 8, name: "抹茶ラテ", price: 340, image: "assets/matcha.jpg", temperature: "ホット", variant: "ホット / レギュラー" }
+    ];
+
+    const previewParams = new URLSearchParams(window.location.search);
+    const state = {
+      adEnabled: previewParams.get("ad") !== "off",
+      cartOpen: previewParams.get("cart") === "open",
+      cart: new Map([[1, 1], [7, 1], [8, 1]]),
+      cartVariants: new Map()
+    };
+
+    const icons = {
+      plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
+      minus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14"/></svg>',
+      trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M7 7l1 14h8l1-14M10 11v6M14 11v6"/></svg>'
+    };
+
+    const workspace = document.getElementById("workspace");
+    const productGrid = document.getElementById("productGrid");
+    const adToggle = document.getElementById("adToggle");
+    const adState = document.getElementById("adState");
+    const visibleCount = document.getElementById("visibleCount");
+    const cartPanel = document.getElementById("cartPanel");
+    const openCartButton = document.getElementById("openCart");
+    const cartItems = document.getElementById("cartItems");
+    const cartTotal = document.getElementById("cartTotal");
+    const toast = document.getElementById("toast");
+    let toastTimer;
+
+    const yen = value => `¥${value.toLocaleString("ja-JP")}`;
+    const getProduct = id => products.find(product => product.id === Number(id));
+
+    function showToast(message) {
+      window.clearTimeout(toastTimer);
+      toast.textContent = message;
+      toast.classList.add("show");
+      toastTimer = window.setTimeout(() => toast.classList.remove("show"), 2200);
+    }
+
+    function renderProducts() {
+      const count = state.adEnabled ? 6 : 8;
+      workspace.classList.toggle("ad-off", !state.adEnabled);
+      adToggle.setAttribute("aria-checked", String(state.adEnabled));
+      adState.textContent = state.adEnabled ? "ON" : "OFF";
+      visibleCount.textContent = `${count}商品`;
+      productGrid.innerHTML = products.slice(0, count).map((product, index) => `
+        <article class="product-card" data-product-id="${product.id}" style="animation-delay:${index * 25}ms">
+          <button class="product-media" type="button" data-customize="${product.id}" aria-label="${product.name}をカスタマイズ">
+            <img src="${product.image}" alt="${product.name}" width="700" height="700">
+            <span class="temperature-tag">${product.temperature}</span>
+          </button>
+          <div class="product-info">
+            <div class="product-copy">
+              <h2 class="product-name" title="${product.name}">${product.name}</h2>
+              <p class="product-price">${yen(product.price)}</p>
+            </div>
+            <button class="add-button" type="button" data-add="${product.id}" aria-label="${product.name}をカートに追加">${icons.plus}</button>
+          </div>
+        </article>
+      `).join("");
+    }
+
+    function renderCart() {
+      const entries = [...state.cart.entries()]
+        .map(([id, quantity]) => ({ product: getProduct(id), quantity }))
+        .filter(entry => entry.product && entry.quantity > 0);
+      const itemCount = entries.reduce((sum, entry) => sum + entry.quantity, 0);
+      const total = entries.reduce((sum, entry) => sum + entry.product.price * entry.quantity, 0);
+
+      document.querySelectorAll("[data-cart-count]").forEach(element => {
+        element.textContent = itemCount;
+      });
+      cartTotal.textContent = yen(total);
+      cartItems.classList.toggle("scrollable", entries.length > 3);
+
+      if (!entries.length) {
+        cartItems.innerHTML = '<div class="empty-cart">カートに商品がありません。<br>商品の「＋」から追加してください。</div>';
+        return;
+      }
+
+      cartItems.innerHTML = entries.map(({ product, quantity }) => `
+        <article class="cart-item">
+          <img class="cart-thumb" src="${product.image}" alt="${product.name}" width="210" height="210">
+          <div class="cart-item-main">
+            <h3 class="cart-item-name">${product.name}</h3>
+            <div class="cart-item-variant">${state.cartVariants.get(product.id) || product.variant}</div>
+          </div>
+          <button class="remove-item" type="button" data-remove="${product.id}" aria-label="${product.name}を削除">${icons.trash}</button>
+          <div class="quantity-control" aria-label="${product.name}の数量">
+            <button class="quantity-button" type="button" data-decrease="${product.id}" aria-label="数量を減らす">${icons.minus}</button>
+            <span class="quantity-value">${quantity}</span>
+            <button class="quantity-button" type="button" data-increase="${product.id}" aria-label="数量を増やす">${icons.plus}</button>
+          </div>
+          <span class="cart-item-price">${yen(product.price * quantity)}</span>
+        </article>
+      `).join("");
+    }
+
+    function setCartOpen(open) {
+      state.cartOpen = open;
+      cartPanel.classList.toggle("closed", !open);
+      openCartButton.classList.toggle("hidden", open);
+      cartPanel.setAttribute("aria-hidden", String(!open));
+    }
+
+    function addToCart(id) {
+      state.cart.set(id, (state.cart.get(id) || 0) + 1);
+      renderCart();
+      showToast(`${getProduct(id).name}をカートに追加しました。`);
+    }
+
+    const customizationLayer = document.getElementById("customizationLayer");
+    const customDraft = {
+      productId: null,
+      temperature: "热饮",
+      size: "中杯",
+      sweetness: "标准糖",
+      milk: "牛奶",
+      quantity: 1
+    };
+    let preserveCustomDraft = false;
+
+    const productDescriptions = {
+      1: "浓郁咖啡与香醇牛奶搭配，口感顺滑。",
+      2: "清爽冰咖啡，香气纯净，回味轻盈。",
+      3: "浓缩咖啡、焦糖与绵密奶泡的香甜组合。",
+      4: "浓郁浓缩咖啡，呈现醇厚咖啡香气。",
+      5: "香浓拿铁搭配细腻奶泡，风味柔和。",
+      6: "冰凉咖啡与清爽口感，适合随时享用。",
+      7: "香醇奶茶搭配 Q 弹珍珠，层次丰富。",
+      8: "清新抹茶与香醇牛奶融合，甘甜顺滑。"
+    };
+
+    function resetCustomization(productId) {
+      Object.assign(customDraft, {
+        productId,
+        temperature: "热饮",
+        size: "中杯",
+        sweetness: "标准糖",
+        milk: "牛奶",
+        quantity: 1
+      });
+    }
+
+    function renderCustomization() {
+      const product = getProduct(customDraft.productId);
+      if (!product) return;
+      const image = document.getElementById("customProductImage");
+      image.src = product.image;
+      image.alt = product.name;
+      document.getElementById("customProductName").textContent = product.name;
+      document.getElementById("customProductPrice").textContent = yen(product.price);
+      document.getElementById("customProductDescription").textContent = productDescriptions[product.id];
+      document.getElementById("customQuantity").textContent = customDraft.quantity;
+      document.getElementById("customTotal").textContent = yen(product.price * customDraft.quantity);
+      document.querySelectorAll("[data-option-group]").forEach(group => {
+        const groupName = group.dataset.optionGroup;
+        group.querySelectorAll("[data-value]").forEach(button => {
+          const active = customDraft[groupName] === button.dataset.value;
+          button.classList.toggle("active", active);
+          button.setAttribute("aria-pressed", String(active));
+        });
+      });
+    }
+
+    function openCustomization(productId) {
+      if (customDraft.productId !== productId || !preserveCustomDraft) resetCustomization(productId);
+      preserveCustomDraft = false;
+      renderCustomization();
+      customizationLayer.classList.add("open");
+      customizationLayer.setAttribute("aria-hidden", "false");
+    }
+
+    function hideCustomization(cancelChanges) {
+      customizationLayer.classList.remove("open");
+      customizationLayer.setAttribute("aria-hidden", "true");
+      preserveCustomDraft = !cancelChanges;
+      if (cancelChanges) customDraft.productId = null;
+    }
+
+    document.getElementById("collapseCustomization").addEventListener("click", () => hideCustomization(false));
+    document.getElementById("closeCustomization").addEventListener("click", () => hideCustomization(true));
+    document.getElementById("customizationBackdrop").addEventListener("click", () => hideCustomization(false));
+
+    document.querySelector(".custom-options").addEventListener("click", event => {
+      const button = event.target.closest("[data-value]");
+      const group = event.target.closest("[data-option-group]");
+      if (!button || !group) return;
+      customDraft[group.dataset.optionGroup] = button.dataset.value;
+      renderCustomization();
+    });
+
+    document.querySelector(".custom-quantity").addEventListener("click", event => {
+      const button = event.target.closest("[data-custom-quantity]");
+      if (!button) return;
+      const change = button.dataset.customQuantity === "increase" ? 1 : -1;
+      customDraft.quantity = Math.min(20, Math.max(1, customDraft.quantity + change));
+      renderCustomization();
+    });
+
+    document.getElementById("addCustomizedOrder").addEventListener("click", () => {
+      const product = getProduct(customDraft.productId);
+      if (!product) return;
+      state.cart.set(product.id, (state.cart.get(product.id) || 0) + customDraft.quantity);
+      const variant = `${customDraft.temperature} / ${customDraft.size} / ${customDraft.sweetness} / ${customDraft.milk}`;
+      state.cartVariants.set(product.id, variant);
+      const quantity = customDraft.quantity;
+      renderCart();
+      hideCustomization(true);
+      showToast(`${product.name} × ${quantity}を注文に追加しました。`);
+    });
+
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape" && customizationLayer.classList.contains("open")) hideCustomization(true);
+    });
+
+    adToggle.addEventListener("click", () => {
+      state.adEnabled = !state.adEnabled;
+      renderProducts();
+      showToast(state.adEnabled ? "広告 ON：6商品を表示しています。" : "広告 OFF：8商品を表示しています。");
+    });
+
+    productGrid.addEventListener("click", event => {
+      const addButton = event.target.closest("[data-add]");
+      if (addButton) {
+        addToCart(Number(addButton.dataset.add));
+        return;
+      }
+      const customizeButton = event.target.closest("[data-customize]");
+      if (customizeButton) openCustomization(Number(customizeButton.dataset.customize));
+    });
+
+    cartItems.addEventListener("click", event => {
+      const increase = event.target.closest("[data-increase]");
+      const decrease = event.target.closest("[data-decrease]");
+      const remove = event.target.closest("[data-remove]");
+      if (increase) {
+        const id = Number(increase.dataset.increase);
+        state.cart.set(id, (state.cart.get(id) || 0) + 1);
+      }
+      if (decrease) {
+        const id = Number(decrease.dataset.decrease);
+        const next = (state.cart.get(id) || 0) - 1;
+        if (next > 0) state.cart.set(id, next);
+        else {
+          state.cart.delete(id);
+          state.cartVariants.delete(id);
+        }
+      }
+      if (remove) {
+        const id = Number(remove.dataset.remove);
+        state.cart.delete(id);
+        state.cartVariants.delete(id);
+      }
+      if (increase || decrease || remove) renderCart();
+    });
+
+    document.getElementById("closeCart").addEventListener("click", () => setCartOpen(false));
+    openCartButton.addEventListener("click", () => setCartOpen(true));
+    document.getElementById("checkoutButton").addEventListener("click", () => {
+      if (!state.cart.size) {
+        showToast("商品を選択してください。");
+        return;
+      }
+      const order = {
+        items: [...state.cart.entries()].map(([id, quantity]) => {
+          const product = getProduct(id);
+          return { name: product.name, price: product.price, quantity, image: product.image, variant: state.cartVariants.get(id) || product.variant };
+        })
+      };
+      try {
+        localStorage.setItem("fujiOrder", JSON.stringify(order));
+      } catch (error) {
+        console.warn("订单暂存不可用，将使用默认演示订单。", error);
+      }
+      window.location.href = "payment.html";
+    });
+
+    document.querySelectorAll("[data-toast]").forEach(button => {
+      button.addEventListener("click", () => showToast(button.dataset.toast));
+    });
+
+    document.querySelectorAll("[data-category]").forEach(button => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll("[data-category]").forEach(item => {
+          item.classList.toggle("active", item === button);
+          item.removeAttribute("aria-current");
+        });
+        button.setAttribute("aria-current", "page");
+        showToast(`${button.dataset.category}：デモ商品を表示しています。`);
+      });
+    });
+
+    renderProducts();
+    renderCart();
+    setCartOpen(state.cartOpen);
+    if (previewParams.get("customize") === "1") {
+      openCustomization(Number(previewParams.get("product")) || 1);
+    }
+  </script>
+</body>
+</html>

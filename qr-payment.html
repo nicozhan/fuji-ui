@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>扫码支付 - Fuji Electric</title>
+  <style>
+    :root {
+      --bg: #f4f7fa;
+      --surface: #ffffff;
+      --surface-soft: #f7fafc;
+      --border: #e3ebf0;
+      --text: #102d43;
+      --text-2: #6c7e8c;
+      --accent: #0877c9;
+      --accent-dark: #075b9e;
+      --accent-weak: #e8f4fd;
+      --success: #168565;
+      --danger: #c64747;
+      --status-h: 56px;
+      --progress-h: 104px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-width: 860px; }
+    body {
+      color: var(--text);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    button { font: inherit; }
+    button:focus-visible { outline: 3px solid rgba(8,119,201,.28); outline-offset: 3px; }
+
+    .qr-page {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100vh;
+      min-height: 680px;
+      overflow: hidden;
+    }
+
+    .status-bar {
+      display: flex;
+      flex: 0 0 var(--status-h);
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 0 32px;
+      color: #fff;
+      background: var(--accent-dark);
+      font-size: 13px;
+    }
+    .status-left, .status-right, .machine-id {
+      display: flex;
+      align-items: center;
+    }
+    .status-left, .status-right { gap: 28px; }
+    .machine-id { gap: 9px; white-space: nowrap; }
+    .machine-id svg { width: 17px; height: 17px; }
+    .machine-id span { color: #cfe8f8; }
+    .machine-id strong { color: #fff; font-weight: 600; }
+
+    .progress-header {
+      position: relative;
+      display: flex;
+      flex: 0 0 var(--progress-h);
+      align-items: center;
+      padding: 0 48px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .progress-list {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(150px, 1fr));
+      gap: 0;
+      width: min(1200px, calc(100% - 190px));
+      margin: 0 auto;
+      padding: 0;
+      list-style: none;
+    }
+    .progress-step {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 11px;
+      min-width: 0;
+      color: #91a0aa;
+      font-size: 16px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .progress-step:not(:last-child)::after {
+      position: absolute;
+      z-index: 0;
+      top: 50%;
+      left: calc(50% + 72px);
+      width: calc(100% - 144px);
+      height: 2px;
+      background: #dfe8ed;
+      content: "";
+      transform: translateY(-50%);
+    }
+    .step-number {
+      position: relative;
+      z-index: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      flex: 0 0 32px;
+      border: 2px solid #d4e0e7;
+      border-radius: 50%;
+      background: #fff;
+      font-size: 14px;
+      font-weight: 750;
+    }
+    .progress-step.done { color: var(--text-2); }
+    .progress-step.done .step-number { color: #fff; border-color: #75a9cc; background: #75a9cc; }
+    .progress-step.done:not(:last-child)::after { background: #a9c8dc; }
+    .progress-step.current { color: var(--accent); font-weight: 750; }
+    .progress-step.current .step-number { color: #fff; border-color: var(--accent); background: var(--accent); box-shadow: 0 0 0 6px var(--accent-weak); }
+    .home-button {
+      position: absolute;
+      right: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      min-width: 126px;
+      height: 54px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--text);
+      background: #fff;
+      font-size: 15px;
+      font-weight: 650;
+      cursor: pointer;
+    }
+    .home-button:hover { border-color: #b9d9ed; background: var(--accent-weak); }
+    .home-button svg { width: 20px; height: 20px; }
+
+    .checkout-main {
+      display: flex;
+      flex: 1 1 auto;
+      flex-direction: column;
+      align-items: center;
+      min-height: 0;
+      padding: 25px 48px 24px;
+    }
+    .order-heading { flex: 0 0 auto; text-align: center; }
+    .order-label { margin: 0 0 4px; color: var(--text-2); font-size: 16px; }
+    .order-total { margin: 0; font-size: 48px; font-weight: 800; line-height: 1.2; letter-spacing: -.025em; }
+    .order-count { margin: 9px 0 0; color: var(--text-2); font-size: 16px; }
+
+    .payment-content {
+      display: grid;
+      grid-template-columns: minmax(0, 1.06fr) minmax(0, 1fr);
+      gap: 28px;
+      width: min(1160px, 100%);
+      min-height: 0;
+      margin: 25px auto 0;
+    }
+    .media-card, .qr-card {
+      height: 530px;
+      min-width: 0;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      background: var(--surface);
+      box-shadow: 0 7px 22px rgba(33,73,101,.05);
+    }
+    .media-card { position: relative; }
+    .backend-image {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      background: #eaf0f3;
+    }
+
+    .qr-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 25px 32px 24px;
+      text-align: center;
+    }
+    .qr-title { margin: 0; font-size: 27px; font-weight: 750; line-height: 1.3; }
+    .qr-frame {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 274px;
+      height: 274px;
+      flex: 0 0 274px;
+      margin: 20px auto 16px;
+      padding: 12px;
+      border: 1px solid #dfe8ed;
+      border-radius: 15px;
+      background: #fff;
+    }
+    .qr-code { display: flex; align-items: center; justify-content: center; width: 248px; height: 248px; }
+    .qr-code img, .qr-code canvas { display: block; width: 248px !important; height: 248px !important; }
+    .qr-instruction { margin: 0; color: var(--text-2); font-size: 16px; }
+    .countdown {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 12px;
+      margin-top: auto;
+      padding-top: 17px;
+      color: var(--text-2);
+      font-size: 15px;
+    }
+    .countdown strong { color: var(--accent); font-size: 30px; font-variant-numeric: tabular-nums; letter-spacing: .025em; }
+    .payment-note { flex: 0 0 auto; margin: 20px 0 0; color: var(--text-2); font-size: 15px; text-align: center; }
+
+    .making-view {
+      display: none;
+      flex: 1 1 auto;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 0;
+      padding: 32px;
+      text-align: center;
+    }
+    .qr-page.is-making .checkout-main { display: none; }
+    .qr-page.is-making .making-view { display: flex; }
+    .making-illustration {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 250px;
+      height: 250px;
+      border-radius: 50%;
+      background: var(--accent-weak);
+    }
+    .making-illustration svg { width: 155px; height: 155px; }
+    .steam { animation: steam 1.8s ease-in-out infinite; transform-origin: center bottom; }
+    .steam.two { animation-delay: .45s; }
+    @keyframes steam { 0%,100% { opacity: .25; transform: translateY(5px); } 50% { opacity: 1; transform: translateY(-5px); } }
+    .making-view h1 { margin: 32px 0 10px; font-size: 38px; }
+    .making-view p { margin: 0; color: var(--text-2); font-size: 18px; }
+    .making-progress { width: 360px; height: 8px; margin-top: 32px; overflow: hidden; border-radius: 999px; background: #dfeaf1; }
+    .making-progress::after { display: block; width: 42%; height: 100%; border-radius: inherit; background: var(--accent); content: ""; animation: making 1.6s ease-in-out infinite; }
+    @keyframes making { from { transform: translateX(-110%); } to { transform: translateX(340%); } }
+
+    .modal-layer {
+      position: fixed;
+      z-index: 50;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+      background: rgba(10,30,43,.46);
+    }
+    .modal-layer.open { display: flex; }
+    .modal {
+      width: min(480px, 100%);
+      padding: 34px;
+      border-radius: 22px;
+      background: #fff;
+      box-shadow: 0 22px 70px rgba(10,40,60,.2);
+      text-align: center;
+      animation: modal-in .2s ease both;
+    }
+    @keyframes modal-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .modal-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 66px;
+      height: 66px;
+      margin: 0 auto 20px;
+      border-radius: 50%;
+      color: var(--accent);
+      background: var(--accent-weak);
+      font-size: 30px;
+      font-weight: 700;
+    }
+    .modal.warning .modal-icon { color: var(--danger); background: #fff0f0; }
+    .modal h2 { margin: 0 0 12px; font-size: 27px; }
+    .modal p { margin: 0; color: var(--text-2); font-size: 16px; line-height: 1.7; }
+    .modal-actions { display: flex; gap: 12px; margin-top: 28px; }
+    .modal-button {
+      display: inline-flex;
+      flex: 1;
+      align-items: center;
+      justify-content: center;
+      min-height: 56px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--text);
+      background: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .modal-button.primary { color: #fff; border-color: var(--accent); background: var(--accent); }
+    .modal-button.primary:hover { background: var(--accent-dark); }
+
+    .toast {
+      position: fixed;
+      z-index: 80;
+      bottom: 24px;
+      left: 50%;
+      max-width: min(560px, 80vw);
+      padding: 12px 20px;
+      border-radius: 999px;
+      color: #fff;
+      background: rgba(16,45,67,.95);
+      font-size: 13px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, 10px);
+      transition: opacity .2s ease, transform .2s ease;
+    }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+    @media (max-height: 900px) {
+      .checkout-main { padding-top: 18px; padding-bottom: 18px; }
+      .order-total { font-size: 40px; }
+      .payment-content { margin-top: 18px; }
+      .media-card, .qr-card { height: 450px; }
+      .qr-card { padding-top: 18px; padding-bottom: 18px; }
+      .qr-title { font-size: 23px; }
+      .qr-frame { width: 230px; height: 230px; flex-basis: 230px; margin: 13px auto 11px; }
+      .qr-code, .qr-code img, .qr-code canvas { width: 204px !important; height: 204px !important; }
+      .countdown { padding-top: 10px; }
+      .payment-note { margin-top: 14px; }
+    }
+    @media (max-width: 1250px) {
+      .progress-header { padding: 0 28px; }
+      .progress-list { width: calc(100% - 145px); grid-template-columns: repeat(4, minmax(120px, 1fr)); }
+      .progress-step { gap: 7px; font-size: 14px; }
+      .progress-step:not(:last-child)::after { left: calc(50% + 62px); width: calc(100% - 124px); }
+      .home-button { right: 24px; min-width: 108px; }
+      .checkout-main { padding-right: 30px; padding-left: 30px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="qr-page" id="qrPage">
+    <section class="status-bar" aria-label="机器状态">
+      <div class="status-left">
+        <div class="machine-id">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="5" y="2.5" width="14" height="19" rx="3"/><path d="M9 6h6M9 18h6"/></svg>
+          <span>MACHINE ID：<strong>fuji12345678</strong></span>
+        </div>
+        <div>CONTACT：800-1234-5678</div>
+      </div>
+      <div class="status-right">
+        <time id="machineTime">11/09 13:45</time>
+        <svg width="18" height="16" viewBox="0 0 18 16" fill="currentColor" aria-label="网络状态正常"><rect x="1" y="11" width="3" height="4" rx="1"/><rect x="6" y="7" width="3" height="8" rx="1"/><rect x="11" y="3" width="3" height="12" rx="1"/></svg>
+      </div>
+    </section>
+
+    <header class="progress-header">
+      <ol class="progress-list" aria-label="订单进度">
+        <li class="progress-step done" data-step="1" aria-label="选择商品，已完成"><span class="step-number">✓</span><span>选择商品</span></li>
+        <li class="progress-step done" data-step="2" aria-label="口味定制，已完成"><span class="step-number">✓</span><span>口味定制</span></li>
+        <li class="progress-step current" data-step="3" aria-current="step"><span class="step-number">3</span><span>结账</span></li>
+        <li class="progress-step" data-step="4" aria-label="开始制作，待支付完成后自动进入"><span class="step-number">4</span><span>开始制作</span></li>
+      </ol>
+      <button class="home-button" id="homeButton" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m3 11 9-8 9 8M5.5 9.5V21h13V9.5M9.5 21v-7h5v7"/></svg>
+        Home
+      </button>
+    </header>
+
+    <section class="checkout-main" aria-label="扫码支付">
+      <div class="order-heading">
+        <p class="order-label">订单总金额</p>
+        <h1 class="order-total" id="orderTotal">¥1,000</h1>
+        <p class="order-count" id="orderCount">购买商品（3件）</p>
+      </div>
+
+      <div class="payment-content">
+        <section class="media-card" aria-label="后台配置图片">
+          <img class="backend-image" id="backendImage" src="assets/welcome-bg.jpg" alt="后台上传的展示图片">
+        </section>
+
+        <section class="qr-card">
+          <h2 class="qr-title">扫码支付</h2>
+          <div class="qr-frame">
+            <div class="qr-code" id="qrCode" role="img" aria-label="订单支付二维码"></div>
+          </div>
+          <p class="qr-instruction">请使用手机扫描二维码</p>
+          <div class="countdown" aria-live="polite">剩余时间 <strong id="countdown">03:00</strong></div>
+        </section>
+      </div>
+      <p class="payment-note">支付成功后将自动开始制作</p>
+    </section>
+
+    <section class="making-view" aria-label="饮品制作中">
+      <div class="making-illustration" aria-hidden="true">
+        <svg viewBox="0 0 160 160" fill="none">
+          <path class="steam" d="M58 45c-10-12 9-16 0-29" stroke="#0877c9" stroke-width="5" stroke-linecap="round"/>
+          <path class="steam two" d="M88 45c-10-12 9-16 0-29" stroke="#0877c9" stroke-width="5" stroke-linecap="round"/>
+          <path d="M35 57h87l-9 70a14 14 0 0 1-14 12H58a14 14 0 0 1-14-12L35 57Z" fill="#ffffff" stroke="#0877c9" stroke-width="5" stroke-linejoin="round"/>
+          <path d="M42 82h73l-6 44a10 10 0 0 1-10 9H59a10 10 0 0 1-10-9l-7-44Z" fill="#d9edfa"/>
+          <path d="M120 70h8a17 17 0 0 1 0 34h-12" stroke="#0877c9" stroke-width="5"/>
+          <path d="M29 57h99" stroke="#0877c9" stroke-width="7" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <h1>正在制作饮品</h1>
+      <p>支付已完成，请稍候。制作完成后请及时取走饮品。</p>
+      <div class="making-progress" aria-label="制作中"></div>
+    </section>
+  </main>
+
+  <div class="modal-layer" id="homeModal" role="dialog" aria-modal="true" aria-labelledby="homeTitle" aria-hidden="true">
+    <div class="modal">
+      <div class="modal-icon">⌂</div>
+      <h2 id="homeTitle">返回欢迎页？</h2>
+      <p>当前订单尚未完成。确认返回后，将清除本订单及未提交的支付信息。</p>
+      <div class="modal-actions">
+        <button class="modal-button" id="stayButton" type="button">继续支付</button>
+        <button class="modal-button primary" id="confirmHomeButton" type="button">清除订单并返回</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-layer" id="timeoutModal" role="alertdialog" aria-modal="true" aria-labelledby="timeoutTitle" aria-hidden="true">
+    <div class="modal warning">
+      <div class="modal-icon">!</div>
+      <h2 id="timeoutTitle">支付已超时</h2>
+      <p>本次二维码已失效，请重新生成支付二维码。<br>如已扣款，请联系现场工作人员。</p>
+      <div class="modal-actions">
+        <button class="modal-button" id="timeoutHomeButton" type="button">返回欢迎页</button>
+        <button class="modal-button primary" id="retryButton" type="button">重新支付</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="assets/qrcode.min.js"></script>
+  <script>
+    const PAYMENT_TIMEOUT_SECONDS = 180;
+    const qrPage = document.getElementById("qrPage");
+    const qrCodeElement = document.getElementById("qrCode");
+    const countdownElement = document.getElementById("countdown");
+    const homeModal = document.getElementById("homeModal");
+    const timeoutModal = document.getElementById("timeoutModal");
+    const toast = document.getElementById("toast");
+    const defaultOrder = {
+      items: [
+        { name: "カフェラテ", price: 300, quantity: 1, image: "assets/latte.jpg" },
+        { name: "タピオカミルクティー", price: 360, quantity: 1, image: "assets/tapioca.jpg" },
+        { name: "抹茶ラテ", price: 340, quantity: 1, image: "assets/matcha.jpg" }
+      ]
+    };
+    const paymentConfig = {
+      backendImage: "assets/welcome-bg.jpg",
+      paymentUrl: "https://pay.example.com/fuji/checkout"
+    };
+    let order = defaultOrder;
+    let paymentState = "waiting";
+    let paymentSession = 0;
+    let deadline = 0;
+    let countdownTimer = null;
+    let toastTimer = null;
+
+    function loadOrder() {
+      try {
+        const saved = JSON.parse(localStorage.getItem("fujiOrder"));
+        if (saved && Array.isArray(saved.items) && saved.items.length) return saved;
+      } catch (error) {
+        console.warn("使用默认演示订单。", error);
+      }
+      return defaultOrder;
+    }
+
+    function renderOrder() {
+      order = loadOrder();
+      const items = order.items.filter(item => item && Number(item.price) >= 0);
+      const quantity = items.reduce((sum, item) => sum + (Number(item.quantity) || 1), 0);
+      const total = items.reduce((sum, item) => sum + Number(item.price || 0) * (Number(item.quantity) || 1), 0);
+      document.getElementById("orderTotal").textContent = `¥${total.toLocaleString("zh-CN")}`;
+      document.getElementById("orderCount").textContent = `购买商品（${quantity}件）`;
+    }
+
+    function updateMachineTime() {
+      const now = new Date();
+      const date = `${String(now.getMonth() + 1).padStart(2, "0")}/${String(now.getDate()).padStart(2, "0")}`;
+      const time = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+      const clock = document.getElementById("machineTime");
+      clock.textContent = `${date} ${time}`;
+      clock.dateTime = now.toISOString();
+    }
+
+    function showToast(message) {
+      window.clearTimeout(toastTimer);
+      toast.textContent = message;
+      toast.classList.add("show");
+      toastTimer = window.setTimeout(() => toast.classList.remove("show"), 2400);
+    }
+
+    function setModal(modal, open) {
+      modal.classList.toggle("open", open);
+      modal.setAttribute("aria-hidden", String(!open));
+    }
+
+    function formatTime(seconds) {
+      const minutes = Math.floor(seconds / 60);
+      const remainder = seconds % 60;
+      return `${String(minutes).padStart(2, "0")}:${String(remainder).padStart(2, "0")}`;
+    }
+
+    function createPaymentCode() {
+      paymentSession += 1;
+      const orderId = `FUJI-${Date.now()}-${paymentSession}`;
+      const separator = paymentConfig.paymentUrl.includes("?") ? "&" : "?";
+      const payload = `${paymentConfig.paymentUrl}${separator}order=${encodeURIComponent(orderId)}`;
+      qrCodeElement.replaceChildren();
+      if (typeof window.QRCode !== "function") {
+        qrCodeElement.textContent = "二维码加载失败，请重新支付";
+        return;
+      }
+      new window.QRCode(qrCodeElement, {
+        text: payload,
+        width: 248,
+        height: 248,
+        colorDark: "#102d43",
+        colorLight: "#ffffff",
+        correctLevel: window.QRCode.CorrectLevel.M
+      });
+    }
+
+    function stopCountdown() {
+      if (countdownTimer !== null) window.clearInterval(countdownTimer);
+      countdownTimer = null;
+    }
+
+    function tickCountdown() {
+      if (paymentState !== "waiting") return;
+      const remaining = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+      countdownElement.textContent = formatTime(remaining);
+      if (remaining === 0) expirePayment();
+    }
+
+    function startPayment() {
+      stopCountdown();
+      paymentState = "waiting";
+      setModal(timeoutModal, false);
+      setModal(homeModal, false);
+      createPaymentCode();
+      deadline = Date.now() + PAYMENT_TIMEOUT_SECONDS * 1000;
+      countdownElement.textContent = formatTime(PAYMENT_TIMEOUT_SECONDS);
+      countdownTimer = window.setInterval(tickCountdown, 250);
+    }
+
+    function expirePayment() {
+      if (paymentState !== "waiting") return;
+      paymentState = "expired";
+      stopCountdown();
+      countdownElement.textContent = "00:00";
+      setModal(homeModal, false);
+      setModal(timeoutModal, true);
+      document.getElementById("retryButton").focus();
+    }
+
+    function updateProgressForMaking() {
+      const checkout = document.querySelector('[data-step="3"]');
+      const making = document.querySelector('[data-step="4"]');
+      checkout.classList.remove("current");
+      checkout.classList.add("done");
+      checkout.removeAttribute("aria-current");
+      checkout.querySelector(".step-number").textContent = "✓";
+      checkout.setAttribute("aria-label", "结账，已完成");
+      making.classList.add("current");
+      making.setAttribute("aria-current", "step");
+      making.setAttribute("aria-label", "开始制作，当前步骤");
+    }
+
+    // 支付网关/后台轮询接入入口：仅在收到真实成功结果后调用。
+    function handlePaymentResult(result) {
+      const status = typeof result === "string" ? result : result && result.status;
+      if (!["paid", "success", "succeeded"].includes(status)) return false;
+      if (paymentState !== "waiting") return false;
+      paymentState = "paid";
+      stopCountdown();
+      setModal(homeModal, false);
+      setModal(timeoutModal, false);
+      updateProgressForMaking();
+      qrPage.classList.add("is-making");
+      document.title = "正在制作饮品 - Fuji Electric";
+      try { sessionStorage.setItem("fujiPaymentStatus", "paid"); } catch (error) { console.warn(error); }
+      return true;
+    }
+
+    function clearOrderAndGoHome() {
+      stopCountdown();
+      paymentState = "cancelled";
+      try {
+        localStorage.removeItem("fujiOrder");
+        sessionStorage.removeItem("fujiPaymentStatus");
+      } catch (error) { console.warn(error); }
+      window.location.href = "welcome.html";
+    }
+
+    // 后台配置入口：替换展示图与支付网关地址，二维码内容随之更新。
+    function configureQRPayment(config) {
+      if (config && typeof config.backendImage === "string" && config.backendImage) {
+        paymentConfig.backendImage = config.backendImage;
+        document.getElementById("backendImage").src = config.backendImage;
+      }
+      if (config && typeof config.paymentUrl === "string" && config.paymentUrl) {
+        paymentConfig.paymentUrl = config.paymentUrl;
+      }
+      if (paymentState === "waiting") startPayment();
+    }
+
+    window.handlePaymentResult = handlePaymentResult;
+    window.configureQRPayment = configureQRPayment;
+
+    document.getElementById("homeButton").addEventListener("click", () => {
+      if (paymentState === "paid") {
+        showToast("饮品正在制作，请稍候，暂不能取消订单。");
+        return;
+      }
+      if (paymentState === "expired") return;
+      setModal(homeModal, true);
+      document.getElementById("stayButton").focus();
+    });
+    document.getElementById("stayButton").addEventListener("click", () => {
+      setModal(homeModal, false);
+      document.getElementById("homeButton").focus();
+    });
+    document.getElementById("confirmHomeButton").addEventListener("click", clearOrderAndGoHome);
+    document.getElementById("timeoutHomeButton").addEventListener("click", clearOrderAndGoHome);
+    document.getElementById("retryButton").addEventListener("click", startPayment);
+
+    [homeModal, timeoutModal].forEach(modal => {
+      modal.addEventListener("click", event => {
+        if (event.target !== modal) return;
+        if (modal === homeModal) setModal(homeModal, false);
+      });
+    });
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape" && homeModal.classList.contains("open")) setModal(homeModal, false);
+    });
+
+    renderOrder();
+    updateMachineTime();
+    window.setInterval(updateMachineTime, 30000);
+    startPayment();
+  </script>
+</body>
+</html>
