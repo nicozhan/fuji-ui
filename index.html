@@ -522,23 +522,8 @@
     }
     .remove-item:hover { color: var(--accent); }
     .remove-item svg { width: 18px; height: 18px; }
-    .quantity-control { display: flex; align-items: center; align-self: end; gap: 12px; }
-    .quantity-button {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 29px;
-      height: 29px;
-      padding: 0;
-      border: 1px solid #d4e5ee;
-      border-radius: 50%;
-      color: var(--accent);
-      background: #fff;
-      cursor: pointer;
-    }
-    .quantity-button svg { width: 13px; height: 13px; }
-    .quantity-value { min-width: 15px; text-align: center; font-size: 14px; }
-    .cart-item-price { align-self: end; font-size: 14px; font-weight: 650; }
+    .cart-item-qty { margin-left: 7px; color: var(--text); font-weight: 700; white-space: nowrap; }
+    .cart-item-price { align-self: end; grid-column: 3; grid-row: 2; justify-self: end; font-size: 14px; font-weight: 650; }
     .empty-cart { padding: 70px 30px; color: var(--text-2); text-align: center; }
 
     .cart-footer {
@@ -786,8 +771,6 @@
       .cart-thumb { height: 64px; }
       .cart-item-name { margin: 0 24px 3px 0; font-size: 14px; }
       .cart-item-variant { font-size: 11px; }
-      .quantity-control { gap: 8px; }
-      .quantity-button { width: 24px; height: 24px; }
       .cart-footer { padding: 16px 28px 20px; }
       .cart-total-row { margin-bottom: 12px; }
       .cart-total-label { font-size: 15px; }
@@ -1100,6 +1083,7 @@
         selectProduct: "商品を選択してください。",
         added: "{name}をカートに追加しました。",
         addedCustom: "{name} × {qty}を注文に追加しました。",
+        limitReached: "1回の注文は最大 {max} 点までです。カートから商品を削除してください。",
         customizeAria: "{name}をカスタマイズ",
         addAria: "{name}をカートに追加",
         removeAria: "{name}を削除",
@@ -1151,6 +1135,7 @@
         selectProduct: "请先选择商品。",
         added: "已将{name}加入购物车。",
         addedCustom: "已添加 {name} × {qty}。",
+        limitReached: "单笔订单最多 {max} 件商品，请先从购物车删除商品。",
         customizeAria: "定制{name}",
         addAria: "将{name}加入购物车",
         removeAria: "删除{name}",
@@ -1202,6 +1187,7 @@
         selectProduct: "Please select a product.",
         added: "{name} added to cart.",
         addedCustom: "{name} × {qty} added to your order.",
+        limitReached: "A single order can contain up to {max} items. Please remove an item first.",
         customizeAria: "Customize {name}",
         addAria: "Add {name} to cart",
         removeAria: "Remove {name}",
@@ -1253,6 +1239,7 @@
         selectProduct: "상품을 선택해 주세요.",
         added: "{name}을(를) 장바구니에 담았습니다.",
         addedCustom: "{name} × {qty}을(를) 주문에 추가했습니다.",
+        limitReached: "주문은 최대 {max}개까지 가능합니다. 장바구니에서 상품을 먼저 삭제해 주세요.",
         customizeAria: "{name} 커스터마이즈",
         addAria: "{name} 장바구니에 담기",
         removeAria: "{name} 삭제",
@@ -1279,6 +1266,7 @@
       }
     };
 
+    const MAX_ORDER_ITEMS = 3;
     const products = [
       { id: 1, price: 360, image: "assets/caramel-macchiato.png", temperature: "iced" },
       { id: 2, price: 380, image: "assets/coconut-mocha.png", temperature: "iced" },
@@ -1332,7 +1320,6 @@
 
     const icons = {
       plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
-      minus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14"/></svg>',
       trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M7 7l1 14h8l1-14M10 11v6M14 11v6"/></svg>'
     };
 
@@ -1416,14 +1403,9 @@
           <img class="cart-thumb" src="${product.image}" alt="${name}" width="210" height="210">
           <div class="cart-item-main">
             <h3 class="cart-item-name">${name}</h3>
-            <div class="cart-item-variant">${variantLabel(variant)}</div>
+            <div class="cart-item-variant">${variantLabel(variant)}<span class="cart-item-qty">× ${quantity}</span></div>
           </div>
           <button class="remove-item" type="button" data-remove="${product.id}" aria-label="${t("removeAria", { name })}">${icons.trash}</button>
-          <div class="quantity-control" aria-label="${t("qtyAria", { name })}">
-            <button class="quantity-button" type="button" data-decrease="${product.id}" aria-label="${t("decrease")}">${icons.minus}</button>
-            <span class="quantity-value">${quantity}</span>
-            <button class="quantity-button" type="button" data-increase="${product.id}" aria-label="${t("increase")}">${icons.plus}</button>
-          </div>
           <span class="cart-item-price">${yen(product.price * quantity)}</span>
         </article>
       `;
@@ -1437,7 +1419,19 @@
       cartPanel.setAttribute("aria-hidden", String(!open));
     }
 
+    function cartItemCount() {
+      return [...state.cart.values()].reduce((sum, quantity) => sum + (Number(quantity) || 0), 0);
+    }
+
+    function showOrderLimit() {
+      showToast(t("limitReached", { max: MAX_ORDER_ITEMS }));
+    }
+
     function addToCart(id) {
+      if (cartItemCount() >= MAX_ORDER_ITEMS) {
+        showOrderLimit();
+        return;
+      }
       state.cart.set(id, (state.cart.get(id) || 0) + 1);
       renderCart();
       showToast(t("added", { name: productName(getProduct(id)) }));
@@ -1519,13 +1513,22 @@
       const button = event.target.closest("[data-custom-quantity]");
       if (!button) return;
       const change = button.dataset.customQuantity === "increase" ? 1 : -1;
-      customDraft.quantity = Math.min(20, Math.max(1, customDraft.quantity + change));
+      const nextQuantity = Math.max(1, customDraft.quantity + change);
+      if (change > 0 && nextQuantity > MAX_ORDER_ITEMS - cartItemCount()) {
+        showOrderLimit();
+        return;
+      }
+      customDraft.quantity = Math.min(MAX_ORDER_ITEMS, nextQuantity);
       renderCustomization();
     });
 
     document.getElementById("addCustomizedOrder").addEventListener("click", () => {
       const product = getProduct(customDraft.productId);
       if (!product) return;
+      if (customDraft.quantity > MAX_ORDER_ITEMS - cartItemCount()) {
+        showOrderLimit();
+        return;
+      }
       state.cart.set(product.id, (state.cart.get(product.id) || 0) + customDraft.quantity);
       state.cartVariants.set(product.id, {
         temperature: `temperature.${customDraft.temperature}`,
@@ -1592,28 +1595,12 @@
     });
 
     cartItems.addEventListener("click", event => {
-      const increase = event.target.closest("[data-increase]");
-      const decrease = event.target.closest("[data-decrease]");
       const remove = event.target.closest("[data-remove]");
-      if (increase) {
-        const id = Number(increase.dataset.increase);
-        state.cart.set(id, (state.cart.get(id) || 0) + 1);
-      }
-      if (decrease) {
-        const id = Number(decrease.dataset.decrease);
-        const next = (state.cart.get(id) || 0) - 1;
-        if (next > 0) state.cart.set(id, next);
-        else {
-          state.cart.delete(id);
-          state.cartVariants.delete(id);
-        }
-      }
-      if (remove) {
-        const id = Number(remove.dataset.remove);
-        state.cart.delete(id);
-        state.cartVariants.delete(id);
-      }
-      if (increase || decrease || remove) renderCart();
+      if (!remove) return;
+      const id = Number(remove.dataset.remove);
+      state.cart.delete(id);
+      state.cartVariants.delete(id);
+      renderCart();
     });
 
     document.getElementById("closeCart").addEventListener("click", () => setCartOpen(false));
