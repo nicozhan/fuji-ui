@@ -91,6 +91,36 @@
     .demo-button.active::before { background: var(--blue); border-color: var(--blue); box-shadow: inset 0 0 0 2px #fff; }
     .demo-button:disabled { opacity: .38; cursor: not-allowed; }
 
+    .demo-home {
+      position: absolute;
+      top: 50%;
+      right: 32px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      height: 36px;
+      padding: 0 18px 0 13px;
+      border: 1px solid rgba(255,255,255,.34);
+      border-radius: 999px;
+      color: #fff;
+      background: rgba(255,255,255,.12);
+      font-size: 13px;
+      font-weight: 650;
+      letter-spacing: .02em;
+      white-space: nowrap;
+      cursor: pointer;
+      transform: translateY(-50%);
+      transition: background .18s ease, border-color .18s ease;
+    }
+    .demo-home:hover { background: rgba(255,255,255,.24); border-color: rgba(255,255,255,.62); }
+    .demo-home:active { background: rgba(255,255,255,.3); }
+    .demo-home svg { width: 16px; height: 16px; }
+    @media (max-width: 1280px) {
+      .demo-home { right: 20px; padding: 0 11px; }
+      .demo-home span { display: none; }
+    }
+
     .brand-header {
       position: relative;
       z-index: 2;
@@ -253,6 +283,10 @@
         <button class="demo-button" type="button" data-demo-state="second" aria-pressed="false" data-i18n="demoSecond">制作第二杯</button>
         <button class="demo-button" type="button" data-demo-state="complete" aria-pressed="false" data-i18n="demoComplete">制作完成（请取杯）</button>
       </div>
+      <button class="demo-home" id="demoHomeButton" type="button" aria-label="返回首页（Demo）">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 10.6 12 3.6l8.5 7"/><path d="M5.6 9.9V20h12.8V9.9"/></svg>
+        <span data-i18n="home">首页</span>
+      </button>
     </section>
 
     <header class="brand-header">
@@ -309,28 +343,28 @@
       zh: {
         htmlLang: "zh-CN", title: "饮品制作", demoTitle: "制作过程页面", demoFirst: "制作第一杯", demoSecond: "制作第二杯", demoComplete: "制作完成（请取杯）",
         making: "饮品正在制作中", makingFor: "正在为您制作第 {current} / {total} 杯", pickup: "请拿走您的饮品", complete: "您的饮品已全部制作完成，感谢光临！",
-        orderProgress: "订单制作进度", cups: "共 {n} 杯", done: "已完成", working: "制作中", waiting: "等待制作", next: "下一杯：{name}", seconds: "{n} 秒", returnHint: "后自动返回首页", homeNow: "立即回到首页",
+        orderProgress: "订单制作进度", cups: "共 {n} 杯", done: "已完成", working: "制作中", waiting: "等待制作", next: "下一杯：{name}", seconds: "{n} 秒", returnHint: "后自动返回首页", homeNow: "立即回到首页", home: "首页", homeAria: "返回首页（Demo）",
         size: { small: "小杯", regular: "中杯", medium: "中杯", large: "大杯" }, temperature: { hot: "热饮", iced: "冷饮" },
         sweetness: { none: "无糖", light: "微糖", half: "半糖", less: "少糖", standard: "标准糖" }, milk: { milk: "牛奶", lowfat: "低脂奶", oat: "燕麦奶", soy: "豆奶" }
       },
       ja: {
         htmlLang: "ja", title: "ドリンク製造", demoTitle: "製造プロセス DEMO", demoFirst: "1杯目を製造", demoSecond: "2杯目を製造", demoComplete: "製造完了（お受け取り）",
         making: "ドリンクを製造しています", makingFor: "{total}杯中 {current}杯目を製造しています", pickup: "ドリンクをお受け取りください", complete: "すべてのドリンクが完成しました。ありがとうございました。",
-        orderProgress: "注文の製造状況", cups: "合計 {n} 杯", done: "完成", working: "製造中", waiting: "待機中", next: "次：{name}", seconds: "{n} 秒", returnHint: "後にホームへ戻ります", homeNow: "ホームへ戻る",
+        orderProgress: "注文の製造状況", cups: "合計 {n} 杯", done: "完成", working: "製造中", waiting: "待機中", next: "次：{name}", seconds: "{n} 秒", returnHint: "後にホームへ戻ります", homeNow: "ホームへ戻る", home: "ホーム", homeAria: "ホームに戻る（Demo）",
         size: { small: "S", regular: "M", medium: "M", large: "L" }, temperature: { hot: "ホット", iced: "アイス" },
         sweetness: { none: "無糖", light: "微糖", half: "半糖", less: "少なめ", standard: "標準" }, milk: { milk: "ミルク", lowfat: "低脂肪乳", oat: "オーツミルク", soy: "豆乳" }
       },
       en: {
         htmlLang: "en", title: "Drink Preparation", demoTitle: "Preparation Demo", demoFirst: "Making cup 1", demoSecond: "Making cup 2", demoComplete: "Complete (pickup)",
         making: "Your drink is being prepared", makingFor: "Preparing cup {current} of {total}", pickup: "Please collect your drinks", complete: "All your drinks are ready. Thank you!",
-        orderProgress: "ORDER PROGRESS", cups: "{n} cups", done: "Ready", working: "Preparing", waiting: "Waiting", next: "Next: {name}", seconds: "{n} sec", returnHint: "until automatic return home", homeNow: "Back to home",
+        orderProgress: "ORDER PROGRESS", cups: "{n} cups", done: "Ready", working: "Preparing", waiting: "Waiting", next: "Next: {name}", seconds: "{n} sec", returnHint: "until automatic return home", homeNow: "Back to home", home: "Home", homeAria: "Back to home (Demo)",
         size: { small: "Small", regular: "Medium", medium: "Medium", large: "Large" }, temperature: { hot: "Hot", iced: "Iced" },
         sweetness: { none: "No sugar", light: "Light", half: "Half", less: "Less", standard: "Standard" }, milk: { milk: "Milk", lowfat: "Low-fat", oat: "Oat milk", soy: "Soy milk" }
       },
       ko: {
         htmlLang: "ko", title: "음료 제조", demoTitle: "제조 과정 DEMO", demoFirst: "첫 번째 잔 제조", demoSecond: "두 번째 잔 제조", demoComplete: "제조 완료（수령）",
         making: "음료를 제조하고 있습니다", makingFor: "총 {total}잔 중 {current}번째 잔을 제조 중입니다", pickup: "음료를 가져가 주세요", complete: "모든 음료가 완성되었습니다. 감사합니다!",
-        orderProgress: "주문 제조 현황", cups: "총 {n}잔", done: "완료", working: "제조 중", waiting: "대기 중", next: "다음: {name}", seconds: "{n}초", returnHint: "후 홈으로 자동 이동", homeNow: "홈으로 바로가기",
+        orderProgress: "주문 제조 현황", cups: "총 {n}잔", done: "완료", working: "제조 중", waiting: "대기 중", next: "다음: {name}", seconds: "{n}초", returnHint: "후 홈으로 자동 이동", homeNow: "홈으로 바로가기", home: "홈", homeAria: "홈으로 이동 (Demo)",
         size: { small: "S", regular: "M", medium: "M", large: "L" }, temperature: { hot: "핫", iced: "아이스" },
         sweetness: { none: "무설탕", light: "약간", half: "반", less: "적게", standard: "표준" }, milk: { milk: "우유", lowfat: "저지방", oat: "오트밀크", soy: "두유" }
       }
@@ -562,6 +596,11 @@
       });
     });
     document.getElementById("returnHomeNow").addEventListener("click", goHome);
+    document.getElementById("demoHomeButton").setAttribute("aria-label", t("homeAria"));
+    document.getElementById("demoHomeButton").addEventListener("click", () => {
+      stopProduction();
+      goHome();
+    });
     document.addEventListener("visibilitychange", () => {
       if (document.hidden) {
         if (productionTimer !== null) window.clearInterval(productionTimer);
