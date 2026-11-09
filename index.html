@@ -302,11 +302,26 @@
       overflow: hidden;
     }
 
-    .product-grid {
+    .product-viewport {
+      position: relative;
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .product-track {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      transition: transform .42s cubic-bezier(.22,.8,.28,1);
+      will-change: transform;
+    }
+
+    .product-page {
       --cols: 3;
       --rows: 2;
       display: grid;
-      flex: 1 1 auto;
+      flex: 0 0 100%;
       grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
       grid-template-rows: repeat(var(--rows), minmax(0, 1fr));
       align-content: stretch;
@@ -314,12 +329,41 @@
       justify-items: stretch;
       gap: var(--grid-gap);
       width: 100%;
+      height: 100%;
       min-height: 0;
     }
     .workspace.ad-off .ad-sidebar { display: none; }
     .workspace.ad-off .product-stage { padding: 20px 26px 0; }
-    .workspace.ad-off .product-grid { --cols: 4; --rows: 2; }
     .workspace.ad-off .product-card { grid-template-rows: 74% 26%; }
+    /* 多页时左右留出箭头通道，避免箭头压住最后一列商品的「＋」 */
+    .product-stage.has-pages { padding-right: 74px; padding-left: 74px; }
+    .workspace.ad-off .product-stage.has-pages { padding: 20px 74px 0; }
+
+    .slide-arrow {
+      position: absolute;
+      z-index: 6;
+      top: calc((100% - var(--pager-h)) / 2);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: clamp(44px, 3vw, 56px);
+      aspect-ratio: 1;
+      padding: 0;
+      border: 1px solid rgba(255,255,255,.72);
+      border-radius: 50%;
+      color: #fff;
+      background: linear-gradient(135deg, #2b8fd6, #0f6cb0);
+      box-shadow: 0 10px 26px rgba(11,84,140,.3);
+      cursor: pointer;
+      transform: translateY(-50%);
+      transition: opacity .22s ease, transform .22s ease, box-shadow .22s ease;
+    }
+    .slide-arrow.next { right: 10px; }
+    .slide-arrow.prev { left: 10px; }
+    .slide-arrow svg { width: 46%; height: 46%; }
+    .slide-arrow:hover { transform: translateY(-50%) scale(1.07); box-shadow: 0 14px 32px rgba(11,84,140,.38); }
+    .slide-arrow:disabled { opacity: 0; pointer-events: none; }
+    .product-stage.single-page .slide-arrow { display: none; }
 
     .product-card {
       position: relative;
@@ -418,27 +462,49 @@
       flex: 0 0 var(--pager-h);
       align-items: center;
       justify-content: center;
-      gap: 9px;
+      gap: 10px;
       color: var(--text-2);
       font-size: 13px;
     }
-    .page-button {
+    .page-numbers { display: inline-flex; align-items: center; gap: 10px; }
+    .page-nav,
+    .page-number {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 31px;
-      height: 31px;
-      padding: 0;
-      border: 0;
-      border-radius: 7px;
-      color: var(--text-2);
-      background: transparent;
+      min-width: 44px;
+      height: 42px;
+      padding: 0 14px;
+      border: 1px solid #c6dbe8;
+      border-radius: 12px;
+      color: var(--accent-dark);
+      background: linear-gradient(180deg, #ffffff, #f2f8fc);
+      box-shadow: 0 3px 8px rgba(24,66,96,.09), inset 0 1px 0 #fff;
+      font-size: 15px;
+      font-weight: 750;
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
       cursor: pointer;
+      transition: color .16s ease, background .16s ease, border-color .16s ease, box-shadow .16s ease, transform .16s ease;
     }
-    .page-button.active { color: #fff; background: var(--accent); }
-    .page-button.next { color: #fff; background: var(--accent); border-radius: 999px; }
-    .page-button svg { width: 15px; height: 15px; }
-    .page-summary { margin-left: 8px; white-space: nowrap; }
+    .page-nav:hover:not(:disabled),
+    .page-number:hover:not(.active) {
+      border-color: var(--accent);
+      color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: 0 9px 18px rgba(8,119,201,.2);
+    }
+    .page-nav:active:not(:disabled),
+    .page-number:active:not(.active) { transform: translateY(0); box-shadow: 0 2px 6px rgba(8,119,201,.14); }
+    .page-number.active {
+      border-color: transparent;
+      color: #fff;
+      background: linear-gradient(135deg, #2f95da, #0e6bad);
+      box-shadow: 0 8px 20px rgba(8,119,201,.32), inset 0 1px 0 rgba(255,255,255,.28);
+    }
+    .page-nav:disabled { opacity: .38; cursor: not-allowed; box-shadow: none; background: #f5f9fc; }
+    .page-nav svg { width: 18px; height: 18px; }
+    .page-summary { margin-left: 14px; color: var(--text-2); font-size: 14px; white-space: nowrap; }
 
     .cart-panel {
       position: absolute;
@@ -1014,20 +1080,25 @@
         <div class="ad-dots" aria-hidden="true"><span class="active"></span><span></span></div>
       </aside>
 
-      <div class="product-stage">
-        <div class="product-grid" id="productGrid" aria-live="polite"></div>
-        <div class="pagination" aria-label="ページネーション">
-          <button class="page-button" type="button" data-i18n-aria="prevPage" data-i18n-toast="firstPage" aria-label="前のページ" data-toast="最初のページです。">
+      <div class="product-stage" id="productStage">
+        <div class="product-viewport">
+          <div class="product-track" id="productTrack" aria-live="polite"></div>
+        </div>
+        <button class="slide-arrow prev" id="slidePrev" type="button" data-i18n-aria="slidePrev" aria-label="前の商品を見る">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m14.5 5.5-7 6.5 7 6.5"/></svg>
+        </button>
+        <button class="slide-arrow next" id="slideNext" type="button" data-i18n-aria="slideNext" aria-label="次の商品を見る">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9.5 5.5 7 6.5-7 6.5"/></svg>
+        </button>
+        <div class="pagination" role="group" aria-label="ページネーション">
+          <button class="page-nav prev" id="pagePrevButton" type="button" data-i18n-aria="prevPage" aria-label="前のページ">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg>
           </button>
-          <button class="page-button active" type="button" aria-current="page">1</button>
-          <button class="page-button" type="button" data-i18n-toast="demoPage" data-toast="デモでは1ページ目を表示しています。">2</button>
-          <button class="page-button" type="button" data-i18n-toast="demoPage" data-toast="デモでは1ページ目を表示しています。">3</button>
-          <button class="page-button" type="button" data-i18n-toast="demoPage" data-toast="デモでは1ページ目を表示しています。">4</button>
-          <span class="page-summary">1 / 4　<span id="visibleCount">6商品</span></span>
-          <button class="page-button next" type="button" data-i18n-aria="nextPage" data-i18n-toast="demoPage" aria-label="次のページ" data-toast="デモでは1ページ目を表示しています。">
+          <div class="page-numbers" id="pageNumbers"></div>
+          <button class="page-nav next" id="pageNextButton" type="button" data-i18n-aria="nextPage" aria-label="次のページ">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
           </button>
+          <span class="page-summary"><span id="pageSummary">1 / 1</span>　<span id="visibleCount">6商品</span></span>
         </div>
       </div>
 
@@ -1174,6 +1245,10 @@
         categories: { all: "すべて", coffee: "コーヒー", milkTea: "ミルクティー", other: "その他のドリンク" },
         categoryToast: "{name}：デモ商品を表示しています。",
         items: "{n}商品",
+        pageOf: "{current} / {total}",
+        pageNumber: "ページ {n}",
+        slidePrev: "前の商品を見る",
+        slideNext: "次の商品を見る",
         prevPage: "前のページ",
         nextPage: "次のページ",
         firstPage: "最初のページです。",
@@ -1228,6 +1303,10 @@
         categories: { all: "全部", coffee: "咖啡", milkTea: "奶茶", other: "其他饮品" },
         categoryToast: "{name}：正在展示演示商品。",
         items: "{n} 件商品",
+        pageOf: "{current} / {total}",
+        pageNumber: "第 {n} 页",
+        slidePrev: "查看前面的商品",
+        slideNext: "查看后面的商品",
         prevPage: "上一页",
         nextPage: "下一页",
         firstPage: "已经是第一页。",
@@ -1282,6 +1361,10 @@
         categories: { all: "All", coffee: "Coffee", milkTea: "Milk tea", other: "Other drinks" },
         categoryToast: "{name}: showing demo products.",
         items: "{n} items",
+        pageOf: "{current} / {total}",
+        pageNumber: "Page {n}",
+        slidePrev: "Previous products",
+        slideNext: "Next products",
         prevPage: "Previous page",
         nextPage: "Next page",
         firstPage: "This is the first page.",
@@ -1336,6 +1419,10 @@
         categories: { all: "전체", coffee: "커피", milkTea: "밀크티", other: "기타 음료" },
         categoryToast: "{name}: 데모 상품을 표시합니다.",
         items: "{n}개 상품",
+        pageOf: "{current} / {total}",
+        pageNumber: "{n}페이지",
+        slidePrev: "이전 상품 보기",
+        slideNext: "다음 상품 보기",
         prevPage: "이전 페이지",
         nextPage: "다음 페이지",
         firstPage: "첫 페이지입니다.",
@@ -1426,6 +1513,7 @@
     const state = {
       adEnabled: previewParams.get("ad") !== "off",
       cartOpen: previewParams.get("cart") === "open",
+      page: 0,
       cart: new Map([[1, 1], [3, 1], [4, 1]]),
       cartVariants: new Map()
     };
@@ -1436,7 +1524,14 @@
     };
 
     const workspace = document.getElementById("workspace");
-    const productGrid = document.getElementById("productGrid");
+    const productStage = document.getElementById("productStage");
+    const productTrack = document.getElementById("productTrack");
+    const pageNumbers = document.getElementById("pageNumbers");
+    const pageSummary = document.getElementById("pageSummary");
+    const slidePrev = document.getElementById("slidePrev");
+    const slideNext = document.getElementById("slideNext");
+    const pagePrevButton = document.getElementById("pagePrevButton");
+    const pageNextButton = document.getElementById("pageNextButton");
     const adToggle = document.getElementById("adToggle");
     const adState = document.getElementById("adState");
     const visibleCount = document.getElementById("visibleCount");
@@ -1457,22 +1552,18 @@
       toastTimer = window.setTimeout(() => toast.classList.remove("show"), 2200);
     }
 
-    function visibleProducts() {
-      return products.slice(0, state.adEnabled ? 6 : 8);
+    // 广告开启时一屏 6 个（3×2），关闭广告后全屏一屏 8 个（4×2），超出则整排左右滑动翻页
+    function pageSize() {
+      return state.adEnabled ? 6 : 8;
     }
 
-    function renderProducts() {
-      const list = visibleProducts();
-      workspace.classList.toggle("ad-off", !state.adEnabled);
-      const cols = list.length >= 7 ? 4 : 3;
-      productGrid.style.setProperty("--cols", String(cols));
-      productGrid.style.setProperty("--rows", String(Math.max(1, Math.ceil(list.length / cols))));
-      adToggle.setAttribute("aria-checked", String(state.adEnabled));
-      adState.textContent = state.adEnabled ? "ON" : "OFF";
-      visibleCount.textContent = t("items", { n: list.length });
-      productGrid.innerHTML = list.map((product, index) => {
-        const name = productName(product);
-        return `
+    function pageCount() {
+      return Math.max(1, Math.ceil(products.length / pageSize()));
+    }
+
+    function productCardMarkup(product, index) {
+      const name = productName(product);
+      return `
         <article class="product-card" data-product-id="${product.id}" style="animation-delay:${index * 25}ms">
           <button class="product-media" type="button" data-customize="${product.id}" aria-label="${t("customizeAria", { name })}">
             <img src="${product.image}" alt="${name}" width="700" height="700">
@@ -1487,7 +1578,64 @@
           </div>
         </article>
       `;
+    }
+
+    function updatePager() {
+      const pages = pageCount();
+      const current = Math.min(state.page, pages - 1);
+      const perPage = pageSize();
+      const start = current * perPage;
+      const shown = products.slice(start, start + perPage).length;
+
+      productTrack.style.transform = `translateX(-${current * 100}%)`;
+      productStage.classList.toggle("single-page", pages <= 1);
+      productStage.classList.toggle("has-pages", pages > 1);
+      slidePrev.disabled = current <= 0;
+      slideNext.disabled = current >= pages - 1;
+      pagePrevButton.disabled = current <= 0;
+      pageNextButton.disabled = current >= pages - 1;
+      pageSummary.textContent = t("pageOf", { current: current + 1, total: pages });
+      visibleCount.textContent = t("items", { n: shown });
+
+      pageNumbers.querySelectorAll("[data-page]").forEach(button => {
+        const active = Number(button.dataset.page) === current;
+        button.classList.toggle("active", active);
+        if (active) button.setAttribute("aria-current", "page");
+        else button.removeAttribute("aria-current");
+      });
+    }
+
+    function goToPage(next) {
+      const target = Math.max(0, Math.min(pageCount() - 1, next));
+      if (target === state.page) return;
+      state.page = target;
+      updatePager();
+    }
+
+    function renderProducts() {
+      workspace.classList.toggle("ad-off", !state.adEnabled);
+      const perPage = pageSize();
+      const pages = pageCount();
+      state.page = Math.max(0, Math.min(state.page, pages - 1));
+
+      adToggle.setAttribute("aria-checked", String(state.adEnabled));
+      adState.textContent = state.adEnabled ? "ON" : "OFF";
+
+      productTrack.innerHTML = Array.from({ length: pages }, (_, pageIndex) => {
+        const slice = products.slice(pageIndex * perPage, pageIndex * perPage + perPage);
+        const cols = slice.length >= 7 ? 4 : 3;
+        const rows = Math.max(1, Math.ceil(slice.length / cols));
+        return `
+        <div class="product-page" style="--cols:${cols};--rows:${rows}">
+          ${slice.map((product, index) => productCardMarkup(product, index)).join("")}
+        </div>`;
       }).join("");
+
+      pageNumbers.innerHTML = Array.from({ length: pages }, (_, index) => `
+        <button class="page-number${index === state.page ? " active" : ""}" type="button" data-page="${index}" aria-label="${t("pageNumber", { n: index + 1 })}">${index + 1}</button>
+      `).join("");
+
+      updatePager();
     }
 
     function renderCart(highlightId) {
@@ -1704,8 +1852,19 @@
 
     adToggle.addEventListener("click", () => {
       state.adEnabled = !state.adEnabled;
+      state.page = 0;
       renderProducts();
-      showToast(state.adEnabled ? t("adOn", { n: visibleProducts().length }) : t("adOff", { n: visibleProducts().length }));
+      const count = Math.min(products.length, pageSize());
+      showToast(state.adEnabled ? t("adOn", { n: count }) : t("adOff", { n: count }));
+    });
+
+    slideNext.addEventListener("click", () => goToPage(state.page + 1));
+    slidePrev.addEventListener("click", () => goToPage(state.page - 1));
+    pageNextButton.addEventListener("click", () => goToPage(state.page + 1));
+    pagePrevButton.addEventListener("click", () => goToPage(state.page - 1));
+    pageNumbers.addEventListener("click", event => {
+      const button = event.target.closest("[data-page]");
+      if (button) goToPage(Number(button.dataset.page));
     });
 
     document.getElementById("demoHomeButton").addEventListener("click", () => {
@@ -1740,7 +1899,7 @@
       else startAdRotation();
     });
 
-    productGrid.addEventListener("click", event => {
+    productTrack.addEventListener("click", event => {
       const addButton = event.target.closest("[data-add]");
       if (addButton) {
         addToCart(Number(addButton.dataset.add));
