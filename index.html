@@ -391,37 +391,57 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
+    /* 商品图：统一 1:1 正方形画框 + 浅暖色柔和渐变（替换原灰色底 #e8edf0） */
     .product-media {
       position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       width: 100%;
       height: 100%;
       min-height: 0;
+      padding: 0;
+      border: 0;
       overflow: hidden;
-      background: #e8edf0;
+      container-type: size;
+      background: radial-gradient(110% 88% at 50% 30%, #fffaf1 0%, #fbf0df 55%, #f2e1c8 100%);
     }
     .product-media img {
       display: block;
-      width: 100%;
-      height: 100%;
-      padding: 2% 6% 1%;
+      flex: 0 0 auto;
+      width: min(100cqw, 100cqh);
+      height: min(100cqw, 100cqh);
+      padding: 0;
       object-fit: contain;
       transition: transform .25s ease;
     }
     .product-card:hover .product-media img { transform: scale(1.025); }
-    /* 实拍照片（自带背景）改为满铺裁切，避免出现灰底留边 */
-    .product-card.is-photo .product-media img { padding: 0; object-fit: cover; }
+    /* 实拍照片同样收进 1:1 画框内，保持视觉尺度一致 */
+    .product-card.is-photo .product-media img { object-fit: cover; }
+    /* Hot / Iced：左上角固定位置、统一尺寸，颜色 + 图标双通道辨识 */
     .temperature-tag {
       position: absolute;
-      bottom: 12px;
+      z-index: 2;
+      top: 12px;
       left: 12px;
-      padding: 5px 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      box-sizing: border-box;
+      min-width: 82px;
+      height: 30px;
+      padding: 0 10px;
       border-radius: 999px;
       color: #fff;
-      background: var(--accent);
       font-size: clamp(10px, .68vw, 13px);
       font-weight: 700;
       line-height: 1;
+      box-shadow: 0 4px 10px rgba(0,0,0,.14), inset 0 1px 0 rgba(255,255,255,.28);
     }
+    .temperature-tag svg { width: 14px; height: 14px; flex: 0 0 14px; }
+    .temperature-tag.is-hot { background: linear-gradient(135deg, #ffa154, #ea6a18); }
+    .temperature-tag.is-iced { background: linear-gradient(135deg, #57b7ef, #147cc7); }
 
     .product-info {
       z-index: 2;
@@ -434,20 +454,22 @@
       background: rgba(255,255,255,.88);
     }
     .product-copy { min-width: 0; }
+    /* 阅读层级：图片 > 名称 > 价格 > 加购按钮 */
     .product-name {
       overflow: hidden;
-      margin: 0 0 4px;
-      font-size: clamp(12px, .9vw, 17px);
-      font-weight: 700;
+      margin: 0 0 5px;
+      color: #16303f;
+      font-size: clamp(13px, 1.04vw, 19px);
+      font-weight: 800;
       line-height: 1.18;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
     .product-price {
       margin: 0;
-      color: #172d3c;
-      font-size: clamp(13px, .95vw, 19px);
-      font-weight: 750;
+      color: #4a6676;
+      font-size: clamp(12px, .86vw, 16px);
+      font-weight: 700;
       line-height: 1.15;
     }
     .add-button {
@@ -766,8 +788,8 @@
       aspect-ratio: 1 / 1;
       border-radius: 20px;
       object-fit: contain;
-      padding: 4%;
-      background: #edf2f4;
+      padding: 0;
+      background: radial-gradient(110% 88% at 50% 30%, #fffaf1 0%, #fbf0df 55%, #f2e1c8 100%);
     }
     .custom-product-name { margin: 20px 0 6px; font-size: 28px; font-weight: 750; }
     .custom-product-price { margin: 0; color: var(--accent-dark); font-size: 26px; font-weight: 800; }
@@ -845,69 +867,55 @@
     .add-order-button:hover { background: var(--accent-dark); }
     .add-order-button svg { width: 24px; height: 24px; }
 
+    /* 单笔订单上限：仅一行文字的轻提示，不遮挡操作，3 秒自动关闭 */
     .order-limit-layer {
       position: fixed;
       z-index: 80;
-      inset: 0;
+      top: 50%;
+      left: 50%;
       display: flex;
-      align-items: center;
       justify-content: center;
       opacity: 0;
       pointer-events: none;
-      transition: opacity .22s ease;
+      transform: translate(-50%, -46%);
+      transition: opacity .2s ease, transform .24s cubic-bezier(.22,.8,.28,1);
     }
-    .order-limit-layer.show { opacity: 1; pointer-events: auto; }
-    .order-limit-backdrop {
-      position: absolute;
-      inset: 0;
-      background: rgba(10,36,54,.42);
-      backdrop-filter: blur(3px);
-    }
-    .order-limit-dialog {
-      position: relative;
-      width: min(560px, 74vw);
-      padding: 44px 50px 52px;
-      overflow: hidden;
-      border-radius: 26px;
-      background: #fff;
-      box-shadow: 0 28px 72px rgba(9,38,58,.3);
-      text-align: center;
-      transform: translateY(16px) scale(.97);
-      transition: transform .26s cubic-bezier(.22,.8,.28,1);
-    }
-    .order-limit-layer.show .order-limit-dialog { transform: translateY(0) scale(1); }
-    .order-limit-icon {
+    .order-limit-layer.show { opacity: 1; transform: translate(-50%, -50%); }
+    .order-limit-notice {
       display: inline-flex;
       align-items: center;
+      gap: 12px;
+      max-width: 92vw;
+      padding: 15px 32px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.98);
+      box-shadow: 0 16px 40px rgba(9,38,58,.2);
+      white-space: nowrap;
+    }
+    .order-limit-icon {
+      display: inline-flex;
+      flex: 0 0 auto;
+      align-items: center;
       justify-content: center;
-      width: 84px;
-      height: 84px;
-      margin-bottom: 26px;
-      border-radius: 50%;
+      width: 30px;
+      height: 30px;
       color: #d98510;
-      background: #fff4e5;
     }
-    .order-limit-icon svg { width: 42px; height: 42px; }
-    .order-limit-title { margin: 0 0 12px; font-size: 27px; font-weight: 780; letter-spacing: -.01em; }
-    .order-limit-text { margin: 0; color: var(--text-2); font-size: 17px; line-height: 1.65; }
-    .order-limit-hint { display: block; margin-top: 18px; color: #93a6b3; font-size: 13px; }
-    .order-limit-progress {
-      position: absolute;
-      right: 0;
-      bottom: 0;
-      left: 0;
-      height: 4px;
-      background: #eef3f7;
+    .order-limit-icon svg { width: 28px; height: 28px; }
+    .order-limit-text {
+      margin: 0;
+      color: var(--text);
+      font-size: 22px;
+      font-weight: 680;
+      line-height: 1.3;
+      letter-spacing: -.005em;
     }
-    .order-limit-progress i {
-      display: block;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, #f0a72e, #f8cb70);
-      transform-origin: left center;
-      animation: order-limit-drain 5s linear forwards;
+    @media (max-height: 800px) {
+      .order-limit-notice { padding: 11px 26px; gap: 10px; }
+      .order-limit-icon { width: 24px; height: 24px; }
+      .order-limit-icon svg { width: 22px; height: 22px; }
+      .order-limit-text { font-size: 18px; }
     }
-    @keyframes order-limit-drain { from { transform: scaleX(1); } to { transform: scaleX(0); } }
 
     .toast {
       position: fixed;
@@ -1232,17 +1240,13 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <div class="order-limit-layer" id="orderLimitLayer" role="alertdialog" aria-modal="true" aria-labelledby="orderLimitTitle" aria-describedby="orderLimitText" hidden>
-    <div class="order-limit-backdrop" data-limit-close></div>
-    <section class="order-limit-dialog">
+  <div class="order-limit-layer" id="orderLimitLayer" role="status" aria-live="assertive" hidden>
+    <div class="order-limit-notice">
       <span class="order-limit-icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.4v5.6M12 16.7h.01"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.4v5.6M12 16.7h.01"/></svg>
       </span>
-      <h2 class="order-limit-title" id="orderLimitTitle">已达单笔订单上限</h2>
-      <p class="order-limit-text" id="orderLimitText">单笔订单最多 3 件商品，请先从购物车移除后再添加。</p>
-      <span class="order-limit-hint" id="orderLimitHint">本提示 5 秒后自动关闭</span>
-      <span class="order-limit-progress" aria-hidden="true"><i></i></span>
-    </section>
+      <p class="order-limit-text" id="orderLimitText">已达单笔订单上限，单笔最多 3 件商品</p>
+    </div>
   </div>
 
   <script>
@@ -1280,9 +1284,7 @@
         selectProduct: "商品を選択してください。",
         added: "{name}をカートに追加しました。",
         addedCustom: "{name} × {qty}を注文に追加しました。",
-        limitReached: "1回の注文は最大 {max} 点までです。カートから商品を削除してください。",
-        limitTitle: "1回のご注文は{max}点までです",
-        limitHint: "このご案内は5秒後に自動的に閉じます",
+        limitReached: "1回のご注文は最大 {max} 点までです",
         customizeAria: "{name}をカスタマイズ",
         addAria: "{name}をカートに追加",
         removeAria: "{name}を削除",
@@ -1362,9 +1364,7 @@
         selectProduct: "请先选择商品。",
         added: "已将{name}加入购物车。",
         addedCustom: "已添加 {name} × {qty}。",
-        limitReached: "单笔订单最多 {max} 件商品，请先从购物车删除商品。",
-        limitTitle: "已达单笔订单上限",
-        limitHint: "本提示 5 秒后自动关闭",
+        limitReached: "已达单笔订单上限，单笔最多 {max} 件商品",
         customizeAria: "定制{name}",
         addAria: "将{name}加入购物车",
         removeAria: "删除{name}",
@@ -1444,9 +1444,7 @@
         selectProduct: "Please select a product.",
         added: "{name} added to cart.",
         addedCustom: "{name} × {qty} added to your order.",
-        limitReached: "A single order can contain up to {max} items. Please remove an item first.",
-        limitTitle: "Order limit reached",
-        limitHint: "This message closes automatically in 5 seconds",
+        limitReached: "Order limit reached — a single order can contain up to {max} items",
         customizeAria: "Customize {name}",
         addAria: "Add {name} to cart",
         removeAria: "Remove {name}",
@@ -1526,9 +1524,7 @@
         selectProduct: "상품을 선택해 주세요.",
         added: "{name}을(를) 장바구니에 담았습니다.",
         addedCustom: "{name} × {qty}을(를) 주문에 추가했습니다.",
-        limitReached: "주문은 최대 {max}개까지 가능합니다. 장바구니에서 상품을 먼저 삭제해 주세요.",
-        limitTitle: "주문 한도에 도달했습니다",
-        limitHint: "이 안내는 5초 후 자동으로 닫힙니다",
+        limitReached: "주문 한도에 도달했습니다 — 1회 주문은 최대 {max}개까지 가능합니다",
         customizeAria: "{name} 커스터마이즈",
         addAria: "{name} 장바구니에 담기",
         removeAria: "{name} 삭제",
@@ -1582,10 +1578,10 @@
       { id: 1, price: 360, image: "assets/caramel-macchiato.png", temperature: "iced" },
       { id: 2, price: 380, image: "assets/coconut-mocha.png", temperature: "iced" },
       { id: 3, price: 300, image: "assets/espresso.png", temperature: "hot" },
-      { id: 4, price: 320, image: "assets/americano.png", temperature: "iced" },
+      { id: 4, price: 320, image: "assets/americano-1x1.png", temperature: "iced" },
       { id: 5, price: 400, image: "assets/vietnamese-spanish-latte.png", temperature: "iced" },
       { id: 6, price: 420, image: "assets/java-chip-frappuccino.jpg", temperature: "iced", photo: true },
-      { id: 7, price: 340, image: "assets/shaken-iced-green-tea.jpg", temperature: "iced", photo: true },
+      { id: 7, price: 340, image: "assets/shaken-iced-green-tea-1x1.png", temperature: "iced" },
       { id: 8, price: 360, image: "assets/very-berry-hibiscus.jpg", temperature: "iced", photo: true },
       { id: 9, price: 420, image: "assets/snowcap-marshmallow-mocha.jpg", temperature: "hot", photo: true },
       { id: 10, price: 380, image: "assets/tims-latte.webp", temperature: "hot" },
@@ -1602,7 +1598,7 @@
       { id: 21, price: 280, image: "assets/luckin-americano.webp", temperature: "iced" },
       { id: 22, price: 300, image: "assets/luckin-extra-strong-americano.webp", temperature: "iced" },
       { id: 23, price: 300, image: "assets/luckin-latte.webp", temperature: "iced" },
-      { id: 24, price: 350, image: "assets/luckin-caramel-macchiato.webp", temperature: "hot" },
+      { id: 24, price: 350, image: "assets/luckin-caramel-macchiato-1x1.png", temperature: "hot" },
       { id: 25, price: 320, image: "assets/luckin-flat-white.webp", temperature: "hot" },
       { id: 26, price: 340, image: "assets/luckin-caffe-mocha.webp", temperature: "iced" },
       { id: 27, price: 320, image: "assets/luckin-cappuccino.webp", temperature: "hot" }
@@ -1654,7 +1650,9 @@
 
     const icons = {
       plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
-      trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M7 7l1 14h8l1-14M10 11v6M14 11v6"/></svg>'
+      trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M7 7l1 14h8l1-14M10 11v6M14 11v6"/></svg>',
+      flame: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 22c4 0 7-2.8 7-6.6 0-3.5-2.3-5.8-4.2-7.8-.5 2-1.7 3-3 3.9.5-3.5-1.1-6.5-3.4-9.8-.4 3.4-2 5.2-3.6 7.1C3.3 11 5 14.1 5 15.4 5 19.2 8 22 12 22z"/></svg>',
+      snow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v20M3.5 7l17 10M3.5 17l17-10M9 4.5 12 7l3-2.5M9 19.5 12 17l3 2.5"/></svg>'
     };
 
     const workspace = document.getElementById("workspace");
@@ -1701,7 +1699,7 @@
         <article class="product-card${product.photo ? " is-photo" : ""}" data-product-id="${product.id}" style="animation-delay:${index * 25}ms">
           <button class="product-media" type="button" data-customize="${product.id}" aria-label="${t("customizeAria", { name })}">
             <img src="${product.image}" alt="${name}" width="700" height="700">
-            <span class="temperature-tag">${t(`temperature.${product.temperature}`)}</span>
+            <span class="temperature-tag is-${product.temperature}">${product.temperature === "hot" ? icons.flame : icons.snow}${t(`temperature.${product.temperature}`)}</span>
           </button>
           <div class="product-info">
             <div class="product-copy">
@@ -1824,8 +1822,9 @@
       return [...state.cart.values()].reduce((sum, quantity) => sum + (Number(quantity) || 0), 0);
     }
 
+    const ORDER_LIMIT_NOTICE_MS = 3000;
     const orderLimitLayer = document.getElementById("orderLimitLayer");
-    const orderLimitBar = orderLimitLayer.querySelector(".order-limit-progress i");
+    const orderLimitText = document.getElementById("orderLimitText");
     let orderLimitTimer;
     let orderLimitCloseTimer;
 
@@ -1835,29 +1834,17 @@
       orderLimitLayer.classList.remove("show");
       orderLimitCloseTimer = window.setTimeout(() => {
         orderLimitLayer.hidden = true;
-      }, 240);
+      }, 220);
     }
 
     function showOrderLimit() {
       window.clearTimeout(orderLimitTimer);
       window.clearTimeout(orderLimitCloseTimer);
-      document.getElementById("orderLimitTitle").textContent = t("limitTitle", { max: MAX_ORDER_ITEMS });
-      document.getElementById("orderLimitText").textContent = t("limitReached", { max: MAX_ORDER_ITEMS });
-      document.getElementById("orderLimitHint").textContent = t("limitHint");
+      orderLimitText.textContent = t("limitReached", { max: MAX_ORDER_ITEMS });
       orderLimitLayer.hidden = false;
-      orderLimitBar.style.animation = "none";
-      void orderLimitBar.offsetWidth;
-      orderLimitBar.style.animation = "";
       requestAnimationFrame(() => orderLimitLayer.classList.add("show"));
-      orderLimitTimer = window.setTimeout(hideOrderLimit, 5000);
+      orderLimitTimer = window.setTimeout(hideOrderLimit, ORDER_LIMIT_NOTICE_MS);
     }
-
-    orderLimitLayer.addEventListener("click", event => {
-      if (event.target.closest("[data-limit-close]")) hideOrderLimit();
-    });
-    document.addEventListener("keydown", event => {
-      if (event.key === "Escape" && !orderLimitLayer.hidden) hideOrderLimit();
-    });
 
     function addToCart(id) {
       if (cartItemCount() >= MAX_ORDER_ITEMS) {
