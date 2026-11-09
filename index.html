@@ -348,7 +348,8 @@
       display: block;
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      padding: 2% 6% 1%;
+      object-fit: contain;
       transition: transform .25s ease;
     }
     .product-card:hover .product-media img { transform: scale(1.025); }
@@ -507,7 +508,7 @@
       width: 100%;
       height: clamp(76px, 5.5vw, 105px);
       aspect-ratio: 1 / 1;
-      object-fit: cover;
+      object-fit: contain;
       border-radius: 12px;
       background: #edf2f4;
     }
@@ -675,7 +676,8 @@
       height: 380px;
       aspect-ratio: 1 / 1;
       border-radius: 20px;
-      object-fit: cover;
+      object-fit: contain;
+      padding: 4%;
       background: #edf2f4;
     }
     .custom-product-name { margin: 20px 0 6px; font-size: 28px; font-weight: 750; }
@@ -1077,8 +1079,8 @@
         home: "ホーム",
         homeAria: "ホームに戻る",
         adLabel: "広告",
-        adOn: "広告 ON：6商品を表示しています。",
-        adOff: "広告 OFF：8商品を表示しています。",
+        adOn: "広告 ON：{n}商品を表示しています。",
+        adOff: "広告 OFF：{n}商品を表示しています。",
         date: "11月4日 23:40",
         help: "ヘルプ",
         helpToast: "ヘルプ：係員にお問い合わせください。",
@@ -1115,14 +1117,11 @@
         sweetness: { none: "無糖", light: "微糖", half: "半糖", less: "甘さ控えめ", standard: "標準" },
         milk: { milk: "ミルク", lowfat: "低脂肪乳", oat: "オーツミルク", soy: "豆乳" },
         products: {
-          1: { name: "カフェラテ", desc: "濃厚なコーヒーとミルクのまろやかな味わい。" },
-          2: { name: "アイスコーヒー", desc: "すっきりとした冷たいコーヒー。" },
-          3: { name: "キャラメルマキアート", desc: "エスプレッソにキャラメルとミルクの甘い香り。" },
-          4: { name: "エスプレッソ", desc: "濃縮されたコーヒーの香りを楽しむ一杯。" },
-          5: { name: "カフェラテ 2", desc: "まろやかなミルク泡のカフェラテ。" },
-          6: { name: "アイスコーヒー 2", desc: "軽やかな口当たりのアイスコーヒー。" },
-          7: { name: "タピオカミルクティー", desc: "もちもちタピオカ入りのミルクティー。" },
-          8: { name: "抹茶ラテ", desc: "抹茶とミルクのやさしい甘さ。" }
+          1: { name: "キャラメルマキアート", desc: "キャラメルの甘さとミルクのコクが重なる一杯。" },
+          2: { name: "ココナッツモカ", desc: "ココナッツの香りとチョコレートのまろやかさ。" },
+          3: { name: "エスプレッソ", desc: "濃厚なエスプレッソをそのままに。" },
+          4: { name: "アメリカーノ", desc: "すっきりとした後味のアイスアメリカーノ。" },
+          5: { name: "ベトナム風スパニッシュラテ", desc: "ベトナムコーヒーに濃厚ミルクを合わせて。" }
         }
       },
       zh: {
@@ -1131,8 +1130,8 @@
         home: "首页",
         homeAria: "返回首页",
         adLabel: "广告",
-        adOn: "广告 开：显示 6 件商品。",
-        adOff: "广告 关：显示 8 件商品。",
+        adOn: "广告 开：显示 {n} 件商品。",
+        adOff: "广告 关：显示 {n} 件商品。",
         date: "11月4日 23:40",
         help: "帮助",
         helpToast: "帮助：请联系现场工作人员。",
@@ -1169,14 +1168,11 @@
         sweetness: { none: "无糖", light: "微糖", half: "半糖", less: "少糖", standard: "标准糖" },
         milk: { milk: "牛奶", lowfat: "低脂奶", oat: "燕麦奶", soy: "豆奶" },
         products: {
-          1: { name: "拿铁", desc: "浓郁咖啡与香醇牛奶搭配，口感顺滑。" },
-          2: { name: "冰咖啡", desc: "清爽冰咖啡，香气纯净，回味轻盈。" },
-          3: { name: "焦糖玛奇朵", desc: "浓缩咖啡、焦糖与绵密奶泡的香甜组合。" },
-          4: { name: "浓缩咖啡", desc: "浓郁浓缩咖啡，呈现醇厚咖啡香气。" },
-          5: { name: "拿铁 2", desc: "香浓拿铁搭配细腻奶泡，风味柔和。" },
-          6: { name: "冰咖啡 2", desc: "冰凉咖啡与清爽口感，适合随时享用。" },
-          7: { name: "珍珠奶茶", desc: "香醇奶茶搭配 Q 弹珍珠，层次丰富。" },
-          8: { name: "抹茶拿铁", desc: "清新抹茶与香醇牛奶融合，甘甜顺滑。" }
+          1: { name: "焦糖玛奇朵", desc: "焦糖的甜香与牛奶的醇厚层层交融。" },
+          2: { name: "椰子摩卡", desc: "椰香与巧克力的浓郁交织，顺滑清爽。" },
+          3: { name: "浓缩咖啡", desc: "浓缩萃取，纯粹的咖啡本味。" },
+          4: { name: "美式咖啡", desc: "冰爽美式，口感干净利落。" },
+          5: { name: "越南西班牙拿铁", desc: "越南咖啡搭配炼乳与绵密奶盖。" }
         }
       },
       en: {
@@ -1185,8 +1181,8 @@
         home: "Home",
         homeAria: "Back to home",
         adLabel: "Ads",
-        adOn: "Ads ON: showing 6 items.",
-        adOff: "Ads OFF: showing 8 items.",
+        adOn: "Ads ON: showing {n} items.",
+        adOff: "Ads OFF: showing {n} items.",
         date: "Nov 4, 23:40",
         help: "Help",
         helpToast: "Help: please contact our staff.",
@@ -1223,14 +1219,11 @@
         sweetness: { none: "No sugar", light: "Light", half: "Half", less: "Less", standard: "Standard" },
         milk: { milk: "Milk", lowfat: "Low-fat", oat: "Oat", soy: "Soy" },
         products: {
-          1: { name: "Cafe Latte", desc: "Rich espresso blended with silky milk." },
-          2: { name: "Iced Coffee", desc: "Crisp and refreshing iced coffee." },
-          3: { name: "Caramel Macchiato", desc: "Espresso with caramel and velvety milk foam." },
-          4: { name: "Espresso", desc: "A concentrated shot of pure coffee aroma." },
-          5: { name: "Cafe Latte 2", desc: "Smooth latte with fine milk foam." },
-          6: { name: "Iced Coffee 2", desc: "Light-bodied iced coffee for any time." },
-          7: { name: "Tapioca Milk Tea", desc: "Milk tea with chewy tapioca pearls." },
-          8: { name: "Matcha Latte", desc: "Matcha and milk with gentle sweetness." }
+          1: { name: "Caramel Macchiato", desc: "Sweet caramel layered over creamy milk." },
+          2: { name: "Coconut Mocha", desc: "Coconut aroma with mellow chocolate mocha." },
+          3: { name: "Espresso", desc: "A pure, intense shot of espresso." },
+          4: { name: "Americano", desc: "Crisp iced americano with a clean finish." },
+          5: { name: "Vietnamese Spanish Latte", desc: "Vietnamese coffee with rich condensed milk." }
         }
       },
       ko: {
@@ -1239,8 +1232,8 @@
         home: "홈",
         homeAria: "홈으로 이동",
         adLabel: "광고",
-        adOn: "광고 켜짐: 6개 상품 표시",
-        adOff: "광고 꺼짐: 8개 상품 표시",
+        adOn: "광고 켜짐: {n}개 상품 표시",
+        adOff: "광고 꺼짐: {n}개 상품 표시",
         date: "11월 4일 23:40",
         help: "도움말",
         helpToast: "도움말: 직원에게 문의해 주세요.",
@@ -1277,27 +1270,21 @@
         sweetness: { none: "무당", light: "약간", half: "반", less: "적게", standard: "표준" },
         milk: { milk: "우유", lowfat: "저지방", oat: "오트", soy: "두유" },
         products: {
-          1: { name: "카페라테", desc: "진한 커피와 부드러운 우유의 조화." },
-          2: { name: "아이스커피", desc: "깔끔하고 시원한 아이스커피." },
-          3: { name: "카라멜 마키아토", desc: "에스프레소에 캐러멜과 달콤한 밀크폼을 더했습니다." },
-          4: { name: "에스프레소", desc: "진한 커피 향을 그대로 담았습니다." },
-          5: { name: "카페라테 2", desc: "부드러운 밀크폼의 카페라테." },
-          6: { name: "아이스커피 2", desc: "가볍게 즐기는 아이스커피." },
-          7: { name: "타피오카 밀크티", desc: "쫄깃한 타피오카가 들어간 밀크티." },
-          8: { name: "말차 라테", desc: "말차와 우유의 은은한 단맛." }
+          1: { name: "카라멜 마키아토", desc: "캐러멜의 달콤함과 밀크의 부드러움이 어우러진 커피." },
+          2: { name: "코코넛 모카", desc: "코코넛 향과 초콜릿 모카의 부드러운 조화." },
+          3: { name: "에스프레소", desc: "에스프레소 본연의 진한 풍미." },
+          4: { name: "아메리카노", desc: "깔끔한 목넘김의 아이스 아메리카노." },
+          5: { name: "베트남 스패니시 라테", desc: "베트남 커피에 진한 밀크를 더했습니다." }
         }
       }
     };
 
     const products = [
-      { id: 1, price: 300, image: "assets/latte.jpg", temperature: "hot" },
-      { id: 2, price: 280, image: "assets/iced-coffee.jpg", temperature: "iced" },
-      { id: 3, price: 360, image: "assets/caramel.jpg", temperature: "iced" },
-      { id: 4, price: 320, image: "assets/espresso.jpg", temperature: "hot" },
-      { id: 5, price: 310, image: "assets/latte.jpg", temperature: "hot" },
-      { id: 6, price: 290, image: "assets/iced-coffee.jpg", temperature: "iced" },
-      { id: 7, price: 360, image: "assets/tapioca.jpg", temperature: "iced" },
-      { id: 8, price: 340, image: "assets/matcha.jpg", temperature: "hot" }
+      { id: 1, price: 360, image: "assets/caramel-macchiato.png", temperature: "iced" },
+      { id: 2, price: 380, image: "assets/coconut-mocha.png", temperature: "iced" },
+      { id: 3, price: 300, image: "assets/espresso.png", temperature: "hot" },
+      { id: 4, price: 320, image: "assets/americano.png", temperature: "iced" },
+      { id: 5, price: 400, image: "assets/vietnamese-spanish-latte.png", temperature: "iced" }
     ];
 
     const SUPPORTED_LANGUAGES = ["ja", "zh", "en", "ko"];
@@ -1339,7 +1326,7 @@
     const state = {
       adEnabled: previewParams.get("ad") !== "off",
       cartOpen: previewParams.get("cart") === "open",
-      cart: new Map([[1, 1], [7, 1], [8, 1]]),
+      cart: new Map([[1, 1], [3, 1], [4, 1]]),
       cartVariants: new Map()
     };
 
@@ -1371,13 +1358,18 @@
       toastTimer = window.setTimeout(() => toast.classList.remove("show"), 2200);
     }
 
+    function visibleProducts() {
+      return products.slice(0, state.adEnabled ? 6 : 8);
+    }
+
     function renderProducts() {
-      const count = state.adEnabled ? 6 : 8;
+      const list = visibleProducts();
       workspace.classList.toggle("ad-off", !state.adEnabled);
+      productGrid.style.setProperty("--cols", state.adEnabled || list.length <= 6 ? "3" : "4");
       adToggle.setAttribute("aria-checked", String(state.adEnabled));
       adState.textContent = state.adEnabled ? "ON" : "OFF";
-      visibleCount.textContent = t("items", { n: count });
-      productGrid.innerHTML = products.slice(0, count).map((product, index) => {
+      visibleCount.textContent = t("items", { n: list.length });
+      productGrid.innerHTML = list.map((product, index) => {
         const name = productName(product);
         return `
         <article class="product-card" data-product-id="${product.id}" style="animation-delay:${index * 25}ms">
@@ -1554,7 +1546,7 @@
     adToggle.addEventListener("click", () => {
       state.adEnabled = !state.adEnabled;
       renderProducts();
-      showToast(state.adEnabled ? t("adOn") : t("adOff"));
+      showToast(state.adEnabled ? t("adOn", { n: visibleProducts().length }) : t("adOff", { n: visibleProducts().length }));
     });
 
     document.getElementById("demoHomeButton").addEventListener("click", () => {
