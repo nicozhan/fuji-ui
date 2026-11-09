@@ -204,6 +204,42 @@
     .category-button.active { color: #fff; background: var(--accent); }
     .category-button .chevron { width: 14px; height: 14px; margin-left: 5px; }
     .language-button { flex: 0 0 auto; padding: 0 21px; }
+    .language-picker { position: relative; display: flex; flex: 0 0 auto; }
+    .language-picker .caret { transition: transform .18s ease; }
+    .language-picker.open .caret { transform: rotate(180deg); }
+    .language-menu {
+      position: absolute;
+      z-index: 70;
+      top: calc(100% + 12px);
+      right: 0;
+      display: none;
+      min-width: 226px;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: #fff;
+      box-shadow: 0 18px 40px rgba(16,45,67,.16);
+    }
+    .language-picker.open .language-menu { display: block; }
+    .language-option {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      min-height: 56px;
+      padding: 0 16px;
+      border: 0;
+      border-radius: 13px;
+      color: var(--text);
+      background: transparent;
+      font-size: 16px;
+      font-weight: 600;
+      text-align: left;
+      cursor: pointer;
+    }
+    .language-option:hover { background: var(--accent-weak); }
+    .language-option.active { color: #fff; background: var(--accent); }
+    .language-option .lang-flag { font-size: 21px; line-height: 1; }
 
     .workspace {
       position: relative;
@@ -832,20 +868,20 @@
           <span>Machine ID：<strong>fuji12345678</strong></span>
         </div>
         <div class="status-item contact-item">
-          <span>お問い合わせ：800-1234-5678</span>
+          <span><span data-i18n="contact">お問い合わせ</span>：800-1234-5678</span>
         </div>
       </div>
       <div class="status-right">
-        <button class="home-button" id="demoHomeButton" type="button" aria-label="ホームに戻る" title="ホームに戻る（Demo）">
+        <button class="home-button" id="demoHomeButton" type="button" data-i18n-aria="homeAria" data-i18n-title="homeAria" aria-label="ホームに戻る" title="ホームに戻る（Demo）">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 10.6 12 3.6l8.5 7"/><path d="M5.6 9.9V20h12.8V9.9"/></svg>
-          <span>Home</span>
+          <span data-i18n="home">Home</span>
         </button>
         <button class="demo-control" id="adToggle" type="button" role="switch" aria-checked="true" aria-label="左側広告を切り替える">
           <span class="demo-badge">DEMO</span>
-          <span class="demo-label">広告 <strong id="adState">ON</strong></span>
+          <span class="demo-label"><span data-i18n="adLabel">広告</span> <strong id="adState">ON</strong></span>
           <span class="switch-track" aria-hidden="true"><span class="switch-thumb"></span></span>
         </button>
-        <time class="status-item" datetime="2026-11-04T23:40">11月4日 23:40</time>
+        <time class="status-item" datetime="2026-11-04T23:40" data-i18n="date">11月4日 23:40</time>
         <svg width="18" height="16" viewBox="0 0 18 16" fill="currentColor" aria-label="電波状況"><rect x="1" y="11" width="3" height="4" rx="1"/><rect x="6" y="7" width="3" height="8" rx="1"/><rect x="11" y="3" width="3" height="12" rx="1"/></svg>
       </div>
     </section>
@@ -855,34 +891,42 @@
         <span class="brand-mark">FE</span>
         <span class="brand-name">Fuji Electric</span>
       </div>
-      <button class="pill-button" type="button" data-toast="ヘルプ：係員にお問い合わせください。">
+      <button class="pill-button" type="button" data-toast="ヘルプ：係員にお問い合わせください。" data-i18n-toast="helpToast">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.8 9a2.3 2.3 0 1 1 3.3 2.1c-.8.4-1.1.9-1.1 1.9M12 16.8h.01"/></svg>
-        <span class="help-label">ヘルプ</span>
+        <span class="help-label" data-i18n="help">ヘルプ</span>
       </button>
       <nav class="category-nav" aria-label="商品カテゴリー">
-        <button class="category-button" type="button" data-category="すべて">
+        <button class="category-button" type="button" data-category="all" data-label-key="categories.all">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.3-5.7L4 8.6M4 4v4.6h4.6"/></svg>
-          すべて
+          <span data-i18n="categories.all">すべて</span>
         </button>
-        <button class="category-button active" type="button" data-category="コーヒー" aria-current="page">
+        <button class="category-button active" type="button" data-category="coffee" data-label-key="categories.coffee" aria-current="page">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 8h11v6a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5V8ZM16 10h1.5a2.5 2.5 0 0 1 0 5H16M4 22h14"/></svg>
-          コーヒー
+          <span data-i18n="categories.coffee">コーヒー</span>
           <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
         </button>
-        <button class="category-button" type="button" data-category="ミルクティー">
+        <button class="category-button" type="button" data-category="milkTea" data-label-key="categories.milkTea">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 7h12l-1 13H7L6 7ZM8 4h8M9 11h6"/></svg>
-          ミルクティー
+          <span data-i18n="categories.milkTea">ミルクティー</span>
         </button>
-        <button class="category-button" type="button" data-category="その他のドリンク">
+        <button class="category-button" type="button" data-category="other" data-label-key="categories.other">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M7 3h10l-1 18H8L7 3ZM8 9h8M12 3l3-2"/></svg>
-          その他のドリンク
+          <span data-i18n="categories.other">その他のドリンク</span>
         </button>
       </nav>
-      <button class="language-button" type="button" data-toast="言語：日本語">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
-        日本語
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m7 9 5 5 5-5"/></svg>
-      </button>
+      <div class="language-picker" id="languagePicker">
+        <button class="language-button" id="languageButton" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="言語">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
+          <span id="languageLabel">日本語</span>
+          <svg class="caret" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m7 9 5 5 5-5"/></svg>
+        </button>
+        <div class="language-menu" id="languageMenu" role="listbox" aria-label="言語">
+          <button class="language-option" type="button" role="option" data-set-language="ja"><span class="lang-flag" aria-hidden="true">🇯🇵</span>日本語</button>
+          <button class="language-option" type="button" role="option" data-set-language="zh"><span class="lang-flag" aria-hidden="true">🇨🇳</span>简体中文</button>
+          <button class="language-option" type="button" role="option" data-set-language="en"><span class="lang-flag" aria-hidden="true">🇺🇸</span>English</button>
+          <button class="language-option" type="button" role="option" data-set-language="ko"><span class="lang-flag" aria-hidden="true">🇰🇷</span>한국어</button>
+        </div>
+      </div>
     </header>
 
     <section class="workspace" id="workspace" aria-label="商品選択エリア">
@@ -897,15 +941,15 @@
       <div class="product-stage">
         <div class="product-grid" id="productGrid" aria-live="polite"></div>
         <div class="pagination" aria-label="ページネーション">
-          <button class="page-button" type="button" aria-label="前のページ" data-toast="最初のページです。">
+          <button class="page-button" type="button" data-i18n-aria="prevPage" data-i18n-toast="firstPage" aria-label="前のページ" data-toast="最初のページです。">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg>
           </button>
           <button class="page-button active" type="button" aria-current="page">1</button>
-          <button class="page-button" type="button" data-toast="デモでは1ページ目を表示しています。">2</button>
-          <button class="page-button" type="button" data-toast="デモでは1ページ目を表示しています。">3</button>
-          <button class="page-button" type="button" data-toast="デモでは1ページ目を表示しています。">4</button>
+          <button class="page-button" type="button" data-i18n-toast="demoPage" data-toast="デモでは1ページ目を表示しています。">2</button>
+          <button class="page-button" type="button" data-i18n-toast="demoPage" data-toast="デモでは1ページ目を表示しています。">3</button>
+          <button class="page-button" type="button" data-i18n-toast="demoPage" data-toast="デモでは1ページ目を表示しています。">4</button>
           <span class="page-summary">1 / 4　<span id="visibleCount">6商品</span></span>
-          <button class="page-button next" type="button" aria-label="次のページ" data-toast="デモでは1ページ目を表示しています。">
+          <button class="page-button next" type="button" data-i18n-aria="nextPage" data-i18n-toast="demoPage" aria-label="次のページ" data-toast="デモでは1ページ目を表示しています。">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
           </button>
         </div>
@@ -915,28 +959,28 @@
         <div class="cart-header">
           <h2 class="cart-title">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 4h2l2.2 11.2a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 2-1.6L20 8H6M10 21h.01M17 21h.01"/></svg>
-            カート <span class="cart-count" data-cart-count>3</span>
+            <span data-i18n="cart">カート</span> <span class="cart-count" data-cart-count>3</span>
           </h2>
-          <button class="close-cart" id="closeCart" type="button" aria-label="カートを閉じる">
+          <button class="close-cart" id="closeCart" type="button" data-i18n-aria="cartClose" aria-label="カートを閉じる">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
           </button>
         </div>
         <div class="cart-items" id="cartItems"></div>
         <div class="cart-footer">
           <div class="cart-total-row">
-            <span class="cart-total-label">合計（<span data-cart-count>3</span>点）</span>
+            <span class="cart-total-label" id="cartTotalLabel">合計（<span data-cart-count>3</span>点）</span>
             <strong class="cart-total" id="cartTotal">¥1,000</strong>
           </div>
           <button class="checkout-button" id="checkoutButton" type="button">
-            注文に進む
+            <span data-i18n="checkout">注文に進む</span>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 12h15M14 7l5 5-5 5"/></svg>
           </button>
         </div>
       </aside>
 
-      <button class="open-cart-button hidden" id="openCart" type="button" aria-label="カートを開く">
+      <button class="open-cart-button hidden" id="openCart" type="button" data-i18n-aria="cartOpen" aria-label="カートを開く">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 4h2l2.2 11.2a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 2-1.6L20 8H6M10 21h.01M17 21h.01"/></svg>
-        カート <span class="cart-count" data-cart-count>3</span>
+        <span data-i18n="cart">カート</span> <span class="cart-count" data-cart-count>3</span>
       </button>
     </section>
   </main>
@@ -945,11 +989,11 @@
     <div class="customization-backdrop" id="customizationBackdrop"></div>
     <section class="customization-sheet" role="dialog" aria-modal="true" aria-labelledby="customizationTitle">
       <header class="customization-header">
-        <button class="sheet-control collapse" id="collapseCustomization" type="button" aria-label="收起定制面板" title="收起">
+        <button class="sheet-control collapse" id="collapseCustomization" type="button" data-i18n-aria="customize.collapse" data-i18n-title="customize.collapse" aria-label="收起定制面板" title="收起">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
         </button>
-        <h2 class="customization-title" id="customizationTitle">定制饮品</h2>
-        <button class="sheet-control close" id="closeCustomization" type="button" aria-label="关闭并取消本次修改" title="关闭">
+        <h2 class="customization-title" id="customizationTitle" data-i18n="customize.title">定制饮品</h2>
+        <button class="sheet-control close" id="closeCustomization" type="button" data-i18n-aria="customize.close" data-i18n-title="customize.close" aria-label="关闭并取消本次修改" title="关闭">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
         </button>
       </header>
@@ -964,37 +1008,37 @@
 
         <section class="custom-options" aria-label="饮品定制选项">
           <div class="option-row">
-            <span class="option-label">温度</span>
+            <span class="option-label" data-i18n="customize.temperature">温度</span>
             <div class="option-buttons" data-option-group="temperature">
-              <button class="option-button active" type="button" data-value="热饮" aria-pressed="true">热饮</button>
-              <button class="option-button" type="button" data-value="冷饮" aria-pressed="false">冷饮</button>
+              <button class="option-button active" type="button" data-value="hot" aria-pressed="true"><span data-i18n="temperature.hot">热饮</span></button>
+              <button class="option-button" type="button" data-value="iced" aria-pressed="false"><span data-i18n="temperature.iced">冷饮</span></button>
             </div>
           </div>
           <div class="option-row">
-            <span class="option-label">杯型</span>
+            <span class="option-label" data-i18n="customize.size">杯型</span>
             <div class="option-buttons" data-option-group="size">
-              <button class="option-button" type="button" data-value="小杯" aria-pressed="false">小杯</button>
-              <button class="option-button active" type="button" data-value="中杯" aria-pressed="true">中杯</button>
-              <button class="option-button" type="button" data-value="大杯" aria-pressed="false">大杯</button>
+              <button class="option-button" type="button" data-value="small" aria-pressed="false"><span data-i18n="size.small">小杯</span></button>
+              <button class="option-button active" type="button" data-value="medium" aria-pressed="true"><span data-i18n="size.medium">中杯</span></button>
+              <button class="option-button" type="button" data-value="large" aria-pressed="false"><span data-i18n="size.large">大杯</span></button>
             </div>
           </div>
           <div class="option-row">
-            <span class="option-label">甜度</span>
+            <span class="option-label" data-i18n="customize.sweetness">甜度</span>
             <div class="option-buttons" data-option-group="sweetness">
-              <button class="option-button" type="button" data-value="无糖" aria-pressed="false">无糖</button>
-              <button class="option-button" type="button" data-value="微糖" aria-pressed="false">微糖</button>
-              <button class="option-button" type="button" data-value="半糖" aria-pressed="false">半糖</button>
-              <button class="option-button" type="button" data-value="少糖" aria-pressed="false">少糖</button>
-              <button class="option-button active" type="button" data-value="标准糖" aria-pressed="true">标准糖</button>
+              <button class="option-button" type="button" data-value="none" aria-pressed="false"><span data-i18n="sweetness.none">无糖</span></button>
+              <button class="option-button" type="button" data-value="light" aria-pressed="false"><span data-i18n="sweetness.light">微糖</span></button>
+              <button class="option-button" type="button" data-value="half" aria-pressed="false"><span data-i18n="sweetness.half">半糖</span></button>
+              <button class="option-button" type="button" data-value="less" aria-pressed="false"><span data-i18n="sweetness.less">少糖</span></button>
+              <button class="option-button active" type="button" data-value="standard" aria-pressed="true"><span data-i18n="sweetness.standard">标准糖</span></button>
             </div>
           </div>
           <div class="option-row">
-            <span class="option-label">奶类</span>
+            <span class="option-label" data-i18n="customize.milk">奶类</span>
             <div class="option-buttons" data-option-group="milk">
-              <button class="option-button active" type="button" data-value="牛奶" aria-pressed="true">牛奶</button>
-              <button class="option-button" type="button" data-value="低脂奶" aria-pressed="false">低脂奶</button>
-              <button class="option-button" type="button" data-value="燕麦奶" aria-pressed="false">燕麦奶</button>
-              <button class="option-button" type="button" data-value="豆奶" aria-pressed="false">豆奶</button>
+              <button class="option-button active" type="button" data-value="milk" aria-pressed="true"><span data-i18n="milk.milk">牛奶</span></button>
+              <button class="option-button" type="button" data-value="lowfat" aria-pressed="false"><span data-i18n="milk.lowfat">低脂奶</span></button>
+              <button class="option-button" type="button" data-value="oat" aria-pressed="false"><span data-i18n="milk.oat">燕麦奶</span></button>
+              <button class="option-button" type="button" data-value="soy" aria-pressed="false"><span data-i18n="milk.soy">豆奶</span></button>
             </div>
           </div>
         </section>
@@ -1002,21 +1046,21 @@
 
       <footer class="customization-footer">
         <div class="custom-quantity">
-          <span class="custom-quantity-label">数量</span>
-          <button class="custom-quantity-button" type="button" data-custom-quantity="decrease" aria-label="减少数量">
+          <span class="custom-quantity-label" data-i18n="customize.quantity">数量</span>
+          <button class="custom-quantity-button" type="button" data-custom-quantity="decrease" data-i18n-aria="decrease" aria-label="减少数量">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14"/></svg>
           </button>
           <span class="custom-quantity-value" id="customQuantity">1</span>
-          <button class="custom-quantity-button" type="button" data-custom-quantity="increase" aria-label="增加数量">
+          <button class="custom-quantity-button" type="button" data-custom-quantity="increase" data-i18n-aria="increase" aria-label="增加数量">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
           </button>
         </div>
         <div class="custom-total">
-          <span class="custom-total-label">合计</span>
+          <span class="custom-total-label" data-i18n="customize.total">合计</span>
           <strong class="custom-total-value" id="customTotal">¥300</strong>
         </div>
         <button class="add-order-button" id="addCustomizedOrder" type="button">
-          加入订单
+          <span data-i18n="customize.submit">加入订单</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 12h15M14 7l5 5-5 5"/></svg>
         </button>
       </footer>
@@ -1026,16 +1070,270 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script>
+    const I18N = {
+      ja: {
+        langName: "日本語",
+        contact: "お問い合わせ",
+        home: "ホーム",
+        homeAria: "ホームに戻る",
+        adLabel: "広告",
+        adOn: "広告 ON：6商品を表示しています。",
+        adOff: "広告 OFF：8商品を表示しています。",
+        date: "11月4日 23:40",
+        help: "ヘルプ",
+        helpToast: "ヘルプ：係員にお問い合わせください。",
+        categories: { all: "すべて", coffee: "コーヒー", milkTea: "ミルクティー", other: "その他のドリンク" },
+        categoryToast: "{name}：デモ商品を表示しています。",
+        items: "{n}商品",
+        prevPage: "前のページ",
+        nextPage: "次のページ",
+        firstPage: "最初のページです。",
+        demoPage: "デモでは1ページ目を表示しています。",
+        cart: "カート",
+        cartOpen: "カートを開く",
+        cartClose: "カートを閉じる",
+        cartTotal: "合計（{n}点）",
+        checkout: "注文に進む",
+        emptyCart: "カートに商品がありません。<br>商品の「＋」から追加してください。",
+        selectProduct: "商品を選択してください。",
+        added: "{name}をカートに追加しました。",
+        addedCustom: "{name} × {qty}を注文に追加しました。",
+        customizeAria: "{name}をカスタマイズ",
+        addAria: "{name}をカートに追加",
+        removeAria: "{name}を削除",
+        qtyAria: "{name}の数量",
+        decrease: "数量を減らす",
+        increase: "数量を増やす",
+        languageMenu: "言語",
+        customize: {
+          title: "カスタマイズ", collapse: "パネルを閉じる", close: "カスタマイズを終了",
+          temperature: "温度", size: "杯型", sweetness: "甘さ", milk: "ミルク",
+          quantity: "数量", total: "合計", submit: "注文に追加"
+        },
+        temperature: { hot: "ホット", iced: "アイス" },
+        size: { small: "スモール", medium: "レギュラー", large: "ラージ", regular: "レギュラー" },
+        sweetness: { none: "無糖", light: "微糖", half: "半糖", less: "甘さ控えめ", standard: "標準" },
+        milk: { milk: "ミルク", lowfat: "低脂肪乳", oat: "オーツミルク", soy: "豆乳" },
+        products: {
+          1: { name: "カフェラテ", desc: "濃厚なコーヒーとミルクのまろやかな味わい。" },
+          2: { name: "アイスコーヒー", desc: "すっきりとした冷たいコーヒー。" },
+          3: { name: "キャラメルマキアート", desc: "エスプレッソにキャラメルとミルクの甘い香り。" },
+          4: { name: "エスプレッソ", desc: "濃縮されたコーヒーの香りを楽しむ一杯。" },
+          5: { name: "カフェラテ 2", desc: "まろやかなミルク泡のカフェラテ。" },
+          6: { name: "アイスコーヒー 2", desc: "軽やかな口当たりのアイスコーヒー。" },
+          7: { name: "タピオカミルクティー", desc: "もちもちタピオカ入りのミルクティー。" },
+          8: { name: "抹茶ラテ", desc: "抹茶とミルクのやさしい甘さ。" }
+        }
+      },
+      zh: {
+        langName: "简体中文",
+        contact: "联系我们",
+        home: "首页",
+        homeAria: "返回首页",
+        adLabel: "广告",
+        adOn: "广告 开：显示 6 件商品。",
+        adOff: "广告 关：显示 8 件商品。",
+        date: "11月4日 23:40",
+        help: "帮助",
+        helpToast: "帮助：请联系现场工作人员。",
+        categories: { all: "全部", coffee: "咖啡", milkTea: "奶茶", other: "其他饮品" },
+        categoryToast: "{name}：正在展示演示商品。",
+        items: "{n} 件商品",
+        prevPage: "上一页",
+        nextPage: "下一页",
+        firstPage: "已经是第一页。",
+        demoPage: "演示中仅展示第 1 页。",
+        cart: "购物车",
+        cartOpen: "打开购物车",
+        cartClose: "关闭购物车",
+        cartTotal: "合计（{n} 件）",
+        checkout: "去结算",
+        emptyCart: "购物车中还没有商品。<br>点击商品的「＋」即可添加。",
+        selectProduct: "请先选择商品。",
+        added: "已将{name}加入购物车。",
+        addedCustom: "已添加 {name} × {qty}。",
+        customizeAria: "定制{name}",
+        addAria: "将{name}加入购物车",
+        removeAria: "删除{name}",
+        qtyAria: "{name}的数量",
+        decrease: "减少数量",
+        increase: "增加数量",
+        languageMenu: "语言",
+        customize: {
+          title: "定制饮品", collapse: "收起定制面板", close: "关闭并取消本次修改",
+          temperature: "温度", size: "杯型", sweetness: "甜度", milk: "奶类",
+          quantity: "数量", total: "合计", submit: "加入订单"
+        },
+        temperature: { hot: "热饮", iced: "冷饮" },
+        size: { small: "小杯", medium: "中杯", large: "大杯", regular: "标准杯" },
+        sweetness: { none: "无糖", light: "微糖", half: "半糖", less: "少糖", standard: "标准糖" },
+        milk: { milk: "牛奶", lowfat: "低脂奶", oat: "燕麦奶", soy: "豆奶" },
+        products: {
+          1: { name: "拿铁", desc: "浓郁咖啡与香醇牛奶搭配，口感顺滑。" },
+          2: { name: "冰咖啡", desc: "清爽冰咖啡，香气纯净，回味轻盈。" },
+          3: { name: "焦糖玛奇朵", desc: "浓缩咖啡、焦糖与绵密奶泡的香甜组合。" },
+          4: { name: "浓缩咖啡", desc: "浓郁浓缩咖啡，呈现醇厚咖啡香气。" },
+          5: { name: "拿铁 2", desc: "香浓拿铁搭配细腻奶泡，风味柔和。" },
+          6: { name: "冰咖啡 2", desc: "冰凉咖啡与清爽口感，适合随时享用。" },
+          7: { name: "珍珠奶茶", desc: "香醇奶茶搭配 Q 弹珍珠，层次丰富。" },
+          8: { name: "抹茶拿铁", desc: "清新抹茶与香醇牛奶融合，甘甜顺滑。" }
+        }
+      },
+      en: {
+        langName: "English",
+        contact: "Contact",
+        home: "Home",
+        homeAria: "Back to home",
+        adLabel: "Ads",
+        adOn: "Ads ON: showing 6 items.",
+        adOff: "Ads OFF: showing 8 items.",
+        date: "Nov 4, 23:40",
+        help: "Help",
+        helpToast: "Help: please contact our staff.",
+        categories: { all: "All", coffee: "Coffee", milkTea: "Milk tea", other: "Other drinks" },
+        categoryToast: "{name}: showing demo products.",
+        items: "{n} items",
+        prevPage: "Previous page",
+        nextPage: "Next page",
+        firstPage: "This is the first page.",
+        demoPage: "Demo shows page 1 only.",
+        cart: "Cart",
+        cartOpen: "Open cart",
+        cartClose: "Close cart",
+        cartTotal: "Total ({n} items)",
+        checkout: "Checkout",
+        emptyCart: "Your cart is empty.<br>Tap “+” on a product to add it.",
+        selectProduct: "Please select a product.",
+        added: "{name} added to cart.",
+        addedCustom: "{name} × {qty} added to your order.",
+        customizeAria: "Customize {name}",
+        addAria: "Add {name} to cart",
+        removeAria: "Remove {name}",
+        qtyAria: "Quantity of {name}",
+        decrease: "Decrease quantity",
+        increase: "Increase quantity",
+        languageMenu: "Language",
+        customize: {
+          title: "Customize", collapse: "Collapse panel", close: "Close and discard changes",
+          temperature: "Temperature", size: "Size", sweetness: "Sweetness", milk: "Milk",
+          quantity: "Quantity", total: "Total", submit: "Add to order"
+        },
+        temperature: { hot: "Hot", iced: "Iced" },
+        size: { small: "Small", medium: "Medium", large: "Large", regular: "Regular" },
+        sweetness: { none: "No sugar", light: "Light", half: "Half", less: "Less", standard: "Standard" },
+        milk: { milk: "Milk", lowfat: "Low-fat", oat: "Oat", soy: "Soy" },
+        products: {
+          1: { name: "Cafe Latte", desc: "Rich espresso blended with silky milk." },
+          2: { name: "Iced Coffee", desc: "Crisp and refreshing iced coffee." },
+          3: { name: "Caramel Macchiato", desc: "Espresso with caramel and velvety milk foam." },
+          4: { name: "Espresso", desc: "A concentrated shot of pure coffee aroma." },
+          5: { name: "Cafe Latte 2", desc: "Smooth latte with fine milk foam." },
+          6: { name: "Iced Coffee 2", desc: "Light-bodied iced coffee for any time." },
+          7: { name: "Tapioca Milk Tea", desc: "Milk tea with chewy tapioca pearls." },
+          8: { name: "Matcha Latte", desc: "Matcha and milk with gentle sweetness." }
+        }
+      },
+      ko: {
+        langName: "한국어",
+        contact: "문의",
+        home: "홈",
+        homeAria: "홈으로 이동",
+        adLabel: "광고",
+        adOn: "광고 켜짐: 6개 상품 표시",
+        adOff: "광고 꺼짐: 8개 상품 표시",
+        date: "11월 4일 23:40",
+        help: "도움말",
+        helpToast: "도움말: 직원에게 문의해 주세요.",
+        categories: { all: "전체", coffee: "커피", milkTea: "밀크티", other: "기타 음료" },
+        categoryToast: "{name}: 데모 상품을 표시합니다.",
+        items: "{n}개 상품",
+        prevPage: "이전 페이지",
+        nextPage: "다음 페이지",
+        firstPage: "첫 페이지입니다.",
+        demoPage: "데모에서는 1페이지만 표시합니다.",
+        cart: "장바구니",
+        cartOpen: "장바구니 열기",
+        cartClose: "장바구니 닫기",
+        cartTotal: "합계 ({n}개)",
+        checkout: "주문하기",
+        emptyCart: "장바구니가 비어 있습니다.<br>상품의 “+”를 눌러 추가하세요.",
+        selectProduct: "상품을 선택해 주세요.",
+        added: "{name}을(를) 장바구니에 담았습니다.",
+        addedCustom: "{name} × {qty}을(를) 주문에 추가했습니다.",
+        customizeAria: "{name} 커스터마이즈",
+        addAria: "{name} 장바구니에 담기",
+        removeAria: "{name} 삭제",
+        qtyAria: "{name} 수량",
+        decrease: "수량 줄이기",
+        increase: "수량 늘리기",
+        languageMenu: "언어",
+        customize: {
+          title: "커스터마이즈", collapse: "패널 접기", close: "닫고 변경 취소",
+          temperature: "온도", size: "사이즈", sweetness: "당도", milk: "우유",
+          quantity: "수량", total: "합계", submit: "주문에 추가"
+        },
+        temperature: { hot: "핫", iced: "아이스" },
+        size: { small: "스몰", medium: "미디엄", large: "라지", regular: "레귤러" },
+        sweetness: { none: "무당", light: "약간", half: "반", less: "적게", standard: "표준" },
+        milk: { milk: "우유", lowfat: "저지방", oat: "오트", soy: "두유" },
+        products: {
+          1: { name: "카페라테", desc: "진한 커피와 부드러운 우유의 조화." },
+          2: { name: "아이스커피", desc: "깔끔하고 시원한 아이스커피." },
+          3: { name: "카라멜 마키아토", desc: "에스프레소에 캐러멜과 달콤한 밀크폼을 더했습니다." },
+          4: { name: "에스프레소", desc: "진한 커피 향을 그대로 담았습니다." },
+          5: { name: "카페라테 2", desc: "부드러운 밀크폼의 카페라테." },
+          6: { name: "아이스커피 2", desc: "가볍게 즐기는 아이스커피." },
+          7: { name: "타피오카 밀크티", desc: "쫄깃한 타피오카가 들어간 밀크티." },
+          8: { name: "말차 라테", desc: "말차와 우유의 은은한 단맛." }
+        }
+      }
+    };
+
     const products = [
-      { id: 1, name: "カフェラテ", price: 300, image: "assets/latte.jpg", temperature: "ホット", variant: "ホット / レギュラー" },
-      { id: 2, name: "アイスコーヒー", price: 280, image: "assets/iced-coffee.jpg", temperature: "アイス", variant: "アイス / レギュラー" },
-      { id: 3, name: "キャラメルマキアート", price: 360, image: "assets/caramel.jpg", temperature: "アイス", variant: "アイス / レギュラー" },
-      { id: 4, name: "エスプレッソ", price: 320, image: "assets/espresso.jpg", temperature: "ホット", variant: "ホット / レギュラー" },
-      { id: 5, name: "カフェラテ 2", price: 310, image: "assets/latte.jpg", temperature: "ホット", variant: "ホット / レギュラー" },
-      { id: 6, name: "アイスコーヒー 2", price: 290, image: "assets/iced-coffee.jpg", temperature: "アイス", variant: "アイス / レギュラー" },
-      { id: 7, name: "タピオカミルクティー", price: 360, image: "assets/tapioca.jpg", temperature: "アイス", variant: "アイス / レギュラー" },
-      { id: 8, name: "抹茶ラテ", price: 340, image: "assets/matcha.jpg", temperature: "ホット", variant: "ホット / レギュラー" }
+      { id: 1, price: 300, image: "assets/latte.jpg", temperature: "hot" },
+      { id: 2, price: 280, image: "assets/iced-coffee.jpg", temperature: "iced" },
+      { id: 3, price: 360, image: "assets/caramel.jpg", temperature: "iced" },
+      { id: 4, price: 320, image: "assets/espresso.jpg", temperature: "hot" },
+      { id: 5, price: 310, image: "assets/latte.jpg", temperature: "hot" },
+      { id: 6, price: 290, image: "assets/iced-coffee.jpg", temperature: "iced" },
+      { id: 7, price: 360, image: "assets/tapioca.jpg", temperature: "iced" },
+      { id: 8, price: 340, image: "assets/matcha.jpg", temperature: "hot" }
     ];
+
+    const SUPPORTED_LANGUAGES = ["ja", "zh", "en", "ko"];
+
+    function resolveLanguage() {
+      const requested = new URLSearchParams(window.location.search).get("lang");
+      if (SUPPORTED_LANGUAGES.includes(requested)) return requested;
+      try {
+        const saved = localStorage.getItem("fujiLanguage");
+        if (SUPPORTED_LANGUAGES.includes(saved)) return saved;
+      } catch (error) {
+        console.warn("语言偏好读取失败。", error);
+      }
+      return "ja";
+    }
+
+    let currentLanguage = resolveLanguage();
+
+    function t(key, vars) {
+      const dictionary = I18N[currentLanguage] || I18N.ja;
+      const value = key.split(".").reduce((node, part) => (node ? node[part] : undefined), dictionary);
+      const template = typeof value === "string" ? value : key;
+      return vars
+        ? template.replace(/\{(\w+)\}/g, (match, name) => (vars[name] !== undefined ? vars[name] : match))
+        : template;
+    }
+
+    const productName = product => t(`products.${product.id}.name`);
+    const productDescription = product => t(`products.${product.id}.desc`);
+    const variantLabel = variant => ["temperature", "size", "sweetness", "milk"]
+      .filter(group => variant[group])
+      .map(group => {
+        const value = variant[group];
+        return t(value.includes(".") ? value : `${group}.${value}`);
+      })
+      .join(" / ");
 
     const previewParams = new URLSearchParams(window.location.search);
     const state = {
@@ -1078,22 +1376,25 @@
       workspace.classList.toggle("ad-off", !state.adEnabled);
       adToggle.setAttribute("aria-checked", String(state.adEnabled));
       adState.textContent = state.adEnabled ? "ON" : "OFF";
-      visibleCount.textContent = `${count}商品`;
-      productGrid.innerHTML = products.slice(0, count).map((product, index) => `
+      visibleCount.textContent = t("items", { n: count });
+      productGrid.innerHTML = products.slice(0, count).map((product, index) => {
+        const name = productName(product);
+        return `
         <article class="product-card" data-product-id="${product.id}" style="animation-delay:${index * 25}ms">
-          <button class="product-media" type="button" data-customize="${product.id}" aria-label="${product.name}をカスタマイズ">
-            <img src="${product.image}" alt="${product.name}" width="700" height="700">
-            <span class="temperature-tag">${product.temperature}</span>
+          <button class="product-media" type="button" data-customize="${product.id}" aria-label="${t("customizeAria", { name })}">
+            <img src="${product.image}" alt="${name}" width="700" height="700">
+            <span class="temperature-tag">${t(`temperature.${product.temperature}`)}</span>
           </button>
           <div class="product-info">
             <div class="product-copy">
-              <h2 class="product-name" title="${product.name}">${product.name}</h2>
+              <h2 class="product-name" title="${name}">${name}</h2>
               <p class="product-price">${yen(product.price)}</p>
             </div>
-            <button class="add-button" type="button" data-add="${product.id}" aria-label="${product.name}をカートに追加">${icons.plus}</button>
+            <button class="add-button" type="button" data-add="${product.id}" aria-label="${t("addAria", { name })}">${icons.plus}</button>
           </div>
         </article>
-      `).join("");
+      `;
+      }).join("");
     }
 
     function renderCart() {
@@ -1106,30 +1407,35 @@
       document.querySelectorAll("[data-cart-count]").forEach(element => {
         element.textContent = itemCount;
       });
+      document.getElementById("cartTotalLabel").textContent = t("cartTotal", { n: itemCount });
       cartTotal.textContent = yen(total);
       cartItems.classList.toggle("scrollable", entries.length > 3);
 
       if (!entries.length) {
-        cartItems.innerHTML = '<div class="empty-cart">カートに商品がありません。<br>商品の「＋」から追加してください。</div>';
+        cartItems.innerHTML = `<div class="empty-cart">${t("emptyCart")}</div>`;
         return;
       }
 
-      cartItems.innerHTML = entries.map(({ product, quantity }) => `
+      cartItems.innerHTML = entries.map(({ product, quantity }) => {
+        const name = productName(product);
+        const variant = state.cartVariants.get(product.id) || { temperature: product.temperature, size: "regular" };
+        return `
         <article class="cart-item">
-          <img class="cart-thumb" src="${product.image}" alt="${product.name}" width="210" height="210">
+          <img class="cart-thumb" src="${product.image}" alt="${name}" width="210" height="210">
           <div class="cart-item-main">
-            <h3 class="cart-item-name">${product.name}</h3>
-            <div class="cart-item-variant">${state.cartVariants.get(product.id) || product.variant}</div>
+            <h3 class="cart-item-name">${name}</h3>
+            <div class="cart-item-variant">${variantLabel(variant)}</div>
           </div>
-          <button class="remove-item" type="button" data-remove="${product.id}" aria-label="${product.name}を削除">${icons.trash}</button>
-          <div class="quantity-control" aria-label="${product.name}の数量">
-            <button class="quantity-button" type="button" data-decrease="${product.id}" aria-label="数量を減らす">${icons.minus}</button>
+          <button class="remove-item" type="button" data-remove="${product.id}" aria-label="${t("removeAria", { name })}">${icons.trash}</button>
+          <div class="quantity-control" aria-label="${t("qtyAria", { name })}">
+            <button class="quantity-button" type="button" data-decrease="${product.id}" aria-label="${t("decrease")}">${icons.minus}</button>
             <span class="quantity-value">${quantity}</span>
-            <button class="quantity-button" type="button" data-increase="${product.id}" aria-label="数量を増やす">${icons.plus}</button>
+            <button class="quantity-button" type="button" data-increase="${product.id}" aria-label="${t("increase")}">${icons.plus}</button>
           </div>
           <span class="cart-item-price">${yen(product.price * quantity)}</span>
         </article>
-      `).join("");
+      `;
+      }).join("");
     }
 
     function setCartOpen(open) {
@@ -1142,38 +1448,28 @@
     function addToCart(id) {
       state.cart.set(id, (state.cart.get(id) || 0) + 1);
       renderCart();
-      showToast(`${getProduct(id).name}をカートに追加しました。`);
+      showToast(t("added", { name: productName(getProduct(id)) }));
     }
 
     const customizationLayer = document.getElementById("customizationLayer");
     const customDraft = {
       productId: null,
-      temperature: "热饮",
-      size: "中杯",
-      sweetness: "标准糖",
-      milk: "牛奶",
+      temperature: "hot",
+      size: "medium",
+      sweetness: "standard",
+      milk: "milk",
       quantity: 1
     };
     let preserveCustomDraft = false;
 
-    const productDescriptions = {
-      1: "浓郁咖啡与香醇牛奶搭配，口感顺滑。",
-      2: "清爽冰咖啡，香气纯净，回味轻盈。",
-      3: "浓缩咖啡、焦糖与绵密奶泡的香甜组合。",
-      4: "浓郁浓缩咖啡，呈现醇厚咖啡香气。",
-      5: "香浓拿铁搭配细腻奶泡，风味柔和。",
-      6: "冰凉咖啡与清爽口感，适合随时享用。",
-      7: "香醇奶茶搭配 Q 弹珍珠，层次丰富。",
-      8: "清新抹茶与香醇牛奶融合，甘甜顺滑。"
-    };
-
     function resetCustomization(productId) {
+      const product = getProduct(productId);
       Object.assign(customDraft, {
         productId,
-        temperature: "热饮",
-        size: "中杯",
-        sweetness: "标准糖",
-        milk: "牛奶",
+        temperature: product ? product.temperature : "hot",
+        size: "medium",
+        sweetness: "standard",
+        milk: "milk",
         quantity: 1
       });
     }
@@ -1181,12 +1477,13 @@
     function renderCustomization() {
       const product = getProduct(customDraft.productId);
       if (!product) return;
+      const name = productName(product);
       const image = document.getElementById("customProductImage");
       image.src = product.image;
-      image.alt = product.name;
-      document.getElementById("customProductName").textContent = product.name;
+      image.alt = name;
+      document.getElementById("customProductName").textContent = name;
       document.getElementById("customProductPrice").textContent = yen(product.price);
-      document.getElementById("customProductDescription").textContent = productDescriptions[product.id];
+      document.getElementById("customProductDescription").textContent = productDescription(product);
       document.getElementById("customQuantity").textContent = customDraft.quantity;
       document.getElementById("customTotal").textContent = yen(product.price * customDraft.quantity);
       document.querySelectorAll("[data-option-group]").forEach(group => {
@@ -1238,12 +1535,16 @@
       const product = getProduct(customDraft.productId);
       if (!product) return;
       state.cart.set(product.id, (state.cart.get(product.id) || 0) + customDraft.quantity);
-      const variant = `${customDraft.temperature} / ${customDraft.size} / ${customDraft.sweetness} / ${customDraft.milk}`;
-      state.cartVariants.set(product.id, variant);
+      state.cartVariants.set(product.id, {
+        temperature: `temperature.${customDraft.temperature}`,
+        size: `size.${customDraft.size}`,
+        sweetness: `sweetness.${customDraft.sweetness}`,
+        milk: `milk.${customDraft.milk}`
+      });
       const quantity = customDraft.quantity;
       renderCart();
       hideCustomization(true);
-      showToast(`${product.name} × ${quantity}を注文に追加しました。`);
+      showToast(t("addedCustom", { name: productName(product), qty: quantity }));
     });
 
     document.addEventListener("keydown", event => {
@@ -1253,7 +1554,7 @@
     adToggle.addEventListener("click", () => {
       state.adEnabled = !state.adEnabled;
       renderProducts();
-      showToast(state.adEnabled ? "広告 ON：6商品を表示しています。" : "広告 OFF：8商品を表示しています。");
+      showToast(state.adEnabled ? t("adOn") : t("adOff"));
     });
 
     document.getElementById("demoHomeButton").addEventListener("click", () => {
@@ -1327,14 +1628,16 @@
     openCartButton.addEventListener("click", () => setCartOpen(true));
     document.getElementById("checkoutButton").addEventListener("click", () => {
       if (!state.cart.size) {
-        showToast("商品を選択してください。");
+        showToast(t("selectProduct"));
         return;
       }
       const order = {
         items: [...state.cart.entries()].map(([id, quantity]) => {
           const product = getProduct(id);
-          return { name: product.name, price: product.price, quantity, image: product.image, variant: state.cartVariants.get(id) || product.variant };
-        })
+          const variant = state.cartVariants.get(id) || { temperature: product.temperature, size: "regular" };
+          return { name: productName(product), price: product.price, quantity, image: product.image, variant: variantLabel(variant) };
+        }),
+        language: currentLanguage
       };
       try {
         localStorage.setItem("fujiOrder", JSON.stringify(order));
@@ -1355,12 +1658,80 @@
           item.removeAttribute("aria-current");
         });
         button.setAttribute("aria-current", "page");
-        showToast(`${button.dataset.category}：デモ商品を表示しています。`);
+        showToast(t("categoryToast", { name: t(button.dataset.labelKey) }));
       });
     });
 
-    renderProducts();
-    renderCart();
+    const languagePicker = document.getElementById("languagePicker");
+    const languageButton = document.getElementById("languageButton");
+    const languageMenu = document.getElementById("languageMenu");
+
+    function setLanguageMenuOpen(open) {
+      languagePicker.classList.toggle("open", open);
+      languageButton.setAttribute("aria-expanded", String(open));
+    }
+
+    function applyLanguage(language, options = {}) {
+      currentLanguage = I18N[language] ? language : "ja";
+      document.documentElement.lang = I18N[currentLanguage].htmlLang || currentLanguage;
+
+      document.querySelectorAll("[data-i18n]").forEach(element => {
+        element.textContent = t(element.dataset.i18n);
+      });
+      document.querySelectorAll("[data-i18n-aria]").forEach(element => {
+        element.setAttribute("aria-label", t(element.dataset.i18nAria));
+      });
+      document.querySelectorAll("[data-i18n-title]").forEach(element => {
+        element.setAttribute("title", t(element.dataset.i18nTitle));
+      });
+      document.querySelectorAll("[data-i18n-toast]").forEach(element => {
+        element.dataset.toast = t(element.dataset.i18nToast);
+      });
+
+      document.getElementById("languageLabel").textContent = t("langName");
+      languageMenu.setAttribute("aria-label", t("languageMenu"));
+      languageButton.setAttribute("aria-label", t("languageMenu"));
+      languageMenu.querySelectorAll("[data-set-language]").forEach(option => {
+        const active = option.dataset.setLanguage === currentLanguage;
+        option.classList.toggle("active", active);
+        option.setAttribute("aria-selected", String(active));
+      });
+
+      renderProducts();
+      renderCart();
+      if (customizationLayer.classList.contains("open")) renderCustomization();
+
+      if (options.persist !== false) {
+        try {
+          localStorage.setItem("fujiLanguage", currentLanguage);
+        } catch (error) {
+          console.warn("语言偏好无法保存。", error);
+        }
+      }
+    }
+
+    languageButton.addEventListener("click", event => {
+      event.stopPropagation();
+      setLanguageMenuOpen(!languagePicker.classList.contains("open"));
+    });
+
+    languageMenu.addEventListener("click", event => {
+      const option = event.target.closest("[data-set-language]");
+      if (!option) return;
+      event.stopPropagation();
+      setLanguageMenuOpen(false);
+      applyLanguage(option.dataset.setLanguage);
+    });
+
+    document.addEventListener("click", event => {
+      if (!languagePicker.contains(event.target)) setLanguageMenuOpen(false);
+    });
+
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape") setLanguageMenuOpen(false);
+    });
+
+    applyLanguage(currentLanguage, { persist: false });
     setCartOpen(state.cartOpen);
     if (previewParams.get("customize") === "1") {
       openCustomization(Number(previewParams.get("product")) || 1);

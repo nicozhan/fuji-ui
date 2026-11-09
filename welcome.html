@@ -24,10 +24,12 @@
 
     .welcome-screen {
       position: relative;
+      --welcome-left: 10.5%;
       width: 100vw;
       height: 100vh;
       overflow: hidden;
       background: #eaf1f3;
+      cursor: pointer;
     }
     .welcome-carousel {
       position: absolute;
@@ -57,7 +59,7 @@
     .start-control {
       position: absolute;
       z-index: 2;
-      left: 10.5%;
+      left: var(--welcome-left);
       bottom: 20%;
     }
     .start-button {
@@ -86,7 +88,7 @@
     .language-control {
       position: absolute;
       z-index: 2;
-      left: 12%;
+      left: var(--welcome-left);
       bottom: 7%;
       display: flex;
       align-items: center;
@@ -121,8 +123,9 @@
     .language-name { font-size: 14px; font-weight: 600; line-height: 1.2; white-space: nowrap; }
 
     @media (max-width: 1000px) {
-      .start-control { left: 7%; bottom: 22%; }
-      .language-control { right: 6%; left: 6%; bottom: 6%; gap: 8px; }
+      .welcome-screen { --welcome-left: 7%; }
+      .start-control { bottom: 22%; }
+      .language-control { right: 6%; bottom: 6%; gap: 8px; }
       .language-button { flex: 1 1 0; width: auto; min-width: 0; }
     }
 
@@ -240,30 +243,38 @@
 
     const languageButtons = document.querySelectorAll("[data-language]");
     const startLabel = document.getElementById("startLabel");
+    let currentLanguage = "zh";
 
     function selectLanguage(language) {
       const config = languageConfig[language] || languageConfig.zh;
+      currentLanguage = languageConfig[language] ? language : "zh";
       document.documentElement.lang = config.htmlLang;
       startLabel.textContent = config.startLabel;
       languageButtons.forEach(button => {
-        const active = button.dataset.language === language;
+        const active = button.dataset.language === currentLanguage;
         button.classList.toggle("active", active);
         button.setAttribute("aria-pressed", String(active));
       });
       try {
-        localStorage.setItem("fujiLanguage", language);
+        localStorage.setItem("fujiLanguage", currentLanguage);
       } catch (error) {
         console.warn("语言偏好无法保存。", error);
       }
     }
 
+    function goToProducts() {
+      window.location.href = `index.html?lang=${encodeURIComponent(currentLanguage)}`;
+    }
+
     languageButtons.forEach(button => {
-      button.addEventListener("click", () => selectLanguage(button.dataset.language));
+      button.addEventListener("click", event => {
+        event.stopPropagation();
+        selectLanguage(button.dataset.language);
+        goToProducts();
+      });
     });
 
-    document.getElementById("startButton").addEventListener("click", () => {
-      window.location.href = "index.html";
-    });
+    document.querySelector(".welcome-screen").addEventListener("click", () => goToProducts());
 
     let initialLanguage = "zh";
     try {
