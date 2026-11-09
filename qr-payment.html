@@ -3,12 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>扫码支付 - Fuji Electric</title>
+  <title>请扫码支付 - Fuji Electric</title>
   <style>
     :root {
       --bg: #f4f7fa;
       --surface: #ffffff;
-      --surface-soft: #f7fafc;
       --border: #e3ebf0;
       --text: #102d43;
       --text-2: #6c7e8c;
@@ -16,7 +15,9 @@
       --accent-dark: #075b9e;
       --accent-weak: #e8f4fd;
       --success: #168565;
+      --success-weak: #eaf7f2;
       --danger: #c64747;
+      --danger-weak: #fff0f0;
       --status-h: 56px;
       --progress-h: 104px;
     }
@@ -46,21 +47,46 @@
       flex: 0 0 var(--status-h);
       align-items: center;
       justify-content: space-between;
-      gap: 24px;
+      gap: 20px;
       padding: 0 32px;
       color: #fff;
       background: var(--accent-dark);
       font-size: 13px;
     }
-    .status-left, .status-right, .machine-id {
-      display: flex;
-      align-items: center;
-    }
-    .status-left, .status-right { gap: 28px; }
+    .status-left, .status-right, .machine-id { display: flex; align-items: center; }
+    .status-left { gap: 28px; }
+    .status-right { gap: 18px; }
     .machine-id { gap: 9px; white-space: nowrap; }
     .machine-id svg { width: 17px; height: 17px; }
     .machine-id span { color: #cfe8f8; }
     .machine-id strong { color: #fff; font-weight: 600; }
+
+    .demo-controls {
+      display: none;
+      align-items: center;
+      gap: 5px;
+      padding: 4px;
+      border: 1px solid rgba(255,255,255,.24);
+      border-radius: 999px;
+      background: rgba(0,0,0,.09);
+    }
+    .demo-controls.visible { display: flex; }
+    .demo-label { padding: 0 8px; color: #d8edf9; font-size: 10px; font-weight: 800; letter-spacing: .08em; }
+    .demo-state {
+      min-width: 78px;
+      height: 30px;
+      padding: 0 13px;
+      border: 0;
+      border-radius: 999px;
+      color: #fff;
+      background: transparent;
+      font-size: 12px;
+      font-weight: 650;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .demo-state:hover { background: rgba(255,255,255,.13); }
+    .demo-state.active { color: var(--accent-dark); background: #fff; }
 
     .progress-header {
       position: relative;
@@ -74,7 +100,6 @@
     .progress-list {
       display: grid;
       grid-template-columns: repeat(4, minmax(150px, 1fr));
-      gap: 0;
       width: min(1200px, calc(100% - 190px));
       margin: 0 auto;
       padding: 0;
@@ -173,7 +198,6 @@
       background: var(--surface);
       box-shadow: 0 7px 22px rgba(33,73,101,.05);
     }
-    .media-card { position: relative; }
     .backend-image {
       display: block;
       width: 100%;
@@ -182,14 +206,17 @@
       background: #eaf0f3;
     }
 
-    .qr-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+    .qr-card { padding: 0; text-align: center; }
+    .payment-state-panel {
+      width: 100%;
+      height: 100%;
       padding: 25px 32px 24px;
-      text-align: center;
     }
-    .qr-title { margin: 0; font-size: 27px; font-weight: 750; line-height: 1.3; }
+    .payment-state-panel[hidden] { display: none; }
+    .payment-state-panel.active { display: flex; flex-direction: column; align-items: center; }
+    .state-title { margin: 0; font-size: 27px; font-weight: 750; line-height: 1.3; }
+    .state-hint { margin: 0; color: var(--text-2); font-size: 17px; line-height: 1.6; }
+
     .qr-frame {
       display: flex;
       align-items: center;
@@ -205,7 +232,6 @@
     }
     .qr-code { display: flex; align-items: center; justify-content: center; width: 248px; height: 248px; }
     .qr-code img, .qr-code canvas { display: block; width: 248px !important; height: 248px !important; }
-    .qr-instruction { margin: 0; color: var(--text-2); font-size: 16px; }
     .countdown {
       display: flex;
       align-items: baseline;
@@ -217,39 +243,45 @@
       font-size: 15px;
     }
     .countdown strong { color: var(--accent); font-size: 30px; font-variant-numeric: tabular-nums; letter-spacing: .025em; }
-    .payment-note { flex: 0 0 auto; margin: 20px 0 0; color: var(--text-2); font-size: 15px; text-align: center; }
 
-    .making-view {
-      display: none;
-      flex: 1 1 auto;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 0;
-      padding: 32px;
-      text-align: center;
-    }
-    .qr-page.is-making .checkout-main { display: none; }
-    .qr-page.is-making .making-view { display: flex; }
-    .making-illustration {
-      position: relative;
+    .result-panel { justify-content: center; }
+    .state-icon {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 250px;
-      height: 250px;
+      width: 146px;
+      height: 146px;
+      margin-bottom: 28px;
       border-radius: 50%;
-      background: var(--accent-weak);
     }
-    .making-illustration svg { width: 155px; height: 155px; }
-    .steam { animation: steam 1.8s ease-in-out infinite; transform-origin: center bottom; }
-    .steam.two { animation-delay: .45s; }
-    @keyframes steam { 0%,100% { opacity: .25; transform: translateY(5px); } 50% { opacity: 1; transform: translateY(-5px); } }
-    .making-view h1 { margin: 32px 0 10px; font-size: 38px; }
-    .making-view p { margin: 0; color: var(--text-2); font-size: 18px; }
-    .making-progress { width: 360px; height: 8px; margin-top: 32px; overflow: hidden; border-radius: 999px; background: #dfeaf1; }
-    .making-progress::after { display: block; width: 42%; height: 100%; border-radius: inherit; background: var(--accent); content: ""; animation: making 1.6s ease-in-out infinite; }
-    @keyframes making { from { transform: translateX(-110%); } to { transform: translateX(340%); } }
+    .state-icon svg { width: 92px; height: 92px; }
+    .state-icon.success { color: var(--success); background: var(--success-weak); }
+    .state-icon.failed { color: var(--danger); background: var(--danger-weak); }
+    .result-panel .state-title { margin-bottom: 14px; font-size: 34px; }
+    .making-dots { display: flex; gap: 8px; margin-top: 30px; }
+    .making-dots span { width: 8px; height: 8px; border-radius: 50%; background: var(--success); animation: making-dot 1.2s ease-in-out infinite; }
+    .making-dots span:nth-child(2) { animation-delay: .15s; }
+    .making-dots span:nth-child(3) { animation-delay: .3s; }
+    @keyframes making-dot { 0%,70%,100% { opacity: .25; transform: translateY(0); } 35% { opacity: 1; transform: translateY(-5px); } }
+
+    .state-actions { display: flex; gap: 12px; width: 100%; max-width: 390px; margin-top: 34px; }
+    .state-button {
+      display: inline-flex;
+      flex: 1;
+      align-items: center;
+      justify-content: center;
+      min-height: 58px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--text);
+      background: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .state-button.primary { color: #fff; border-color: var(--accent); background: var(--accent); }
+    .state-button.primary:hover { background: var(--accent-dark); }
+    .payment-note { flex: 0 0 auto; margin: 20px 0 0; color: var(--text-2); font-size: 15px; text-align: center; }
 
     .modal-layer {
       position: fixed;
@@ -285,7 +317,6 @@
       font-size: 30px;
       font-weight: 700;
     }
-    .modal.warning .modal-icon { color: var(--danger); background: #fff0f0; }
     .modal h2 { margin: 0 0 12px; font-size: 27px; }
     .modal p { margin: 0; color: var(--text-2); font-size: 16px; line-height: 1.7; }
     .modal-actions { display: flex; gap: 12px; margin-top: 28px; }
@@ -304,7 +335,6 @@
       cursor: pointer;
     }
     .modal-button.primary { color: #fff; border-color: var(--accent); background: var(--accent); }
-    .modal-button.primary:hover { background: var(--accent-dark); }
 
     .toast {
       position: fixed;
@@ -329,12 +359,20 @@
       .order-total { font-size: 40px; }
       .payment-content { margin-top: 18px; }
       .media-card, .qr-card { height: 450px; }
-      .qr-card { padding-top: 18px; padding-bottom: 18px; }
-      .qr-title { font-size: 23px; }
+      .payment-state-panel { padding-top: 18px; padding-bottom: 18px; }
+      .state-title { font-size: 23px; }
       .qr-frame { width: 230px; height: 230px; flex-basis: 230px; margin: 13px auto 11px; }
       .qr-code, .qr-code img, .qr-code canvas { width: 204px !important; height: 204px !important; }
       .countdown { padding-top: 10px; }
       .payment-note { margin-top: 14px; }
+      .state-icon { width: 120px; height: 120px; margin-bottom: 20px; }
+      .state-icon svg { width: 76px; height: 76px; }
+    }
+    @media (max-width: 1400px) {
+      .status-left { gap: 16px; }
+      .status-right { gap: 10px; }
+      .demo-state { min-width: 66px; padding: 0 9px; }
+      .demo-label { padding: 0 4px; }
     }
     @media (max-width: 1250px) {
       .progress-header { padding: 0 28px; }
@@ -360,7 +398,13 @@
         <div>CONTACT：800-1234-5678</div>
       </div>
       <div class="status-right">
-        <time id="machineTime">11/09 13:45</time>
+        <div class="demo-controls" id="demoControls" aria-label="Demo 支付状态">
+          <span class="demo-label">DEMO</span>
+          <button class="demo-state active" type="button" data-demo-state="waiting" aria-pressed="true">请扫码</button>
+          <button class="demo-state" type="button" data-demo-state="paid" aria-pressed="false">支付成功</button>
+          <button class="demo-state" type="button" data-demo-state="failed" aria-pressed="false">支付失败</button>
+        </div>
+        <time id="machineTime">11/09 14:57</time>
         <svg width="18" height="16" viewBox="0 0 18 16" fill="currentColor" aria-label="网络状态正常"><rect x="1" y="11" width="3" height="4" rx="1"/><rect x="6" y="7" width="3" height="8" rx="1"/><rect x="11" y="3" width="3" height="12" rx="1"/></svg>
       </div>
     </section>
@@ -378,7 +422,7 @@
       </button>
     </header>
 
-    <section class="checkout-main" aria-label="扫码支付">
+    <section class="checkout-main" aria-label="订单支付">
       <div class="order-heading">
         <p class="order-label">订单总金额</p>
         <h1 class="order-total" id="orderTotal">¥1,000</h1>
@@ -390,32 +434,39 @@
           <img class="backend-image" id="backendImage" src="assets/welcome-bg.jpg" alt="后台上传的展示图片">
         </section>
 
-        <section class="qr-card">
-          <h2 class="qr-title">扫码支付</h2>
-          <div class="qr-frame">
-            <div class="qr-code" id="qrCode" role="img" aria-label="订单支付二维码"></div>
+        <section class="qr-card" id="paymentStatusCard" aria-label="支付状态">
+          <div class="payment-state-panel active" data-state-panel="waiting">
+            <h2 class="state-title">请扫码支付</h2>
+            <div class="qr-frame">
+              <div class="qr-code" id="qrCode" role="img" aria-label="订单支付二维码"></div>
+            </div>
+            <p class="state-hint">请使用手机扫描二维码</p>
+            <div class="countdown" aria-live="polite">剩余时间 <strong id="countdown">03:00</strong></div>
           </div>
-          <p class="qr-instruction">请使用手机扫描二维码</p>
-          <div class="countdown" aria-live="polite">剩余时间 <strong id="countdown">03:00</strong></div>
+
+          <div class="payment-state-panel result-panel" data-state-panel="paid" hidden>
+            <div class="state-icon success" aria-hidden="true">
+              <svg viewBox="0 0 96 96" fill="none"><circle cx="48" cy="48" r="41" stroke="currentColor" stroke-width="5"/><path d="m29 49 13 13 26-29" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <h2 class="state-title">支付成功</h2>
+            <p class="state-hint">正在为您制作饮品</p>
+            <div class="making-dots" aria-label="制作中"><span></span><span></span><span></span></div>
+          </div>
+
+          <div class="payment-state-panel result-panel" data-state-panel="failed" hidden>
+            <div class="state-icon failed" aria-hidden="true">
+              <svg viewBox="0 0 96 96" fill="none"><circle cx="48" cy="48" r="41" stroke="currentColor" stroke-width="5"/><path d="m34 34 28 28M62 34 34 62" stroke="currentColor" stroke-width="7" stroke-linecap="round"/></svg>
+            </div>
+            <h2 class="state-title">支付失败</h2>
+            <p class="state-hint">支付未成功，请重试</p>
+            <div class="state-actions">
+              <button class="state-button primary" id="retryButton" type="button">重新支付</button>
+              <button class="state-button" id="failedHomeButton" type="button">返回首页</button>
+            </div>
+          </div>
         </section>
       </div>
-      <p class="payment-note">支付成功后将自动开始制作</p>
-    </section>
-
-    <section class="making-view" aria-label="饮品制作中">
-      <div class="making-illustration" aria-hidden="true">
-        <svg viewBox="0 0 160 160" fill="none">
-          <path class="steam" d="M58 45c-10-12 9-16 0-29" stroke="#0877c9" stroke-width="5" stroke-linecap="round"/>
-          <path class="steam two" d="M88 45c-10-12 9-16 0-29" stroke="#0877c9" stroke-width="5" stroke-linecap="round"/>
-          <path d="M35 57h87l-9 70a14 14 0 0 1-14 12H58a14 14 0 0 1-14-12L35 57Z" fill="#ffffff" stroke="#0877c9" stroke-width="5" stroke-linejoin="round"/>
-          <path d="M42 82h73l-6 44a10 10 0 0 1-10 9H59a10 10 0 0 1-10-9l-7-44Z" fill="#d9edfa"/>
-          <path d="M120 70h8a17 17 0 0 1 0 34h-12" stroke="#0877c9" stroke-width="5"/>
-          <path d="M29 57h99" stroke="#0877c9" stroke-width="7" stroke-linecap="round"/>
-        </svg>
-      </div>
-      <h1>正在制作饮品</h1>
-      <p>支付已完成，请稍候。制作完成后请及时取走饮品。</p>
-      <div class="making-progress" aria-label="制作中"></div>
+      <p class="payment-note" id="paymentNote">支付成功后将自动开始制作</p>
     </section>
   </main>
 
@@ -431,28 +482,15 @@
     </div>
   </div>
 
-  <div class="modal-layer" id="timeoutModal" role="alertdialog" aria-modal="true" aria-labelledby="timeoutTitle" aria-hidden="true">
-    <div class="modal warning">
-      <div class="modal-icon">!</div>
-      <h2 id="timeoutTitle">支付已超时</h2>
-      <p>本次二维码已失效，请重新生成支付二维码。<br>如已扣款，请联系现场工作人员。</p>
-      <div class="modal-actions">
-        <button class="modal-button" id="timeoutHomeButton" type="button">返回欢迎页</button>
-        <button class="modal-button primary" id="retryButton" type="button">重新支付</button>
-      </div>
-    </div>
-  </div>
-
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script src="assets/qrcode.min.js"></script>
   <script>
     const PAYMENT_TIMEOUT_SECONDS = 180;
-    const qrPage = document.getElementById("qrPage");
+    const demoMode = new URLSearchParams(window.location.search).get("demo") !== "off";
     const qrCodeElement = document.getElementById("qrCode");
     const countdownElement = document.getElementById("countdown");
     const homeModal = document.getElementById("homeModal");
-    const timeoutModal = document.getElementById("timeoutModal");
     const toast = document.getElementById("toast");
     const defaultOrder = {
       items: [
@@ -465,7 +503,6 @@
       backendImage: "assets/welcome-bg.jpg",
       paymentUrl: "https://pay.example.com/fuji/checkout"
     };
-    let order = defaultOrder;
     let paymentState = "waiting";
     let paymentSession = 0;
     let deadline = 0;
@@ -483,7 +520,7 @@
     }
 
     function renderOrder() {
-      order = loadOrder();
+      const order = loadOrder();
       const items = order.items.filter(item => item && Number(item.price) >= 0);
       const quantity = items.reduce((sum, item) => sum + (Number(item.quantity) || 1), 0);
       const total = items.reduce((sum, item) => sum + Number(item.price || 0) * (Number(item.quantity) || 1), 0);
@@ -507,15 +544,13 @@
       toastTimer = window.setTimeout(() => toast.classList.remove("show"), 2400);
     }
 
-    function setModal(modal, open) {
-      modal.classList.toggle("open", open);
-      modal.setAttribute("aria-hidden", String(!open));
+    function setHomeModal(open) {
+      homeModal.classList.toggle("open", open);
+      homeModal.setAttribute("aria-hidden", String(!open));
     }
 
     function formatTime(seconds) {
-      const minutes = Math.floor(seconds / 60);
-      const remainder = seconds % 60;
-      return `${String(minutes).padStart(2, "0")}:${String(remainder).padStart(2, "0")}`;
+      return `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
     }
 
     function createPaymentCode() {
@@ -543,66 +578,87 @@
       countdownTimer = null;
     }
 
+    function updateProgress(state) {
+      const paid = state === "paid";
+      const checkout = document.querySelector('[data-step="3"]');
+      const making = document.querySelector('[data-step="4"]');
+      checkout.classList.toggle("done", paid);
+      checkout.classList.toggle("current", !paid);
+      checkout.querySelector(".step-number").textContent = paid ? "✓" : "3";
+      checkout.setAttribute("aria-label", paid ? "结账，已完成" : "结账，当前步骤");
+      making.classList.toggle("current", paid);
+      making.setAttribute("aria-label", paid ? "开始制作，当前步骤" : "开始制作，待支付完成后自动进入");
+      if (paid) {
+        checkout.removeAttribute("aria-current");
+        making.setAttribute("aria-current", "step");
+      } else {
+        checkout.setAttribute("aria-current", "step");
+        making.removeAttribute("aria-current");
+      }
+    }
+
     function tickCountdown() {
       if (paymentState !== "waiting") return;
       const remaining = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
       countdownElement.textContent = formatTime(remaining);
-      if (remaining === 0) expirePayment();
+      if (remaining === 0) setPaymentState("failed");
     }
 
-    function startPayment() {
+    function setPaymentState(nextState) {
+      if (!["waiting", "paid", "failed"].includes(nextState)) return false;
       stopCountdown();
-      paymentState = "waiting";
-      setModal(timeoutModal, false);
-      setModal(homeModal, false);
-      createPaymentCode();
-      deadline = Date.now() + PAYMENT_TIMEOUT_SECONDS * 1000;
-      countdownElement.textContent = formatTime(PAYMENT_TIMEOUT_SECONDS);
-      countdownTimer = window.setInterval(tickCountdown, 250);
+      paymentState = nextState;
+      setHomeModal(false);
+
+      document.querySelectorAll("[data-state-panel]").forEach(panel => {
+        const active = panel.dataset.statePanel === nextState;
+        panel.hidden = !active;
+        panel.classList.toggle("active", active);
+      });
+      document.querySelectorAll("[data-demo-state]").forEach(button => {
+        const active = button.dataset.demoState === nextState;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-pressed", String(active));
+      });
+      updateProgress(nextState);
+
+      const notes = {
+        waiting: "支付成功后将自动开始制作",
+        paid: "请留意取货口，制作完成后请及时取走饮品",
+        failed: "如需帮助，请联系现场工作人员"
+      };
+      const titles = {
+        waiting: "请扫码支付 - Fuji Electric",
+        paid: "支付成功 - Fuji Electric",
+        failed: "支付失败 - Fuji Electric"
+      };
+      document.getElementById("paymentNote").textContent = notes[nextState];
+      document.title = titles[nextState];
+
+      if (nextState === "waiting") {
+        createPaymentCode();
+        deadline = Date.now() + PAYMENT_TIMEOUT_SECONDS * 1000;
+        countdownElement.textContent = formatTime(PAYMENT_TIMEOUT_SECONDS);
+        countdownTimer = window.setInterval(tickCountdown, 250);
+      } else if (nextState === "paid") {
+        try { sessionStorage.setItem("fujiPaymentStatus", "paid"); } catch (error) { console.warn(error); }
+      } else {
+        try { sessionStorage.setItem("fujiPaymentStatus", "failed"); } catch (error) { console.warn(error); }
+      }
+      return true;
     }
 
-    function expirePayment() {
-      if (paymentState !== "waiting") return;
-      paymentState = "expired";
-      stopCountdown();
-      countdownElement.textContent = "00:00";
-      setModal(homeModal, false);
-      setModal(timeoutModal, true);
-      document.getElementById("retryButton").focus();
-    }
-
-    function updateProgressForMaking() {
-      const checkout = document.querySelector('[data-step="3"]');
-      const making = document.querySelector('[data-step="4"]');
-      checkout.classList.remove("current");
-      checkout.classList.add("done");
-      checkout.removeAttribute("aria-current");
-      checkout.querySelector(".step-number").textContent = "✓";
-      checkout.setAttribute("aria-label", "结账，已完成");
-      making.classList.add("current");
-      making.setAttribute("aria-current", "step");
-      making.setAttribute("aria-label", "开始制作，当前步骤");
-    }
-
-    // 支付网关/后台轮询接入入口：仅在收到真实成功结果后调用。
+    // 真实支付网关接入入口；Demo 按钮可直接切换相同状态，不依赖接口。
     function handlePaymentResult(result) {
       const status = typeof result === "string" ? result : result && result.status;
-      if (!["paid", "success", "succeeded"].includes(status)) return false;
       if (paymentState !== "waiting") return false;
-      paymentState = "paid";
-      stopCountdown();
-      setModal(homeModal, false);
-      setModal(timeoutModal, false);
-      updateProgressForMaking();
-      qrPage.classList.add("is-making");
-      document.title = "正在制作饮品 - Fuji Electric";
-      try { sessionStorage.setItem("fujiPaymentStatus", "paid"); } catch (error) { console.warn(error); }
-      return true;
+      if (["paid", "success", "succeeded"].includes(status)) return setPaymentState("paid");
+      if (["failed", "failure", "expired"].includes(status)) return setPaymentState("failed");
+      return false;
     }
 
     function clearOrderAndGoHome() {
       stopCountdown();
-      paymentState = "cancelled";
       try {
         localStorage.removeItem("fujiOrder");
         sessionStorage.removeItem("fujiPaymentStatus");
@@ -610,7 +666,6 @@
       window.location.href = "welcome.html";
     }
 
-    // 后台配置入口：替换展示图与支付网关地址，二维码内容随之更新。
     function configureQRPayment(config) {
       if (config && typeof config.backendImage === "string" && config.backendImage) {
         paymentConfig.backendImage = config.backendImage;
@@ -619,43 +674,43 @@
       if (config && typeof config.paymentUrl === "string" && config.paymentUrl) {
         paymentConfig.paymentUrl = config.paymentUrl;
       }
-      if (paymentState === "waiting") startPayment();
+      if (paymentState === "waiting") setPaymentState("waiting");
     }
 
     window.handlePaymentResult = handlePaymentResult;
     window.configureQRPayment = configureQRPayment;
+    window.setPaymentState = setPaymentState;
 
+    document.getElementById("demoControls").classList.toggle("visible", demoMode);
+    document.querySelectorAll("[data-demo-state]").forEach(button => {
+      button.addEventListener("click", () => setPaymentState(button.dataset.demoState));
+    });
     document.getElementById("homeButton").addEventListener("click", () => {
       if (paymentState === "paid") {
         showToast("饮品正在制作，请稍候，暂不能取消订单。");
         return;
       }
-      if (paymentState === "expired") return;
-      setModal(homeModal, true);
+      setHomeModal(true);
       document.getElementById("stayButton").focus();
     });
     document.getElementById("stayButton").addEventListener("click", () => {
-      setModal(homeModal, false);
+      setHomeModal(false);
       document.getElementById("homeButton").focus();
     });
     document.getElementById("confirmHomeButton").addEventListener("click", clearOrderAndGoHome);
-    document.getElementById("timeoutHomeButton").addEventListener("click", clearOrderAndGoHome);
-    document.getElementById("retryButton").addEventListener("click", startPayment);
-
-    [homeModal, timeoutModal].forEach(modal => {
-      modal.addEventListener("click", event => {
-        if (event.target !== modal) return;
-        if (modal === homeModal) setModal(homeModal, false);
-      });
+    document.getElementById("failedHomeButton").addEventListener("click", clearOrderAndGoHome);
+    document.getElementById("retryButton").addEventListener("click", () => setPaymentState("waiting"));
+    homeModal.addEventListener("click", event => {
+      if (event.target === homeModal) setHomeModal(false);
     });
     document.addEventListener("keydown", event => {
-      if (event.key === "Escape" && homeModal.classList.contains("open")) setModal(homeModal, false);
+      if (event.key === "Escape" && homeModal.classList.contains("open")) setHomeModal(false);
     });
 
     renderOrder();
     updateMachineTime();
     window.setInterval(updateMachineTime, 30000);
-    startPayment();
+    setPaymentState("waiting");
   </script>
 </body>
 </html>
