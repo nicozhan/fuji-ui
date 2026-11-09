@@ -212,7 +212,7 @@
     }
     .pill-button { padding: 0 1.4375rem; }
     .pill-button svg, .language-button svg { width: 1.25rem; height: 1.25rem; }
-    .pill-button:hover, .category-button:hover { border-color: #b9d9ed; background: var(--accent-weak); }
+    .pill-button:hover { border-color: #b9d9ed; background: var(--accent-weak); }
 
     .category-nav {
       display: flex;
@@ -225,12 +225,19 @@
     .category-button {
       min-width: 8.25rem;
       padding: 0 1.5rem;
-      border-color: transparent;
-      font-size: 0.9375rem;
+      /* 触摸屏无悬浮态：默认就带浅蓝底与描边，让用户一眼看出这是可点的按钮 */
+      border-color: #b9d9ed;
+      background: var(--accent-weak);
+      font-size: 1.0625rem;
       font-weight: 650;
+      transition: background .18s ease, color .18s ease, border-color .18s ease, transform .14s ease;
     }
     .category-button svg { width: 1.125rem; height: 1.125rem; }
-    .category-button.active { color: #fff; background: var(--accent); }
+    .category-button:hover { border-color: #9ecbe8; background: #ddedfa; }
+    .category-button:active { transform: translateY(0.0625rem); border-color: #8dc3e5; background: #d2e8f8; }
+    .category-button.active,
+    .category-button.active:hover { color: #fff; border-color: var(--accent); background: var(--accent); }
+    .category-button.active:active { transform: translateY(0.0625rem); background: var(--accent-dark); }
     .category-button .chevron { width: 0.875rem; height: 0.875rem; margin-left: 0.3125rem; }
     .language-button { flex: 0 0 auto; padding: 0 1.3125rem; }
     .language-picker { position: relative; display: flex; flex: 0 0 auto; }
@@ -601,6 +608,10 @@
     .page-nav:disabled { opacity: .38; cursor: not-allowed; box-shadow: none; background: #f5f9fc; }
     .page-nav svg { width: 1.125rem; height: 1.125rem; }
     .page-summary { margin-left: 0.875rem; color: var(--text-2); font-size: 0.875rem; white-space: nowrap; }
+    /* 小屏（10 吋平板）上翻页行右侧会让出悬浮购物车按钮的位置，避免摘要被按钮压住 */
+    @media (max-width: 1100px) {
+      .pagination { padding-right: 4rem; }
+    }
 
     .cart-panel {
       position: absolute;
@@ -751,16 +762,19 @@
       align-items: center;
       gap: 0.625rem;
       min-height: 3.25rem;
-      padding: 0 1.375rem;
+      padding: 0 1.5rem;
       border: 0;
       border-radius: 62.4375rem;
       color: #fff;
       background: var(--accent);
       box-shadow: 0 0.5rem 1.25rem rgba(8,119,201,.22);
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: .01em;
       cursor: pointer;
     }
     .open-cart-button svg { width: 1.3125rem; height: 1.3125rem; }
-    .open-cart-button .cart-count { min-width: 1.5625rem; height: 1.5625rem; color: var(--accent); }
+    .open-cart-button .cart-count { min-width: 1.75rem; height: 1.75rem; font-size: 1rem; color: var(--accent); }
 
     .product-media {
       padding: 0;
