@@ -273,6 +273,178 @@
     }
     .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
+    /* ── 只有一种「扫码支付」时：左侧支付图 + 右侧二维码，无需再选择 ── */
+    .payment-grid.qr-mode {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 30px;
+      max-width: 1400px;
+    }
+    .qr-media {
+      flex: 0 0 auto;
+      height: min(100%, 632px);
+      aspect-ratio: 1 / 1;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      background: var(--surface);
+      box-shadow: 0 7px 22px rgba(33,73,101,.055);
+    }
+    .qr-media img { display: block; width: 100%; height: 100%; object-fit: contain; }
+    .qr-panel {
+      position: relative;
+      display: flex;
+      flex: 1 1 auto;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      max-width: 720px;
+      padding: 26px 38px 24px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      background: var(--surface);
+      box-shadow: 0 7px 22px rgba(33,73,101,.055);
+      text-align: center;
+    }
+    .qr-title { margin: 0; font-size: 30px; font-weight: 750; line-height: 1.25; }
+    .qr-code-caption {
+      margin: 9px 0 0;
+      color: #91a6b4;
+      font-size: 12px;
+      font-weight: 750;
+      letter-spacing: .34em;
+      text-indent: .34em;
+    }
+    .qr-frame {
+      display: flex;
+      flex: 1 1 auto;
+      align-items: center;
+      justify-content: center;
+      width: auto;
+      max-width: 100%;
+      max-height: 292px;
+      min-height: 0;
+      aspect-ratio: 1 / 1;
+      margin: 14px 0 15px;
+      padding: 12px;
+      border: 1px solid #dfe8ed;
+      border-radius: 16px;
+      background: #fff;
+    }
+    .qr-code { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
+    .qr-code img, .qr-code canvas { display: block; width: 100% !important; height: 100% !important; }
+    .qr-hint { margin: 0; color: var(--text-2); font-size: 17px; }
+    .qr-timer { margin: 22px 0 0; color: var(--text-2); font-size: 15px; }
+    .qr-timer strong {
+      color: var(--accent);
+      font-size: 32px;
+      font-weight: 750;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: .02em;
+    }
+    .qr-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      padding: 30px;
+      background: #fff;
+    }
+    .qr-overlay[hidden] { display: none; }
+    .qr-result-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 132px;
+      height: 132px;
+      border-radius: 50%;
+    }
+    .qr-result-icon svg { width: 80px; height: 80px; }
+    .qr-result-icon.success { color: #168565; background: #eaf7f2; }
+    .qr-result-icon.failed { color: #c64747; background: #fff0f0; }
+    .qr-result-title { margin: 6px 0 0; font-size: 32px; font-weight: 750; }
+    .qr-result-hint { margin: 0; color: var(--text-2); font-size: 17px; }
+    .qr-retry {
+      min-width: 210px;
+      min-height: 56px;
+      margin-top: 12px;
+      border: 1px solid var(--accent);
+      border-radius: 999px;
+      color: #fff;
+      background: var(--accent);
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .qr-retry:hover { background: var(--accent-dark); }
+    .making-dots { display: flex; gap: 8px; margin-top: 18px; }
+    .making-dots span { width: 8px; height: 8px; border-radius: 50%; background: #168565; animation: making-dot 1.2s ease-in-out infinite; }
+    .making-dots span:nth-child(2) { animation-delay: .15s; }
+    .making-dots span:nth-child(3) { animation-delay: .3s; }
+    @keyframes making-dot { 0%,70%,100% { opacity: .25; transform: translateY(0); } 35% { opacity: 1; transform: translateY(-5px); } }
+
+    .demo-states {
+      display: none;
+      align-items: center;
+      gap: 4px;
+      padding: 4px;
+      border: 1px solid rgba(255,255,255,.25);
+      border-radius: 999px;
+      background: rgba(0,0,0,.1);
+    }
+    .demo-states.visible { display: flex; }
+    .demo-states .demo-label { padding: 0 6px; }
+    .demo-state-opt {
+      min-width: 76px;
+      height: 25px;
+      padding: 0 11px;
+      border: 0;
+      border-radius: 999px;
+      color: #fff;
+      background: transparent;
+      font-size: 12px;
+      font-weight: 650;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .demo-state-opt:hover { background: rgba(255,255,255,.13); }
+    .demo-state-opt.active { color: var(--accent-dark); background: #fff; }
+
+    @media (max-height: 900px) {
+      /* 短屏：压缩页面留白，让二维码面板拿到足够高度 */
+      .main-header { flex-basis: 82px; }
+      .payment-main { padding: 22px 40px 26px; }
+      .page-title { margin-bottom: 14px; font-size: 26px; }
+      .order-summary { flex-basis: 96px; padding: 14px 28px; }
+      .order-total-label { font-size: 15px; }
+      .order-total-value { font-size: 32px; }
+      .order-thumbnail { width: 66px; height: 66px; }
+      .payment-grid { margin-top: 18px; }
+      .qr-title { font-size: 25px; }
+      .qr-code-caption { margin-top: 6px; font-size: 11px; }
+      .qr-frame { margin: 9px 0 10px; }
+      .qr-hint { font-size: 15px; }
+      .qr-timer { margin-top: 12px; font-size: 14px; }
+      .qr-timer strong { font-size: 26px; }
+      .qr-panel { padding: 16px 28px 16px; }
+      .qr-result-icon { width: 100px; height: 100px; }
+      .qr-result-icon svg { width: 62px; height: 62px; }
+      .qr-result-title { font-size: 26px; }
+      .qr-result-hint { font-size: 15px; }
+      .qr-retry { min-height: 50px; min-width: 190px; }
+      .making-dots { margin-top: 12px; }
+    }
+    @media (max-width: 1400px) {
+      .payment-grid.qr-mode { gap: 22px; }
+      .qr-panel { padding: 20px 26px 18px; }
+    }
+
     @media (max-height: 850px) {
       .payment-main { padding: 24px 40px 28px; }
       .page-title { margin-bottom: 18px; font-size: 28px; }
@@ -323,6 +495,12 @@
           <button class="demo-count active" type="button" data-method-count="2" aria-pressed="true">2</button>
           <button class="demo-count" type="button" data-method-count="3" aria-pressed="false">3</button>
         </div>
+        <div class="demo-states" id="qrDemo" aria-label="Demo 扫码支付状态">
+          <span class="demo-label">DEMO</span>
+          <button class="demo-state-opt active" type="button" data-qr-demo="waiting" aria-pressed="true">请扫码</button>
+          <button class="demo-state-opt" type="button" data-qr-demo="paid" aria-pressed="false">支付成功</button>
+          <button class="demo-state-opt" type="button" data-qr-demo="failed" aria-pressed="false">支付失败</button>
+        </div>
         <time datetime="2026-11-04T23:42">11月4日 23:42</time>
         <svg width="18" height="16" viewBox="0 0 18 16" fill="currentColor" aria-label="网络状态"><rect x="1" y="11" width="3" height="4" rx="1"/><rect x="6" y="7" width="3" height="8" rx="1"/><rect x="11" y="3" width="3" height="12" rx="1"/></svg>
       </div>
@@ -366,6 +544,7 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+  <script src="assets/qrcode.min.js"></script>
   <script>
     const arrowIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 12h15M14 7l5 5-5 5"/></svg>';
 
@@ -433,9 +612,20 @@
 
     const methodOrder = ["qr", "pos", "mobile"];
     const paymentGrid = document.getElementById("paymentGrid");
+    const pageTitleElement = document.getElementById("pageTitle");
+    const qrDemoGroup = document.getElementById("qrDemo");
     const toast = document.getElementById("toast");
     let activeMethods = [];
     let toastTimer;
+
+    // 单一扫码支付模式：不展示选择卡片，直接在原位置展示「左侧支付图 + 右侧二维码」
+    const QR_TIMEOUT_SECONDS = 90;
+    const paymentDisplay = { image: "assets/payment-methods.jpg" };
+    let inlineQrActive = false;
+    let qrState = "waiting";
+    let qrDeadline = 0;
+    let qrTimer = null;
+    let qrRedirectTimer = null;
 
     const defaultOrder = {
       items: [
@@ -474,16 +664,163 @@
       toastTimer = window.setTimeout(() => toast.classList.remove("show"), 2200);
     }
 
+    function stopQrTimer() {
+      if (qrTimer !== null) window.clearInterval(qrTimer);
+      qrTimer = null;
+    }
+
+    function stopQrRedirect() {
+      if (qrRedirectTimer !== null) window.clearTimeout(qrRedirectTimer);
+      qrRedirectTimer = null;
+    }
+
+    function currentLanguage() {
+      try {
+        return loadOrder().language || localStorage.getItem("fujiLanguage") || "zh";
+      } catch (error) {
+        return "zh";
+      }
+    }
+
+    function buildInlineQrCode() {
+      const host = document.getElementById("inlineQrCode");
+      if (!host) return;
+      host.replaceChildren();
+      if (typeof window.QRCode !== "function") {
+        host.textContent = "二维码加载失败";
+        return;
+      }
+      const orderId = `FUJI-${Date.now()}`;
+      const payload = `https://pay.example.com/fuji/checkout?order=${encodeURIComponent(orderId)}`;
+      new window.QRCode(host, {
+        text: payload,
+        width: 262,
+        height: 262,
+        colorDark: "#102d43",
+        colorLight: "#ffffff",
+        correctLevel: window.QRCode.CorrectLevel.M
+      });
+    }
+
+    function tickInlineQr() {
+      if (qrState !== "waiting") return;
+      const remaining = Math.max(0, Math.ceil((qrDeadline - Date.now()) / 1000));
+      const node = document.getElementById("inlineCountdown");
+      if (node) node.textContent = String(remaining);
+      if (remaining === 0) setInlineQrState("failed", "expired");
+    }
+
+    function setInlineQrState(state, reason) {
+      if (!inlineQrActive) return;
+      qrState = state;
+      stopQrTimer();
+      stopQrRedirect();
+
+      const overlay = document.getElementById("qrOverlay");
+      if (!overlay) return;
+
+      if (state === "waiting") {
+        overlay.hidden = true;
+        overlay.innerHTML = "";
+        buildInlineQrCode();
+        qrDeadline = Date.now() + QR_TIMEOUT_SECONDS * 1000;
+        const node = document.getElementById("inlineCountdown");
+        if (node) node.textContent = String(QR_TIMEOUT_SECONDS);
+        qrTimer = window.setInterval(tickInlineQr, 250);
+        document.title = "请扫码支付 - Fuji Electric";
+      } else if (state === "paid") {
+        overlay.hidden = false;
+        overlay.innerHTML = `
+          <div class="qr-result-icon success" aria-hidden="true">
+            <svg viewBox="0 0 96 96" fill="none"><circle cx="48" cy="48" r="41" stroke="currentColor" stroke-width="5"/><path d="m29 49 13 13 26-29" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <h2 class="qr-result-title">支付成功</h2>
+          <p class="qr-result-hint">正在为您制作饮品</p>
+          <div class="making-dots" aria-label="制作中"><span></span><span></span><span></span></div>
+        `;
+        document.title = "支付成功 - Fuji Electric";
+        try { sessionStorage.setItem("fujiPaymentStatus", "paid"); } catch (error) { console.warn(error); }
+        const language = currentLanguage();
+        qrRedirectTimer = window.setTimeout(() => {
+          window.location.href = `preparation.html?auto=1&lang=${encodeURIComponent(language)}`;
+        }, 1400);
+      } else {
+        const expired = reason === "expired";
+        overlay.hidden = false;
+        overlay.innerHTML = `
+          <div class="qr-result-icon failed" aria-hidden="true">
+            <svg viewBox="0 0 96 96" fill="none"><circle cx="48" cy="48" r="41" stroke="currentColor" stroke-width="5"/><path d="m34 34 28 28M62 34 34 62" stroke="currentColor" stroke-width="7" stroke-linecap="round"/></svg>
+          </div>
+          <h2 class="qr-result-title">${expired ? "二维码已过期" : "支付失败"}</h2>
+          <p class="qr-result-hint">${expired ? "支付超时，请重新获取二维码" : "支付未成功，请重试"}</p>
+          <button class="qr-retry" id="qrRetry" type="button">重新支付</button>
+        `;
+        document.title = `${expired ? "二维码已过期" : "支付失败"} - Fuji Electric`;
+        try { sessionStorage.setItem("fujiPaymentStatus", "failed"); } catch (error) { console.warn(error); }
+        const retry = overlay.querySelector("#qrRetry");
+        if (retry) retry.addEventListener("click", () => setInlineQrState("waiting"));
+      }
+
+      document.querySelectorAll("[data-qr-demo]").forEach(button => {
+        const active = button.dataset.qrDemo === state;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-pressed", String(active));
+      });
+    }
+
+    function renderInlineQR() {
+      inlineQrActive = true;
+      paymentGrid.className = "payment-grid qr-mode";
+      paymentGrid.innerHTML = `
+        <section class="qr-media" aria-label="支付方式图片">
+          <img src="${paymentDisplay.image}" alt="支持的支付方式：微信支付、支付宝、银联支付、云闪付">
+        </section>
+        <section class="qr-panel" id="qrPanel" aria-label="扫码支付">
+          <h2 class="qr-title">请扫码支付</h2>
+          <p class="qr-code-caption">QR CODE</p>
+          <div class="qr-frame">
+            <div class="qr-code" id="inlineQrCode" role="img" aria-label="订单支付二维码"></div>
+          </div>
+          <p class="qr-hint">请使用手机扫描二维码</p>
+          <p class="qr-timer">剩余时间 <strong id="inlineCountdown">${QR_TIMEOUT_SECONDS}</strong> 秒</p>
+          <div class="qr-overlay" id="qrOverlay" hidden></div>
+        </section>
+      `;
+      qrDemoGroup.classList.add("visible");
+      setInlineQrState("waiting");
+    }
+
+    function releaseInlineQR() {
+      if (inlineQrActive) {
+        stopQrTimer();
+        stopQrRedirect();
+        inlineQrActive = false;
+        qrState = "waiting";
+      }
+      qrDemoGroup.classList.remove("visible");
+    }
+
     function renderPaymentMethods() {
       const count = activeMethods.length;
-      paymentGrid.className = `payment-grid count-${count}`;
-      paymentGrid.innerHTML = activeMethods.map((method, index) => `
-        <article class="payment-card" data-method="${method.id}" style="animation-delay:${index * 35}ms">
-          <h2 class="payment-name">${method.name}</h2>
-          <div class="payment-illustration">${method.illustration}</div>
-          <button class="pay-button" type="button" data-pay="${method.id}">${method.action}${arrowIcon}</button>
-        </article>
-      `).join("");
+      const singleQr = count === 1 && activeMethods[0].id === "qr";
+
+      releaseInlineQR();
+      pageTitleElement.textContent = singleQr ? "扫码支付" : "请选择支付方式";
+
+      if (singleQr) {
+        renderInlineQR();
+      } else {
+        document.title = "请选择支付方式 - Fuji Electric";
+        paymentGrid.className = `payment-grid count-${count}`;
+        paymentGrid.innerHTML = activeMethods.map((method, index) => `
+          <article class="payment-card" data-method="${method.id}" style="animation-delay:${index * 35}ms">
+            <h2 class="payment-name">${method.name}</h2>
+            <div class="payment-illustration">${method.illustration}</div>
+            <button class="pay-button" type="button" data-pay="${method.id}">${method.action}${arrowIcon}</button>
+          </article>
+        `).join("");
+      }
+
       document.querySelectorAll("[data-method-count]").forEach(button => {
         const active = Number(button.dataset.methodCount) === count;
         button.classList.toggle("active", active);
@@ -500,6 +837,17 @@
     }
 
     window.configurePaymentMethods = configurePaymentMethods;
+
+    // 后台可替换左侧支付图（1:1 展示，图片原样不裁剪）
+    window.configurePaymentImage = src => {
+      if (typeof src !== "string" || !src) return;
+      paymentDisplay.image = src;
+      if (inlineQrActive) renderInlineQR();
+    };
+
+    document.querySelectorAll("[data-qr-demo]").forEach(button => {
+      button.addEventListener("click", () => setInlineQrState(button.dataset.qrDemo));
+    });
 
     document.querySelectorAll("[data-method-count]").forEach(button => {
       button.addEventListener("click", () => {
@@ -526,7 +874,7 @@
       button.addEventListener("click", () => showToast(button.dataset.toast));
     });
 
-    const requestedCount = Math.min(3, Math.max(1, Number(new URLSearchParams(window.location.search).get("methods")) || 2));
+    const requestedCount = Math.min(3, Math.max(1, Number(new URLSearchParams(window.location.search).get("methods")) || 1));
     renderOrder();
     configurePaymentMethods(methodOrder.slice(0, requestedCount));
   </script>

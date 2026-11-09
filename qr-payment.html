@@ -189,6 +189,11 @@
       min-height: 0;
       margin: 25px auto 0;
     }
+    .media-card {
+      width: auto;
+      aspect-ratio: 1 / 1;
+      justify-self: center;
+    }
     .media-card, .qr-card {
       height: 530px;
       min-width: 0;
@@ -217,6 +222,14 @@
     .state-title { margin: 0; font-size: 27px; font-weight: 750; line-height: 1.3; }
     .state-hint { margin: 0; color: var(--text-2); font-size: 17px; line-height: 1.6; }
 
+    .qr-code-caption {
+      margin: 7px 0 0;
+      color: #91a6b4;
+      font-size: 12px;
+      font-weight: 750;
+      letter-spacing: .34em;
+      text-indent: .34em;
+    }
     .qr-frame {
       display: flex;
       align-items: center;
@@ -435,11 +448,12 @@
         <section class="qr-card" id="paymentStatusCard" aria-label="支付状态">
           <div class="payment-state-panel active" data-state-panel="waiting">
             <h2 class="state-title">请扫码支付</h2>
+            <p class="qr-code-caption">QR CODE</p>
             <div class="qr-frame">
               <div class="qr-code" id="qrCode" role="img" aria-label="订单支付二维码"></div>
             </div>
             <p class="state-hint">请使用手机扫描二维码</p>
-            <div class="countdown" aria-live="polite">剩余时间 <strong id="countdown">03:00</strong></div>
+            <div class="countdown" aria-live="polite">剩余时间 <strong id="countdown">90</strong> 秒</div>
           </div>
 
           <div class="payment-state-panel result-panel" data-state-panel="paid" hidden>
@@ -483,7 +497,7 @@
 
   <script src="assets/qrcode.min.js"></script>
   <script>
-    const PAYMENT_TIMEOUT_SECONDS = 180;
+    const PAYMENT_TIMEOUT_SECONDS = 90;
     const demoMode = new URLSearchParams(window.location.search).get("demo") !== "off";
     const qrCodeElement = document.getElementById("qrCode");
     const countdownElement = document.getElementById("countdown");
@@ -547,10 +561,6 @@
       homeModal.setAttribute("aria-hidden", String(!open));
     }
 
-    function formatTime(seconds) {
-      return `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
-    }
-
     function createPaymentCode() {
       paymentSession += 1;
       const orderId = `FUJI-${Date.now()}-${paymentSession}`;
@@ -598,7 +608,7 @@
     function tickCountdown() {
       if (paymentState !== "waiting") return;
       const remaining = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
-      countdownElement.textContent = formatTime(remaining);
+      countdownElement.textContent = String(remaining);
       if (remaining === 0) setPaymentState("failed");
     }
 
@@ -632,7 +642,7 @@
       if (nextState === "waiting") {
         createPaymentCode();
         deadline = Date.now() + PAYMENT_TIMEOUT_SECONDS * 1000;
-        countdownElement.textContent = formatTime(PAYMENT_TIMEOUT_SECONDS);
+        countdownElement.textContent = String(PAYMENT_TIMEOUT_SECONDS);
         countdownTimer = window.setInterval(tickCountdown, 250);
       } else if (nextState === "paid") {
         try { sessionStorage.setItem("fujiPaymentStatus", "paid"); } catch (error) { console.warn(error); }
