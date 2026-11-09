@@ -202,8 +202,8 @@
       display: block;
       width: 100%;
       height: 100%;
-      object-fit: cover;
-      background: #eaf0f3;
+      object-fit: contain;
+      background: #fff;
     }
 
     .qr-card { padding: 0; text-align: center; }
@@ -431,7 +431,7 @@
 
       <div class="payment-content">
         <section class="media-card" aria-label="后台配置图片">
-          <img class="backend-image" id="backendImage" src="assets/welcome-bg.jpg" alt="后台上传的展示图片">
+          <img class="backend-image" id="backendImage" src="assets/payment-methods.jpg" alt="支持的支付方式：微信支付、支付宝、银联支付、云闪付">
         </section>
 
         <section class="qr-card" id="paymentStatusCard" aria-label="支付状态">
@@ -500,7 +500,7 @@
       ]
     };
     const paymentConfig = {
-      backendImage: "assets/welcome-bg.jpg",
+      backendImage: "assets/payment-methods.jpg",
       paymentUrl: "https://pay.example.com/fuji/checkout"
     };
     let paymentState = "waiting";
