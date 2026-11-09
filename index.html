@@ -8,6 +8,8 @@
     :root {
       --bg: #f4f7fa;
       --surface: #ffffff;
+      /* 商品卡单层背景：上浅下白，无分界线，透明底饮品直接落在上面 */
+      --card-surface: linear-gradient(180deg, #f4f8fb 0%, #ffffff 68%);
       --surface-2: #eef5fa;
       --border: #e4ebf0;
       --text: #102d43;
@@ -401,6 +403,8 @@
     .slide-arrow:disabled { opacity: 0; pointer-events: none; }
     .product-stage.single-page .slide-arrow { display: none; }
 
+    /* 商品卡：单层背景。饮品是透明底素材，直接呈现在卡片底色上，
+       不再有「图片自带背景 + 卡片背景」双层的方形底板。 */
     .product-card {
       position: relative;
       display: grid;
@@ -408,9 +412,9 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
-      border: 0.0625rem solid rgba(218,229,236,.8);
+      border: 0.0625rem solid rgba(214,225,233,.9);
       border-radius: var(--radius);
-      background: var(--surface);
+      background: var(--card-surface);
       box-shadow: 0 0.3125rem 1.125rem rgba(33,73,101,.06);
       animation: card-in .24s ease both;
     }
@@ -419,7 +423,7 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* 商品图：统一 1:1 正方形画框 + 浅暖色柔和渐变（替换原灰色底 #e8edf0） */
+    /* 商品图区：透明，只负责给主体留出呼吸空间（无独立底色、无圆角、无投影框） */
     .product-media {
       position: relative;
       display: flex;
@@ -432,24 +436,23 @@
       border: 0;
       overflow: hidden;
       container-type: size;
-      background: radial-gradient(64% 72% at 50% 34%, rgba(255,255,255,.57), rgba(255,255,255,0) 100%), linear-gradient(180deg, #fffaf2 0%, #f9efe0 50%, #f4e4cf 100%);
+      background: transparent;
     }
     .product-media img {
       display: block;
       flex: 0 0 auto;
-      width: min(100cqw, 100cqh);
-      height: min(100cqw, 100cqh);
-      padding: 0;
+      width: 100%;
+      height: 100%;
+      padding: 2% 5% 0;
       object-fit: contain;
+      object-position: center bottom;
+      background: transparent;
+      border-radius: 0;
+      box-shadow: none;
+      filter: drop-shadow(0 0.75rem 1.125rem rgba(24,58,84,.13));
       transition: transform .25s ease;
     }
-    .product-card:hover .product-media img { transform: scale(1.025); }
-    /* 实拍照片同样收进 1:1 画框内，保持视觉尺度一致；做成圆角相片卡更自然 */
-    .product-card.is-photo .product-media img {
-      object-fit: cover;
-      border-radius: 1rem;
-      box-shadow: 0 0.625rem 1.5rem rgba(93,62,34,.14);
-    }
+    .product-card:hover .product-media img { transform: translateY(-2%) scale(1.02); }
     /* Hot / Iced：左上角固定位置、统一尺寸，颜色 + 图标双通道辨识 */
     .temperature-tag {
       position: absolute;
@@ -484,7 +487,7 @@
       gap: clamp(0.5rem, .8vw, 1rem);
       min-height: 0;
       padding: clamp(0.5rem, .78vw, 0.9375rem) clamp(0.6875rem, 1vw, 1.1875rem);
-      background: rgba(255,255,255,.92);
+      background: transparent;
     }
     .product-copy {
       display: flex;
@@ -669,14 +672,14 @@
       padding: 1.5rem 2.375rem;
       border-bottom: 0.0625rem solid #edf1f4;
     }
-    .cart-thumb.is-photo { object-fit: cover; padding: 0; }
     .cart-thumb {
       width: 100%;
       height: clamp(5.25rem, 5.9vw, 7.125rem);
       aspect-ratio: 1 / 1;
       object-fit: contain;
-      border-radius: 0.875rem;
-      background: #edf2f4;
+      border-radius: 0;
+      background: transparent;
+      filter: drop-shadow(0 0.25rem 0.5rem rgba(24,58,84,.12));
     }
     .cart-item-main { min-width: 0; }
     .cart-item-name {
@@ -841,16 +844,16 @@
       overflow: hidden;
     }
     .custom-product { min-width: 0; }
-    .custom-product-image.is-photo { padding: 0; object-fit: cover; }
     .custom-product-image {
       display: block;
       width: 23.75rem;
       height: 23.75rem;
       aspect-ratio: 1 / 1;
-      border-radius: 1.25rem;
       object-fit: contain;
       padding: 0;
-      background: radial-gradient(64% 72% at 50% 34%, rgba(255,255,255,.57), rgba(255,255,255,0) 100%), linear-gradient(180deg, #fffaf2 0%, #f9efe0 50%, #f4e4cf 100%);
+      border-radius: 0;
+      background: transparent;
+      filter: drop-shadow(0 1.125rem 1.5rem rgba(24,58,84,.16));
     }
     .custom-product-name { margin: 1.25rem 0 0.375rem; font-size: 1.75rem; font-weight: 750; }
     .custom-product-price { margin: 0; color: var(--accent-dark); font-size: 1.625rem; font-weight: 800; }
@@ -1177,7 +1180,7 @@
 
       <div class="customization-body">
         <section class="custom-product" aria-label="商品信息">
-          <img class="custom-product-image" id="customProductImage" src="product-grids-27/331-08.jpg" alt="カフェラテ" width="380" height="380">
+          <img class="custom-product-image" id="customProductImage" src="product-cutout-27/331-08.webp" alt="カフェラテ" width="380" height="380">
           <h3 class="custom-product-name" id="customProductName">カフェラテ</h3>
           <p class="custom-product-price" id="customProductPrice">¥300</p>
           <p class="custom-product-description" id="customProductDescription">浓郁咖啡与香醇牛奶搭配，口感顺滑。</p>
@@ -1589,33 +1592,33 @@
 
     const MAX_ORDER_ITEMS = 3;
     const products = [
-      { id: 1, price: 320, image: "product-grids-27/331-01.jpg", temperature: "iced", photo: true },
-      { id: 2, price: 380, image: "product-grids-27/331-02.jpg", temperature: "iced", photo: true },
-      { id: 3, price: 350, image: "product-grids-27/331-03.jpg", temperature: "iced", photo: true },
-      { id: 4, price: 400, image: "product-grids-27/331-04.jpg", temperature: "iced", photo: true },
-      { id: 5, price: 280, image: "product-grids-27/331-05.jpg", temperature: "hot", photo: true },
-      { id: 6, price: 360, image: "product-grids-27/331-06.jpg", temperature: "iced", photo: true },
-      { id: 7, price: 420, image: "product-grids-27/331-07.jpg", temperature: "iced", photo: true },
-      { id: 8, price: 340, image: "product-grids-27/331-08.jpg", temperature: "hot", photo: true },
-      { id: 9, price: 360, image: "product-grids-27/331-09.jpg", temperature: "hot", photo: true },
-      { id: 10, price: 300, image: "product-grids-27/332-01.jpg", temperature: "iced", photo: true },
-      { id: 11, price: 400, image: "product-grids-27/332-02.jpg", temperature: "iced", photo: true },
-      { id: 12, price: 340, image: "product-grids-27/332-03.jpg", temperature: "hot", photo: true },
-      { id: 13, price: 380, image: "product-grids-27/332-04.jpg", temperature: "hot", photo: true },
-      { id: 14, price: 320, image: "product-grids-27/332-05.jpg", temperature: "iced", photo: true },
-      { id: 15, price: 390, image: "product-grids-27/332-06.jpg", temperature: "iced", photo: true },
-      { id: 16, price: 370, image: "product-grids-27/332-07.jpg", temperature: "iced", photo: true },
-      { id: 17, price: 330, image: "product-grids-27/332-08.jpg", temperature: "iced", photo: true },
-      { id: 18, price: 420, image: "product-grids-27/332-09.jpg", temperature: "hot", photo: true },
-      { id: 19, price: 380, image: "product-grids-27/333-01.jpg", temperature: "hot", photo: true },
-      { id: 20, price: 430, image: "product-grids-27/333-02.jpg", temperature: "iced", photo: true },
-      { id: 21, price: 390, image: "product-grids-27/333-03.jpg", temperature: "iced", photo: true },
-      { id: 22, price: 350, image: "product-grids-27/333-04.jpg", temperature: "hot", photo: true },
-      { id: 23, price: 360, image: "product-grids-27/333-05.jpg", temperature: "iced", photo: true },
-      { id: 24, price: 420, image: "product-grids-27/333-06.jpg", temperature: "iced", photo: true },
-      { id: 25, price: 390, image: "product-grids-27/333-07.jpg", temperature: "iced", photo: true },
-      { id: 26, price: 410, image: "product-grids-27/333-08.jpg", temperature: "iced", photo: true },
-      { id: 27, price: 400, image: "product-grids-27/333-09.jpg", temperature: "iced", photo: true }
+      { id: 1, price: 320, image: "product-cutout-27/331-01.webp", temperature: "iced" },
+      { id: 2, price: 380, image: "product-cutout-27/331-02.webp", temperature: "iced" },
+      { id: 3, price: 350, image: "product-cutout-27/331-03.webp", temperature: "iced" },
+      { id: 4, price: 400, image: "product-cutout-27/331-04.webp", temperature: "iced" },
+      { id: 5, price: 280, image: "product-cutout-27/331-05.webp", temperature: "hot" },
+      { id: 6, price: 360, image: "product-cutout-27/331-06.webp", temperature: "iced" },
+      { id: 7, price: 420, image: "product-cutout-27/331-07.webp", temperature: "iced" },
+      { id: 8, price: 340, image: "product-cutout-27/331-08.webp", temperature: "hot" },
+      { id: 9, price: 360, image: "product-cutout-27/331-09.webp", temperature: "hot" },
+      { id: 10, price: 300, image: "product-cutout-27/332-01.webp", temperature: "iced" },
+      { id: 11, price: 400, image: "product-cutout-27/332-02.webp", temperature: "iced" },
+      { id: 12, price: 340, image: "product-cutout-27/332-03.webp", temperature: "hot" },
+      { id: 13, price: 380, image: "product-cutout-27/332-04.webp", temperature: "hot" },
+      { id: 14, price: 320, image: "product-cutout-27/332-05.webp", temperature: "iced" },
+      { id: 15, price: 390, image: "product-cutout-27/332-06.webp", temperature: "iced" },
+      { id: 16, price: 370, image: "product-cutout-27/332-07.webp", temperature: "iced" },
+      { id: 17, price: 330, image: "product-cutout-27/332-08.webp", temperature: "iced" },
+      { id: 18, price: 420, image: "product-cutout-27/332-09.webp", temperature: "hot" },
+      { id: 19, price: 380, image: "product-cutout-27/333-01.webp", temperature: "hot" },
+      { id: 20, price: 430, image: "product-cutout-27/333-02.webp", temperature: "iced" },
+      { id: 21, price: 390, image: "product-cutout-27/333-03.webp", temperature: "iced" },
+      { id: 22, price: 350, image: "product-cutout-27/333-04.webp", temperature: "hot" },
+      { id: 23, price: 360, image: "product-cutout-27/333-05.webp", temperature: "iced" },
+      { id: 24, price: 420, image: "product-cutout-27/333-06.webp", temperature: "iced" },
+      { id: 25, price: 390, image: "product-cutout-27/333-07.webp", temperature: "iced" },
+      { id: 26, price: 410, image: "product-cutout-27/333-08.webp", temperature: "iced" },
+      { id: 27, price: 400, image: "product-cutout-27/333-09.webp", temperature: "iced" }
     ];
 
     const SUPPORTED_LANGUAGES = ["ja", "zh", "en", "ko"];
@@ -1713,7 +1716,7 @@
     function productCardMarkup(product, index) {
       const name = productName(product);
       return `
-        <article class="product-card${product.photo ? " is-photo" : ""}" data-product-id="${product.id}" style="animation-delay:${index * 25}ms">
+        <article class="product-card" data-product-id="${product.id}" style="animation-delay:${index * 25}ms">
           <button class="product-media" type="button" data-customize="${product.id}" aria-label="${t("customizeAria", { name })}">
             <img src="${product.image}" alt="${name}" width="700" height="700">
             <span class="temperature-tag is-${product.temperature}">${product.temperature === "hot" ? icons.flame : icons.snow}${t(`temperature.${product.temperature}`)}</span>
@@ -1814,7 +1817,7 @@
         const highlight = highlightId === product.id ? " is-new" : "";
         return `
         <article class="cart-item${highlight}">
-          <img class="cart-thumb${product.photo ? " is-photo" : ""}" src="${product.image}" alt="${name}" width="210" height="210">
+          <img class="cart-thumb" src="${product.image}" alt="${name}" width="210" height="210">
           <div class="cart-item-main">
             <h3 class="cart-item-name"><span class="cart-item-title" title="${name}">${name}</span><span class="cart-item-qty">× ${quantity}</span></h3>
             <p class="cart-item-variant">${variantLabel(variant)}</p>
@@ -1903,7 +1906,6 @@
       const image = document.getElementById("customProductImage");
       image.src = product.image;
       image.alt = name;
-      image.classList.toggle("is-photo", Boolean(product.photo));
       document.getElementById("customProductName").textContent = name;
       document.getElementById("customProductPrice").textContent = yen(product.price);
       document.getElementById("customProductDescription").textContent = productDescription(product);

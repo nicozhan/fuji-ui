@@ -180,9 +180,10 @@
       display: block;
       width: 15.625rem;
       height: 15.625rem;
-      border-radius: 1.625rem;
-      object-fit: cover;
-      box-shadow: 0 1.125rem 2.375rem rgba(24,65,89,.18), 0 0 0 0.5rem rgba(255,255,255,.72);
+      border-radius: 0;
+      object-fit: contain;
+      background: transparent;
+      filter: drop-shadow(0 1.125rem 1.375rem rgba(24,65,89,.22));
       animation: product-float 4s ease-in-out infinite;
     }
     .steam { position: absolute; z-index: 3; top: 1.75rem; left: 50%; width: 5.625rem; height: 4.6875rem; color: rgba(8,119,201,.42); transform: translateX(-50%); }
@@ -298,7 +299,7 @@
           <span class="halo outer"></span><span class="halo middle"></span>
           <span class="halo inner"><span class="orbit-dot"></span></span>
           <svg class="steam" viewBox="0 0 90 75" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M24 65c-14-16 15-22 0-42"/><path d="M45 65c-14-16 15-22 0-42"/><path d="M66 65c-14-16 15-22 0-42"/></svg>
-          <img class="hero-image" id="heroImage" src="product-grids-27/331-02.jpg" alt="当前商品">
+          <img class="hero-image" id="heroImage" src="product-cutout-27/331-02.webp" alt="当前商品">
           <span class="making-indicator" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><g class="gear"><path d="m24 5 3 5 6-1 1 6 6 2-2 6 4 5-5 4 1 6-6 1-3 5-6-3-6 3-3-5-6-1 1-6-5-4 4-5-2-6 6-2 1-6 6 1 3-5Z"/><circle cx="24" cy="24" r="7"/></g></svg></span>
         </div>
       </section>
@@ -392,8 +393,8 @@
     const defaultOrder = {
       language: "zh",
       items: [
-        { productId: 2, name: "焦糖玛奇朵", price: 380, quantity: 1, image: "product-grids-27/331-02.jpg", variantData: { temperature: "iced", size: "regular" } },
-        { productId: 3, name: "冰拿铁", price: 350, quantity: 1, image: "product-grids-27/331-03.jpg", variantData: { temperature: "iced", size: "regular" } }
+        { productId: 2, name: "焦糖玛奇朵", price: 380, quantity: 1, image: "product-cutout-27/331-02.webp", variantData: { temperature: "iced", size: "regular" } },
+        { productId: 3, name: "冰拿铁", price: 350, quantity: 1, image: "product-cutout-27/331-03.webp", variantData: { temperature: "iced", size: "regular" } }
       ]
     };
     let language = "zh";
