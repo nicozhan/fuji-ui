@@ -504,6 +504,7 @@
     let paymentSession = 0;
     let deadline = 0;
     let countdownTimer = null;
+    let preparationRedirectTimer = null;
     let toastTimer = null;
 
     function loadOrder() {
@@ -604,6 +605,8 @@
     function setPaymentState(nextState) {
       if (!["waiting", "paid", "failed"].includes(nextState)) return false;
       stopCountdown();
+      if (preparationRedirectTimer !== null) window.clearTimeout(preparationRedirectTimer);
+      preparationRedirectTimer = null;
       paymentState = nextState;
       setHomeModal(false);
 
@@ -633,6 +636,11 @@
         countdownTimer = window.setInterval(tickCountdown, 250);
       } else if (nextState === "paid") {
         try { sessionStorage.setItem("fujiPaymentStatus", "paid"); } catch (error) { console.warn(error); }
+        let language = loadOrder().language || "zh";
+        try { language = loadOrder().language || localStorage.getItem("fujiLanguage") || "zh"; } catch (error) { console.warn(error); }
+        preparationRedirectTimer = window.setTimeout(() => {
+          window.location.href = `preparation.html?auto=1&lang=${encodeURIComponent(language)}`;
+        }, 1400);
       } else {
         try { sessionStorage.setItem("fujiPaymentStatus", "failed"); } catch (error) { console.warn(error); }
       }

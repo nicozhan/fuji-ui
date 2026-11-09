@@ -1627,7 +1627,7 @@
         items: [...state.cart.entries()].map(([id, quantity]) => {
           const product = getProduct(id);
           const variant = state.cartVariants.get(id) || { temperature: product.temperature, size: "regular" };
-          return { name: productName(product), price: product.price, quantity, image: product.image, variant: variantLabel(variant) };
+          return { productId: product.id, name: productName(product), price: product.price, quantity, image: product.image, variant: variantLabel(variant), variantData: variant };
         }),
         language: currentLanguage
       };
