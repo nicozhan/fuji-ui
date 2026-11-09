@@ -404,7 +404,7 @@
       border: 0;
       overflow: hidden;
       container-type: size;
-      background: radial-gradient(110% 88% at 50% 30%, #fffaf1 0%, #fbf0df 55%, #f2e1c8 100%);
+      background: radial-gradient(64% 72% at 50% 34%, rgba(255,255,255,.57), rgba(255,255,255,0) 100%), linear-gradient(180deg, #fffaf2 0%, #f9efe0 50%, #f4e4cf 100%);
     }
     .product-media img {
       display: block;
@@ -416,8 +416,12 @@
       transition: transform .25s ease;
     }
     .product-card:hover .product-media img { transform: scale(1.025); }
-    /* 实拍照片同样收进 1:1 画框内，保持视觉尺度一致 */
-    .product-card.is-photo .product-media img { object-fit: cover; }
+    /* 实拍照片同样收进 1:1 画框内，保持视觉尺度一致；做成圆角相片卡更自然 */
+    .product-card.is-photo .product-media img {
+      object-fit: cover;
+      border-radius: 16px;
+      box-shadow: 0 10px 24px rgba(93,62,34,.14);
+    }
     /* Hot / Iced：左上角固定位置、统一尺寸，颜色 + 图标双通道辨识 */
     .temperature-tag {
       position: absolute;
@@ -789,7 +793,7 @@
       border-radius: 20px;
       object-fit: contain;
       padding: 0;
-      background: radial-gradient(110% 88% at 50% 30%, #fffaf1 0%, #fbf0df 55%, #f2e1c8 100%);
+      background: radial-gradient(64% 72% at 50% 34%, rgba(255,255,255,.57), rgba(255,255,255,0) 100%), linear-gradient(180deg, #fffaf2 0%, #f9efe0 50%, #f4e4cf 100%);
     }
     .custom-product-name { margin: 20px 0 6px; font-size: 28px; font-weight: 750; }
     .custom-product-price { margin: 0; color: var(--accent-dark); font-size: 26px; font-weight: 800; }
@@ -1171,7 +1175,7 @@
 
       <div class="customization-body">
         <section class="custom-product" aria-label="商品信息">
-          <img class="custom-product-image" id="customProductImage" src="assets/latte.jpg" alt="カフェラテ" width="380" height="380">
+          <img class="custom-product-image" id="customProductImage" src="product-grids-27/331-08.jpg" alt="カフェラテ" width="380" height="380">
           <h3 class="custom-product-name" id="customProductName">カフェラテ</h3>
           <p class="custom-product-price" id="customProductPrice">¥300</p>
           <p class="custom-product-description" id="customProductDescription">浓郁咖啡与香醇牛奶搭配，口感顺滑。</p>
@@ -1302,33 +1306,33 @@
         sweetness: { none: "無糖", light: "微糖", half: "半糖", less: "甘さ控えめ", standard: "標準" },
         milk: { milk: "ミルク", lowfat: "低脂肪乳", oat: "オーツミルク", soy: "豆乳" },
         products: {
-          1: { name: "キャラメルマキアート", desc: "キャラメルの甘さとミルクのコクが重なる一杯。" },
-          2: { name: "ココナッツモカ", desc: "ココナッツの香りとチョコレートのまろやかさ。" },
-          3: { name: "エスプレッソ", desc: "濃厚なエスプレッソをそのままに。" },
-          4: { name: "アメリカーノ", desc: "すっきりとした後味のアイスアメリカーノ。" },
-          5: { name: "ベトナム風スパニッシュラテ", desc: "ベトナムコーヒーに濃厚ミルクを合わせて。" },
-          6: { name: "ジャバチップ フラペチーノ", desc: "チョコレートチップとコーヒーの濃厚フラペチーノ。" },
-          7: { name: "シェイクン アイスグリーンティー", desc: "緑茶をシェイクして、すっきり爽やかなアイスティーに。" },
-          8: { name: "ベリー ベリー ヒビスカス リフレッシャー", desc: "ハイビスカスとベリーの鮮やかな酸味が心地よい。" },
-          9: { name: "スノーキャップ マシュマロ モカ", desc: "マシュマロとチョコレートを重ねた、冬のご褒美モカ。" },
-          10: { name: "Tims ラテ", desc: "まろやかなミルクとエスプレッソの定番ラテ。" },
-          11: { name: "Tims カフェモカ", desc: "チョコレートとエスプレッソの甘いハーモニー。" },
-          12: { name: "Tims キャラメルマキアート", desc: "キャラメルの香ばしさとミルクのコク。" },
-          13: { name: "Tims フレンチバニラ", desc: "バニラの甘い香りが広がるまろやかな一杯。" },
-          14: { name: "Tims ココナッツ キャラメルマキアート", desc: "ココナッツの南国感とキャラメルの甘さ。" },
-          15: { name: "Tims マンゴーシェイク", desc: "完熟マンゴーを濃厚に仕立てたシェイク。" },
-          16: { name: "Tims アイス マンゴー抹茶", desc: "マンゴーと抹茶の鮮やかな二層仕立て。" },
-          17: { name: "Tims ハイビスカス コールドブリュー", desc: "ハイビスカスの酸味がきいた水出しコーヒー。" },
-          18: { name: "Tims アイス メープルシナモンラテ", desc: "メープルとシナモンの香り、秋の一杯。" },
-          19: { name: "Tims ココナッツ ジャガリー コールドブリュー", desc: "ココナッツと黒糖のコクが重なる水出し。" },
-          20: { name: "Tims ココナッツ アイス抹茶", desc: "ココナッツミルクで仕立てた濃厚アイス抹茶。" },
-          21: { name: "Luckin アメリカーノ", desc: "すっきり軽やかな定番アメリカーノ。" },
-          22: { name: "Luckin エクストラストロングアメリカーノ", desc: "豆を増やした濃厚なアメリカーノ。" },
-          23: { name: "Luckin ラテ", desc: "ミルクのコクがやさしいスタンダードラテ。" },
-          24: { name: "Luckin キャラメルマキアート", desc: "キャラメルソースが香る甘いマキアート。" },
-          25: { name: "Luckin フラットホワイト", desc: "濃厚ミルクとリストレットのバランス。" },
-          26: { name: "Luckin カフェモカ", desc: "チョコレートとコーヒーの王道モカ。" },
-          27: { name: "Luckin カプチーノ", desc: "きめ細かなフォームのカプチーノ。" }
+          1: { name: "アイスアメリカーノ", desc: "すっきり軽やか、コーヒー本来の味わい。" },
+          2: { name: "キャラメルマキアート", desc: "キャラメルとミルクが層になった甘い一杯。" },
+          3: { name: "アイスラテ", desc: "エスプレッソとミルクの王道バランス。" },
+          4: { name: "アイスモカ", desc: "チョコレートとコーヒーの濃厚なハーモニー。" },
+          5: { name: "エスプレッソ", desc: "高圧抽出の濃厚な一杯。" },
+          6: { name: "アイス フラットホワイト", desc: "ダブルショットに滑らかなミルク。" },
+          7: { name: "モカ フラペチーノ", desc: "氷の粒とホイップの甘い一杯。" },
+          8: { name: "カフェラテ", desc: "きめ細かなフォームとやさしい香り。" },
+          9: { name: "フラットホワイト", desc: "薄いフォームでコーヒー感を強調。" },
+          10: { name: "コールドブリュー アメリカーノ", desc: "低温抽出ですっきりとした味わい。" },
+          11: { name: "スノーキャップ モカ", desc: "アイスコーヒーに白いクリームを重ねて。" },
+          12: { name: "ホットラテ", desc: "温かなミルクとコーヒーの香り。" },
+          13: { name: "キャラメルラテ", desc: "キャラメルソースをかけた甘いラテ。" },
+          14: { name: "ダブル アイスアメリカーノ", desc: "ダブルショットで力強い味わい。" },
+          15: { name: "シーソルト キャラメルラテ", desc: "塩味がキャラメルの甘さを引き立てる。" },
+          16: { name: "バニラ アイスラテ", desc: "バニラの甘い香りが広がるアイスラテ。" },
+          17: { name: "レモン コールドブリュー", desc: "レモンの酸味がきいた爽やかな一杯。" },
+          18: { name: "ホリデー スノーキャップ モカ", desc: "チョコレートとクリームの季節限定モカ。" },
+          19: { name: "キャラメル ブリュレラテ", desc: "ブリュレのような濃厚な甘さ。" },
+          20: { name: "抹茶ココナッツ フラッペ", desc: "抹茶とココナッツの爽やかな氷飲料。" },
+          21: { name: "ココナッツ アイスコーヒー", desc: "ココナッツ香るトロピカルなアイスコーヒー。" },
+          22: { name: "バニララテ", desc: "バニラとエスプレッソのやさしい甘さ。" },
+          23: { name: "ハイビスカス コールドブリュー", desc: "ハイビスカスの酸味が心地よい。" },
+          24: { name: "オレンジ抹茶", desc: "オレンジと抹茶の二層仕立て。" },
+          25: { name: "ダブルレイヤー キャラメルマキアート", desc: "二層の色合いと濃いキャラメル。" },
+          26: { name: "マンゴーフラッペ", desc: "完熟マンゴーの濃厚なフラッペ。" },
+          27: { name: "クリームトップ アイスモカ", desc: "塩気のあるクリームを重ねたアイスモカ。" }
         }
       },
       zh: {
@@ -1382,33 +1386,33 @@
         sweetness: { none: "无糖", light: "微糖", half: "半糖", less: "少糖", standard: "标准糖" },
         milk: { milk: "牛奶", lowfat: "低脂奶", oat: "燕麦奶", soy: "豆奶" },
         products: {
-          1: { name: "焦糖玛奇朵", desc: "焦糖的甜香与牛奶的醇厚层层交融。" },
-          2: { name: "椰子摩卡", desc: "椰香与巧克力的浓郁交织，顺滑清爽。" },
-          3: { name: "浓缩咖啡", desc: "浓缩萃取，纯粹的咖啡本味。" },
-          4: { name: "美式咖啡", desc: "冰爽美式，口感干净利落。" },
-          5: { name: "越南西班牙拿铁", desc: "越南咖啡搭配炼乳与绵密奶盖。" },
-          6: { name: "爪哇巧克力碎星冰乐", desc: "巧克力碎与咖啡打成的浓郁冰沙，顶覆绵密奶油。" },
-          7: { name: "摇摇冰绿茶", desc: "绿茶摇匀后清爽回甘，冰镇更解渴。" },
-          8: { name: "缤纷莓果木槿清爽饮", desc: "木槿花与莓果的鲜亮酸香，冰爽透亮。" },
-          9: { name: "雪顶棉花糖摩卡", desc: "棉花糖与巧克力碎堆叠的冬日摩卡。" },
-          10: { name: "Tims 拿铁", desc: "浓缩与牛奶的经典平衡，口感顺滑。" },
-          11: { name: "Tims 摩卡", desc: "巧克力与咖啡的甜蜜融合。" },
-          12: { name: "Tims 焦糖玛奇朵", desc: "焦糖香与奶泡层层交叠。" },
-          13: { name: "Tims 法式香草", desc: "香草甜香，奶味温暖柔和。" },
-          14: { name: "Tims 椰香焦糖玛奇朵", desc: "椰香与焦糖的南洋风味。" },
-          15: { name: "Tims 芒果奶昔", desc: "熟成芒果打成的浓稠奶昔。" },
-          16: { name: "Tims 冰芒果抹茶", desc: "芒果与抹茶的双层渐层。" },
-          17: { name: "Tims 木槿冷萃", desc: "木槿酸香点缀的冷萃咖啡。" },
-          18: { name: "Tims 冰枫糖肉桂拿铁", desc: "枫糖与肉桂的秋日香气。" },
-          19: { name: "Tims 椰香红糖冷萃", desc: "椰香与黑糖交融的冷萃。" },
-          20: { name: "Tims 椰香冰抹茶", desc: "椰奶调制的浓郁冰抹茶。" },
-          21: { name: "Luckin 美式", desc: "清爽干净的经典美式。" },
-          22: { name: "Luckin 浓香美式", desc: "加倍浓缩的浓香美式。" },
-          23: { name: "Luckin 拿铁", desc: "奶香柔和的经典拿铁。" },
-          24: { name: "Luckin 焦糖玛奇朵", desc: "焦糖酱香气的甜口玛奇朵。" },
-          25: { name: "Luckin 馥芮白", desc: "浓郁奶香与精萃咖啡的平衡。" },
-          26: { name: "Luckin 摩卡", desc: "巧克力与咖啡的经典摩卡。" },
-          27: { name: "Luckin 卡布奇诺", desc: "绵密奶泡的经典卡布奇诺。" }
+          1: { name: "冰美式", desc: "冰爽清透，纯粹的咖啡本味。" },
+          2: { name: "焦糖玛奇朵", desc: "焦糖与奶香层层交织，甜而不腻。" },
+          3: { name: "冰拿铁", desc: "浓缩与牛奶的经典平衡，入口顺滑。" },
+          4: { name: "冰摩卡", desc: "巧克力与咖啡交融，浓郁顺滑。" },
+          5: { name: "意式浓缩", desc: "高压萃取，油脂丰盈，回味悠长。" },
+          6: { name: "冰澳白", desc: "双份浓缩配丝滑牛奶，口感醇厚。" },
+          7: { name: "摩卡星冰乐", desc: "冰沙绵密，奶油厚顶，甜香满杯。" },
+          8: { name: "经典拿铁", desc: "奶泡细腻，咖啡香气柔和绵长。" },
+          9: { name: "馥芮白", desc: "浓缩打底，奶泡轻薄，咖啡味更突出。" },
+          10: { name: "冷萃美式", desc: "低温慢萃，口感清爽不苦。" },
+          11: { name: "雪顶摩卡", desc: "冰咖啡盖上雪白奶油，甜香四溢。" },
+          12: { name: "热拿铁", desc: "温度恰到好处，奶香与咖啡香交融。" },
+          13: { name: "焦糖拿铁", desc: "焦糖酱淋面，甜香浓郁。" },
+          14: { name: "双份冰美式", desc: "双份浓缩加冰水，咖啡力量感十足。" },
+          15: { name: "海盐焦糖拿铁", desc: "海盐提味，焦糖与奶香更圆润。" },
+          16: { name: "香草冰拿铁", desc: "香草糖浆轻甜，冰凉顺口。" },
+          17: { name: "柠檬冷萃", desc: "冷萃咖啡撞上柠檬，清爽带酸香。" },
+          18: { name: "节日雪顶摩卡", desc: "巧克力碎与奶油，节日限定风味。" },
+          19: { name: "焦糖布蕾拿铁", desc: "焦糖布蕾风味，香甜绵密。" },
+          20: { name: "抹茶椰香冰沙", desc: "抹茶与椰子冰沙，清新回甘。" },
+          21: { name: "椰香冰咖啡", desc: "椰子风味冰咖啡，热带口感。" },
+          22: { name: "香草拿铁", desc: "香草籽与浓缩交融，温柔香甜。" },
+          23: { name: "洛神花冷萃", desc: "洛神花微酸，尾韵清亮。" },
+          24: { name: "香橙抹茶", desc: "香橙与抹茶分层，果香清爽。" },
+          25: { name: "双层焦糖玛奇朵", desc: "双色分层，焦糖香浓。" },
+          26: { name: "芒果冰沙", desc: "熟成芒果打成冰沙，果香浓郁。" },
+          27: { name: "奶盖冰摩卡", desc: "咸香奶盖配冰摩卡，层次丰富。" }
         }
       },
       en: {
@@ -1462,33 +1466,33 @@
         sweetness: { none: "No sugar", light: "Light", half: "Half", less: "Less", standard: "Standard" },
         milk: { milk: "Milk", lowfat: "Low-fat", oat: "Oat", soy: "Soy" },
         products: {
-          1: { name: "Caramel Macchiato", desc: "Sweet caramel layered over creamy milk." },
-          2: { name: "Coconut Mocha", desc: "Coconut aroma with mellow chocolate mocha." },
-          3: { name: "Espresso", desc: "A pure, intense shot of espresso." },
-          4: { name: "Americano", desc: "Crisp iced americano with a clean finish." },
-          5: { name: "Vietnamese Spanish Latte", desc: "Vietnamese coffee with rich condensed milk." },
-          6: { name: "Java Chip Frappuccino", desc: "Chocolate chips blended with coffee, crowned with cream." },
-          7: { name: "Shaken Iced Green Tea", desc: "Green tea shaken over ice for a crisp, clean finish." },
-          8: { name: "Very Berry Hibiscus Starbucks Refresher", desc: "Bright hibiscus and berry notes, served over ice." },
-          9: { name: "Snowcap Marshmallow Mocha", desc: "Marshmallow and chocolate piled over a cozy mocha." },
-          10: { name: "Tims Latte", desc: "Smooth espresso and steamed milk, the everyday classic." },
-          11: { name: "Tims Cafe Mocha", desc: "Chocolate and espresso in a sweet, warming cup." },
-          12: { name: "Tims Caramel Macchiato", desc: "Layered caramel, milk and a shot of espresso." },
-          13: { name: "Tims French Vanilla", desc: "Sweet vanilla and creamy milk, comfort in a cup." },
-          14: { name: "Tims Coconut Caramel Macchiato", desc: "Tropical coconut meets buttery caramel." },
-          15: { name: "Tims Mango Shake", desc: "Ripe mango blended thick and cold." },
-          16: { name: "Tims Iced Mango Matcha", desc: "Mango and matcha in a vivid two-tone pour." },
-          17: { name: "Tims Hibiscus Cold Brew", desc: "Slow-steeped cold brew with a hibiscus lift." },
-          18: { name: "Tims Iced Maple Cinnamon Latte", desc: "Maple and cinnamon over ice, autumn in a cup." },
-          19: { name: "Tims Coconut Jaggery Cold Brew", desc: "Cold brew deepened with coconut and jaggery." },
-          20: { name: "Tims Coconut Iced Matcha", desc: "Coconut milk and matcha, rich and icy." },
-          21: { name: "Luckin Americano", desc: "Clean, light-bodied espresso and water." },
-          22: { name: "Luckin Extra Strong Americano", desc: "A double dose of beans for a bolder cup." },
-          23: { name: "Luckin Latte", desc: "Silky milk over a standard espresso base." },
-          24: { name: "Luckin Caramel Macchiato", desc: "Sweet caramel sauce over a milk-forward espresso." },
-          25: { name: "Luckin Flat White", desc: "Ristretto shots balanced by velvety milk." },
-          26: { name: "Luckin Caffe Mocha", desc: "The classic chocolate-and-coffee pairing." },
-          27: { name: "Luckin Cappuccino", desc: "Deep espresso under a fine milk foam." }
+          1: { name: "Iced Americano", desc: "Crisp and clean, pure coffee taste." },
+          2: { name: "Caramel Macchiato", desc: "Layers of caramel and velvety milk." },
+          3: { name: "Iced Latte", desc: "The classic balance of espresso and milk." },
+          4: { name: "Iced Mocha", desc: "Rich chocolate melting into bold coffee." },
+          5: { name: "Espresso", desc: "Intense, velvety crema with a long finish." },
+          6: { name: "Iced Flat White", desc: "Double shot with silky steamed milk." },
+          7: { name: "Mocha Frappuccino", desc: "Blended ice with a whipped cream cap." },
+          8: { name: "Café Latte", desc: "Silky foam with a mellow coffee aroma." },
+          9: { name: "Flat White", desc: "Thin microfoam that lets the coffee lead." },
+          10: { name: "Cold Brew Americano", desc: "Slow-steeped for a smooth, low-bitter cup." },
+          11: { name: "Snowcap Mocha", desc: "Iced mocha crowned with whipped cream." },
+          12: { name: "Hot Latte", desc: "Warm milk folded into fresh espresso." },
+          13: { name: "Caramel Latte", desc: "Espresso with a caramel drizzle on top." },
+          14: { name: "Double Iced Americano", desc: "Two shots over ice, bold and clean." },
+          15: { name: "Sea Salt Caramel Latte", desc: "A pinch of salt rounds out the caramel." },
+          16: { name: "Vanilla Iced Latte", desc: "Vanilla-kissed and served over ice." },
+          17: { name: "Lemon Cold Brew", desc: "Bright lemon over smooth cold brew." },
+          18: { name: "Holiday Snowcap Mocha", desc: "Chocolate curls and cream, holiday only." },
+          19: { name: "Caramel Brûlée Latte", desc: "Custard-sweet caramel in every sip." },
+          20: { name: "Matcha Coconut Frappe", desc: "Blended matcha with coconut cream." },
+          21: { name: "Coconut Iced Coffee", desc: "Iced coffee with a tropical coconut twist." },
+          22: { name: "Vanilla Latte", desc: "Vanilla and espresso, soft and sweet." },
+          23: { name: "Hibiscus Cold Brew", desc: "Floral hibiscus with a bright finish." },
+          24: { name: "Orange Matcha", desc: "Citrus orange layered over vivid matcha." },
+          25: { name: "Double Layer Caramel Macchiato", desc: "Two-tone layers, deep caramel." },
+          26: { name: "Mango Frappe", desc: "Ripe mango blended thick and cold." },
+          27: { name: "Cream Top Iced Mocha", desc: "Iced mocha under a creamy foam cap." }
         }
       },
       ko: {
@@ -1542,66 +1546,66 @@
         sweetness: { none: "무당", light: "약간", half: "반", less: "적게", standard: "표준" },
         milk: { milk: "우유", lowfat: "저지방", oat: "오트", soy: "두유" },
         products: {
-          1: { name: "카라멜 마키아토", desc: "캐러멜의 달콤함과 밀크의 부드러움이 어우러진 커피." },
-          2: { name: "코코넛 모카", desc: "코코넛 향과 초콜릿 모카의 부드러운 조화." },
-          3: { name: "에스프레소", desc: "에스프레소 본연의 진한 풍미." },
-          4: { name: "아메리카노", desc: "깔끔한 목넘김의 아이스 아메리카노." },
-          5: { name: "베트남 스패니시 라테", desc: "베트남 커피에 진한 밀크를 더했습니다." },
-          6: { name: "자바 칩 프라페노", desc: "초콜릿 칩과 커피를 갈아 만든 진한 프라페노." },
-          7: { name: "셰이큰 아이스 그린티", desc: "녹차를 셰이크해 깔끔하고 상쾌한 아이스티." },
-          8: { name: "베리 베리 히비스커스 리프레셔", desc: "히비스커스와 베리의 상큼한 산미가 매력적." },
-          9: { name: "스노우캡 마시멜로 모카", desc: "마시멜로와 초콜릿을 올린 겨울 시즌 모카." },
-          10: { name: "Tims 라테", desc: "부드러운 우유와 에스프레소의 기본 라테." },
-          11: { name: "Tims 카페 모카", desc: "초콜릿과 에스프레소의 달콤한 조화." },
-          12: { name: "Tims 카라멜 마키아토", desc: "카라멜 향과 우유 거품이 겹겹이." },
-          13: { name: "Tims 프렌치 바닐라", desc: "달콤한 바닐라 향이 퍼지는 부드러운 한 잔." },
-          14: { name: "Tims 코코넛 카라멜 마키아토", desc: "코코넛의 열대감과 카라멜의 달콤함." },
-          15: { name: "Tims 망고 셰이크", desc: "잘 익은 망고를 진하게 갈아 만든 셰이크." },
-          16: { name: "Tims 아이스 망고 말차", desc: "망고와 말차의 선명한 두 겹 레이어." },
-          17: { name: "Tims 히비스커스 콜드브루", desc: "히비스커스 산미를 더한 콜드브루." },
-          18: { name: "Tims 아이스 메이플 시나몬 라테", desc: "메이플과 시나몬 향의 가을 한 잔." },
-          19: { name: "Tims 코코넛 재거리 콜드브루", desc: "코코넛과 흑설탕의 진한 조화." },
-          20: { name: "Tims 코코넛 아이스 말차", desc: "코코넛 밀크로 만든 진한 아이스 말차." },
-          21: { name: "Luckin 아메리카노", desc: "깔끔하고 가벼운 기본 아메리카노." },
-          22: { name: "Luckin 엑스트라 스트롱 아메리카노", desc: "원두를 늘려 더 진하게 내린 아메리카노." },
-          23: { name: "Luckin 라테", desc: "우유의 고소함이 부드러운 기본 라테." },
-          24: { name: "Luckin 카라멜 마키아토", desc: "카라멜 소스 향이 감도는 달콤한 마키아토." },
-          25: { name: "Luckin 플랫 화이트", desc: "진한 밀크와 리스트레토의 균형." },
-          26: { name: "Luckin 카페 모카", desc: "초콜릿과 커피의 정통 모카." },
-          27: { name: "Luckin 카푸치노", desc: "고운 우유 거품의 카푸치노." }
+          1: { name: "아이스 아메리카노", desc: "깔끔하고 산뜻한 커피 본연의 맛." },
+          2: { name: "카라멜 마키아토", desc: "캐러멜과 밀크가 층층이 어우러진 커피." },
+          3: { name: "아이스 라테", desc: "에스프레소와 밀크의 클래식한 밸런스." },
+          4: { name: "아이스 모카", desc: "초콜릿과 커피가 어우러진 진한 맛." },
+          5: { name: "에스프레소", desc: "고압 추출로 진하고 깊은 풍미." },
+          6: { name: "아이스 플랫 화이트", desc: "더블 샷에 부드러운 밀크." },
+          7: { name: "모카 프라페노", desc: "얼음과 휘핑크림의 달콤한 조화." },
+          8: { name: "카페 라테", desc: "고운 거품과 부드러운 커피 향." },
+          9: { name: "플랫 화이트", desc: "얇은 거품으로 커피 맛을 살린 라테." },
+          10: { name: "콜드브루 아메리카노", desc: "저온 추출로 부드럽고 깔끔한 맛." },
+          11: { name: "스노우캡 모카", desc: "아이스 모카 위에 크림을 올린 커피." },
+          12: { name: "핫 라테", desc: "따뜻한 밀크와 커피 향의 조화." },
+          13: { name: "카라멜 라테", desc: "캐러멜 소스를 올린 달콤한 라테." },
+          14: { name: "더블 아이스 아메리카노", desc: "더블 샷으로 진한 아이스 커피." },
+          15: { name: "씨솔트 캐러멜 라테", desc: "소금이 캐러멜의 단맛을 살린 라테." },
+          16: { name: "바닐라 아이스 라테", desc: "바닐라 향이 은은한 아이스 라테." },
+          17: { name: "레몬 콜드브루", desc: "레몬의 상큼함을 더한 콜드브루." },
+          18: { name: "홀리데이 스노우캡 모카", desc: "초콜릿과 크림의 시즌 한정 모카." },
+          19: { name: "카라멜 브륄레 라테", desc: "브륄레처럼 달콤하고 부드러운 라테." },
+          20: { name: "말차 코코넛 프라페", desc: "말차와 코코넛의 청량한 프라페." },
+          21: { name: "코코넛 아이스 커피", desc: "코코넛 향이 감도는 아이스 커피." },
+          22: { name: "바닐라 라테", desc: "바닐라와 에스프레소의 부드러운 단맛." },
+          23: { name: "히비스커스 콜드브루", desc: "히비스커스의 산뜻한 산미가 매력." },
+          24: { name: "오렌지 말차", desc: "오렌지와 말차의 상큼한 레이어." },
+          25: { name: "더블 레이어 카라멜 마키아토", desc: "두 층의 색과 진한 캐러멜." },
+          26: { name: "망고 프라페", desc: "잘 익은 망고를 갈아 만든 프라페." },
+          27: { name: "크림 토핑 아이스 모카", desc: "크림을 올린 아이스 모카." }
         }
       }
     };
 
     const MAX_ORDER_ITEMS = 3;
     const products = [
-      { id: 1, price: 360, image: "assets/caramel-macchiato.png", temperature: "iced" },
-      { id: 2, price: 380, image: "assets/coconut-mocha.png", temperature: "iced" },
-      { id: 3, price: 300, image: "assets/espresso.png", temperature: "hot" },
-      { id: 4, price: 320, image: "assets/americano-1x1.png", temperature: "iced" },
-      { id: 5, price: 400, image: "assets/vietnamese-spanish-latte.png", temperature: "iced" },
-      { id: 6, price: 420, image: "assets/java-chip-frappuccino.jpg", temperature: "iced", photo: true },
-      { id: 7, price: 340, image: "assets/shaken-iced-green-tea-1x1.png", temperature: "iced" },
-      { id: 8, price: 360, image: "assets/very-berry-hibiscus.jpg", temperature: "iced", photo: true },
-      { id: 9, price: 420, image: "assets/snowcap-marshmallow-mocha.jpg", temperature: "hot", photo: true },
-      { id: 10, price: 380, image: "assets/tims-latte.webp", temperature: "hot" },
-      { id: 11, price: 400, image: "assets/tims-cafe-mocha.webp", temperature: "hot" },
-      { id: 12, price: 400, image: "assets/tims-caramel-macchiato.webp", temperature: "hot" },
-      { id: 13, price: 380, image: "assets/tims-french-vanilla.webp", temperature: "hot" },
-      { id: 14, price: 430, image: "assets/tims-coconut-caramel-macchiato.webp", temperature: "iced" },
-      { id: 15, price: 420, image: "assets/tims-mango-shake.webp", temperature: "iced" },
-      { id: 16, price: 440, image: "assets/tims-iced-mango-matcha.webp", temperature: "iced" },
-      { id: 17, price: 400, image: "assets/tims-hibiscus-cold-brew.webp", temperature: "iced" },
-      { id: 18, price: 430, image: "assets/tims-iced-maple-cinnamon-latte.webp", temperature: "iced" },
-      { id: 19, price: 420, image: "assets/tims-coconut-jaggery-cold-brew.webp", temperature: "iced" },
-      { id: 20, price: 440, image: "assets/tims-coconut-iced-matcha.webp", temperature: "iced" },
-      { id: 21, price: 280, image: "assets/luckin-americano.webp", temperature: "iced" },
-      { id: 22, price: 300, image: "assets/luckin-extra-strong-americano.webp", temperature: "iced" },
-      { id: 23, price: 300, image: "assets/luckin-latte.webp", temperature: "iced" },
-      { id: 24, price: 350, image: "assets/luckin-caramel-macchiato-1x1.png", temperature: "hot" },
-      { id: 25, price: 320, image: "assets/luckin-flat-white.webp", temperature: "hot" },
-      { id: 26, price: 340, image: "assets/luckin-caffe-mocha.webp", temperature: "iced" },
-      { id: 27, price: 320, image: "assets/luckin-cappuccino.webp", temperature: "hot" }
+      { id: 1, price: 320, image: "product-grids-27/331-01.jpg", temperature: "iced", photo: true },
+      { id: 2, price: 380, image: "product-grids-27/331-02.jpg", temperature: "iced", photo: true },
+      { id: 3, price: 350, image: "product-grids-27/331-03.jpg", temperature: "iced", photo: true },
+      { id: 4, price: 400, image: "product-grids-27/331-04.jpg", temperature: "iced", photo: true },
+      { id: 5, price: 280, image: "product-grids-27/331-05.jpg", temperature: "hot", photo: true },
+      { id: 6, price: 360, image: "product-grids-27/331-06.jpg", temperature: "iced", photo: true },
+      { id: 7, price: 420, image: "product-grids-27/331-07.jpg", temperature: "iced", photo: true },
+      { id: 8, price: 340, image: "product-grids-27/331-08.jpg", temperature: "hot", photo: true },
+      { id: 9, price: 360, image: "product-grids-27/331-09.jpg", temperature: "hot", photo: true },
+      { id: 10, price: 300, image: "product-grids-27/332-01.jpg", temperature: "iced", photo: true },
+      { id: 11, price: 400, image: "product-grids-27/332-02.jpg", temperature: "iced", photo: true },
+      { id: 12, price: 340, image: "product-grids-27/332-03.jpg", temperature: "hot", photo: true },
+      { id: 13, price: 380, image: "product-grids-27/332-04.jpg", temperature: "hot", photo: true },
+      { id: 14, price: 320, image: "product-grids-27/332-05.jpg", temperature: "iced", photo: true },
+      { id: 15, price: 390, image: "product-grids-27/332-06.jpg", temperature: "iced", photo: true },
+      { id: 16, price: 370, image: "product-grids-27/332-07.jpg", temperature: "iced", photo: true },
+      { id: 17, price: 330, image: "product-grids-27/332-08.jpg", temperature: "iced", photo: true },
+      { id: 18, price: 420, image: "product-grids-27/332-09.jpg", temperature: "hot", photo: true },
+      { id: 19, price: 380, image: "product-grids-27/333-01.jpg", temperature: "hot", photo: true },
+      { id: 20, price: 430, image: "product-grids-27/333-02.jpg", temperature: "iced", photo: true },
+      { id: 21, price: 390, image: "product-grids-27/333-03.jpg", temperature: "iced", photo: true },
+      { id: 22, price: 350, image: "product-grids-27/333-04.jpg", temperature: "hot", photo: true },
+      { id: 23, price: 360, image: "product-grids-27/333-05.jpg", temperature: "iced", photo: true },
+      { id: 24, price: 420, image: "product-grids-27/333-06.jpg", temperature: "iced", photo: true },
+      { id: 25, price: 390, image: "product-grids-27/333-07.jpg", temperature: "iced", photo: true },
+      { id: 26, price: 410, image: "product-grids-27/333-08.jpg", temperature: "iced", photo: true },
+      { id: 27, price: 400, image: "product-grids-27/333-09.jpg", temperature: "iced", photo: true }
     ];
 
     const SUPPORTED_LANGUAGES = ["ja", "zh", "en", "ko"];

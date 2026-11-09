@@ -167,7 +167,18 @@
     .halo.middle { width: 292px; height: 292px; background: rgba(219,240,251,.55); box-shadow: 0 20px 70px rgba(47,132,181,.08); }
     .halo.inner { width: 242px; height: 242px; border: 1px dashed rgba(8,119,201,.22); animation: spin 28s linear infinite; }
     .orbit-dot { position: absolute; top: 24px; left: 50%; width: 12px; height: 12px; margin-left: -6px; border: 3px solid #f5fbff; border-radius: 50%; background: #55b2e3; box-shadow: 0 2px 9px rgba(8,119,201,.2); }
-    .hero-image { position: relative; z-index: 2; display: block; width: 235px; height: 285px; object-fit: contain; filter: drop-shadow(0 20px 18px rgba(24,65,89,.16)); animation: product-float 4s ease-in-out infinite; }
+    /* 商品图为方形实拍照片：做成圆角相片卡，避免白底方块直接贴在浅蓝背景上 */
+    .hero-image {
+      position: relative;
+      z-index: 2;
+      display: block;
+      width: 250px;
+      height: 250px;
+      border-radius: 26px;
+      object-fit: cover;
+      box-shadow: 0 18px 38px rgba(24,65,89,.18), 0 0 0 8px rgba(255,255,255,.72);
+      animation: product-float 4s ease-in-out infinite;
+    }
     .steam { position: absolute; z-index: 3; top: 28px; left: 50%; width: 90px; height: 75px; color: rgba(8,119,201,.42); transform: translateX(-50%); }
     .steam path { stroke-dasharray: 80; animation: steam 2.8s ease-in-out infinite; }
     .steam path:nth-child(2) { animation-delay: .7s; }
@@ -307,7 +318,7 @@
           <span class="halo outer"></span><span class="halo middle"></span>
           <span class="halo inner"><span class="orbit-dot"></span></span>
           <svg class="steam" viewBox="0 0 90 75" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M24 65c-14-16 15-22 0-42"/><path d="M45 65c-14-16 15-22 0-42"/><path d="M66 65c-14-16 15-22 0-42"/></svg>
-          <img class="hero-image" id="heroImage" src="assets/caramel-macchiato.png" alt="当前商品">
+          <img class="hero-image" id="heroImage" src="product-grids-27/331-02.jpg" alt="当前商品">
           <span class="making-indicator" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><g class="gear"><path d="m24 5 3 5 6-1 1 6 6 2-2 6 4 5-5 4 1 6-6 1-3 5-6-3-6 3-3-5-6-1 1-6-5-4 4-5-2-6 6-2 1-6 6 1 3-5Z"/><circle cx="24" cy="24" r="7"/></g></svg></span>
         </div>
       </section>
@@ -370,39 +381,39 @@
       }
     };
     const PRODUCT_NAMES = {
-      1: { zh: "焦糖玛奇朵", ja: "キャラメルマキアート", en: "Caramel Macchiato", ko: "카라멜 마키아토" },
-      2: { zh: "椰子摩卡", ja: "ココナッツモカ", en: "Coconut Mocha", ko: "코코넛 모카" },
-      3: { zh: "浓缩咖啡", ja: "エスプレッソ", en: "Espresso", ko: "에스프레소" },
-      4: { zh: "美式咖啡", ja: "アメリカーノ", en: "Americano", ko: "아메리카노" },
-      5: { zh: "越南西班牙拿铁", ja: "ベトナム風スパニッシュラテ", en: "Vietnamese Spanish Latte", ko: "베트남 스패니시 라테" },
-      6: { zh: "爪哇巧克力碎星冰乐", ja: "ジャバチップ フラペチーノ", en: "Java Chip Frappuccino", ko: "자바 칩 프라페노" },
-      7: { zh: "摇摇冰绿茶", ja: "シェイクン アイスグリーンティー", en: "Shaken Iced Green Tea", ko: "셰이큰 아이스 그린티" },
-      8: { zh: "缤纷莓果木槿清爽饮", ja: "ベリー ベリー ヒビスカス リフレッシャー", en: "Very Berry Hibiscus Starbucks Refresher", ko: "베리 베리 히비스커스 리프레셔" },
-      9: { zh: "雪顶棉花糖摩卡", ja: "スノーキャップ マシュマロ モカ", en: "Snowcap Marshmallow Mocha", ko: "스노우캡 마시멜로 모카" },
-      10: { zh: "Tims 拿铁", ja: "Tims ラテ", en: "Tims Latte", ko: "Tims 라테" },
-      11: { zh: "Tims 摩卡", ja: "Tims カフェモカ", en: "Tims Cafe Mocha", ko: "Tims 카페 모카" },
-      12: { zh: "Tims 焦糖玛奇朵", ja: "Tims キャラメルマキアート", en: "Tims Caramel Macchiato", ko: "Tims 카라멜 마키아토" },
-      13: { zh: "Tims 法式香草", ja: "Tims フレンチバニラ", en: "Tims French Vanilla", ko: "Tims 프렌치 바닐라" },
-      14: { zh: "Tims 椰香焦糖玛奇朵", ja: "Tims ココナッツ キャラメルマキアート", en: "Tims Coconut Caramel Macchiato", ko: "Tims 코코넛 카라멜 마키아토" },
-      15: { zh: "Tims 芒果奶昔", ja: "Tims マンゴーシェイク", en: "Tims Mango Shake", ko: "Tims 망고 셰이크" },
-      16: { zh: "Tims 冰芒果抹茶", ja: "Tims アイス マンゴー抹茶", en: "Tims Iced Mango Matcha", ko: "Tims 아이스 망고 말차" },
-      17: { zh: "Tims 木槿冷萃", ja: "Tims ハイビスカス コールドブリュー", en: "Tims Hibiscus Cold Brew", ko: "Tims 히비스커스 콜드브루" },
-      18: { zh: "Tims 冰枫糖肉桂拿铁", ja: "Tims アイス メープルシナモンラテ", en: "Tims Iced Maple Cinnamon Latte", ko: "Tims 아이스 메이플 시나몬 라테" },
-      19: { zh: "Tims 椰香红糖冷萃", ja: "Tims ココナッツ ジャガリー コールドブリュー", en: "Tims Coconut Jaggery Cold Brew", ko: "Tims 코코넛 재거리 콜드브루" },
-      20: { zh: "Tims 椰香冰抹茶", ja: "Tims ココナッツ アイス抹茶", en: "Tims Coconut Iced Matcha", ko: "Tims 코코넛 아이스 말차" },
-      21: { zh: "Luckin 美式", ja: "Luckin アメリカーノ", en: "Luckin Americano", ko: "Luckin 아메리카노" },
-      22: { zh: "Luckin 浓香美式", ja: "Luckin エクストラストロングアメリカーノ", en: "Luckin Extra Strong Americano", ko: "Luckin 엑스트라 스트롱 아메리카노" },
-      23: { zh: "Luckin 拿铁", ja: "Luckin ラテ", en: "Luckin Latte", ko: "Luckin 라테" },
-      24: { zh: "Luckin 焦糖玛奇朵", ja: "Luckin キャラメルマキアート", en: "Luckin Caramel Macchiato", ko: "Luckin 카라멜 마키아토" },
-      25: { zh: "Luckin 馥芮白", ja: "Luckin フラットホワイト", en: "Luckin Flat White", ko: "Luckin 플랫 화이트" },
-      26: { zh: "Luckin 摩卡", ja: "Luckin カフェモカ", en: "Luckin Caffe Mocha", ko: "Luckin 카페 모카" },
-      27: { zh: "Luckin 卡布奇诺", ja: "Luckin カプチーノ", en: "Luckin Cappuccino", ko: "Luckin 카푸치노" }
+      1: { zh: "冰美式", ja: "アイスアメリカーノ", en: "Iced Americano", ko: "아이스 아메리카노" },
+      2: { zh: "焦糖玛奇朵", ja: "キャラメルマキアート", en: "Caramel Macchiato", ko: "카라멜 마키아토" },
+      3: { zh: "冰拿铁", ja: "アイスラテ", en: "Iced Latte", ko: "아이스 라테" },
+      4: { zh: "冰摩卡", ja: "アイスモカ", en: "Iced Mocha", ko: "아이스 모카" },
+      5: { zh: "意式浓缩", ja: "エスプレッソ", en: "Espresso", ko: "에스프레소" },
+      6: { zh: "冰澳白", ja: "アイス フラットホワイト", en: "Iced Flat White", ko: "아이스 플랫 화이트" },
+      7: { zh: "摩卡星冰乐", ja: "モカ フラペチーノ", en: "Mocha Frappuccino", ko: "모카 프라페노" },
+      8: { zh: "经典拿铁", ja: "カフェラテ", en: "Café Latte", ko: "카페 라테" },
+      9: { zh: "馥芮白", ja: "フラットホワイト", en: "Flat White", ko: "플랫 화이트" },
+      10: { zh: "冷萃美式", ja: "コールドブリュー アメリカーノ", en: "Cold Brew Americano", ko: "콜드브루 아메리카노" },
+      11: { zh: "雪顶摩卡", ja: "スノーキャップ モカ", en: "Snowcap Mocha", ko: "스노우캡 모카" },
+      12: { zh: "热拿铁", ja: "ホットラテ", en: "Hot Latte", ko: "핫 라테" },
+      13: { zh: "焦糖拿铁", ja: "キャラメルラテ", en: "Caramel Latte", ko: "카라멜 라테" },
+      14: { zh: "双份冰美式", ja: "ダブル アイスアメリカーノ", en: "Double Iced Americano", ko: "더블 아이스 아메리카노" },
+      15: { zh: "海盐焦糖拿铁", ja: "シーソルト キャラメルラテ", en: "Sea Salt Caramel Latte", ko: "씨솔트 캐러멜 라테" },
+      16: { zh: "香草冰拿铁", ja: "バニラ アイスラテ", en: "Vanilla Iced Latte", ko: "바닐라 아이스 라테" },
+      17: { zh: "柠檬冷萃", ja: "レモン コールドブリュー", en: "Lemon Cold Brew", ko: "레몬 콜드브루" },
+      18: { zh: "节日雪顶摩卡", ja: "ホリデー スノーキャップ モカ", en: "Holiday Snowcap Mocha", ko: "홀리데이 스노우캡 모카" },
+      19: { zh: "焦糖布蕾拿铁", ja: "キャラメル ブリュレラテ", en: "Caramel Brûlée Latte", ko: "카라멜 브륄레 라테" },
+      20: { zh: "抹茶椰香冰沙", ja: "抹茶ココナッツ フラッペ", en: "Matcha Coconut Frappe", ko: "말차 코코넛 프라페" },
+      21: { zh: "椰香冰咖啡", ja: "ココナッツ アイスコーヒー", en: "Coconut Iced Coffee", ko: "코코넛 아이스 커피" },
+      22: { zh: "香草拿铁", ja: "バニララテ", en: "Vanilla Latte", ko: "바닐라 라테" },
+      23: { zh: "洛神花冷萃", ja: "ハイビスカス コールドブリュー", en: "Hibiscus Cold Brew", ko: "히비스커스 콜드브루" },
+      24: { zh: "香橙抹茶", ja: "オレンジ抹茶", en: "Orange Matcha", ko: "오렌지 말차" },
+      25: { zh: "双层焦糖玛奇朵", ja: "ダブルレイヤー キャラメルマキアート", en: "Double Layer Caramel Macchiato", ko: "더블 레이어 카라멜 마키아토" },
+      26: { zh: "芒果冰沙", ja: "マンゴーフラッペ", en: "Mango Frappe", ko: "망고 프라페" },
+      27: { zh: "奶盖冰摩卡", ja: "クリームトップ アイスモカ", en: "Cream Top Iced Mocha", ko: "크림 토핑 아이스 모카" }
     };
     const defaultOrder = {
       language: "zh",
       items: [
-        { productId: 1, name: "焦糖玛奇朵", price: 360, quantity: 1, image: "assets/caramel-macchiato.png", variantData: { temperature: "iced", size: "regular" } },
-        { productId: 4, name: "美式咖啡", price: 320, quantity: 1, image: "assets/americano.png", variantData: { temperature: "iced", size: "regular" } }
+        { productId: 2, name: "焦糖玛奇朵", price: 380, quantity: 1, image: "product-grids-27/331-02.jpg", variantData: { temperature: "iced", size: "regular" } },
+        { productId: 3, name: "冰拿铁", price: 350, quantity: 1, image: "product-grids-27/331-03.jpg", variantData: { temperature: "iced", size: "regular" } }
       ]
     };
     let language = "zh";
