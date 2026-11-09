@@ -118,6 +118,25 @@
     .demo-control[aria-checked="true"] .switch-track { background: #64d7ff; }
     .demo-control[aria-checked="true"] .switch-thumb { transform: translateX(15px); }
 
+    .home-button {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 14px 5px 11px;
+      border: 1px solid rgba(255,255,255,.34);
+      border-radius: 999px;
+      color: #fff;
+      background: rgba(255,255,255,.1);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .02em;
+      cursor: pointer;
+      transition: background .18s ease, border-color .18s ease;
+    }
+    .home-button svg { width: 15px; height: 15px; }
+    .home-button:hover { background: rgba(255,255,255,.22); border-color: rgba(255,255,255,.62); }
+    .home-button:active { background: rgba(255,255,255,.3); }
+
     .main-header {
       z-index: 25;
       display: flex;
@@ -831,6 +850,10 @@
         </div>
       </div>
       <div class="status-right">
+        <button class="home-button" id="demoHomeButton" type="button" aria-label="ホームに戻る" title="ホームに戻る（Demo）">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 10.6 12 3.6l8.5 7"/><path d="M5.6 9.9V20h12.8V9.9"/></svg>
+          <span>Home</span>
+        </button>
         <button class="demo-control" id="adToggle" type="button" role="switch" aria-checked="true" aria-label="左側広告を切り替える">
           <span class="demo-badge">DEMO</span>
           <span class="demo-label">広告 <strong id="adState">ON</strong></span>
@@ -1248,6 +1271,10 @@
       state.adEnabled = !state.adEnabled;
       renderProducts();
       showToast(state.adEnabled ? "広告 ON：6商品を表示しています。" : "広告 OFF：8商品を表示しています。");
+    });
+
+    document.getElementById("demoHomeButton").addEventListener("click", () => {
+      window.location.href = "welcome.html";
     });
 
     productGrid.addEventListener("click", event => {
