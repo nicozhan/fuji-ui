@@ -281,7 +281,6 @@
     }
     .state-button.primary { color: #fff; border-color: var(--accent); background: var(--accent); }
     .state-button.primary:hover { background: var(--accent-dark); }
-    .payment-note { flex: 0 0 auto; margin: 20px 0 0; color: var(--text-2); font-size: 15px; text-align: center; }
 
     .modal-layer {
       position: fixed;
@@ -364,7 +363,6 @@
       .qr-frame { width: 230px; height: 230px; flex-basis: 230px; margin: 13px auto 11px; }
       .qr-code, .qr-code img, .qr-code canvas { width: 204px !important; height: 204px !important; }
       .countdown { padding-top: 10px; }
-      .payment-note { margin-top: 14px; }
       .state-icon { width: 120px; height: 120px; margin-bottom: 20px; }
       .state-icon svg { width: 76px; height: 76px; }
     }
@@ -466,7 +464,6 @@
           </div>
         </section>
       </div>
-      <p class="payment-note" id="paymentNote">支付成功后将自动开始制作</p>
     </section>
   </main>
 
@@ -622,17 +619,11 @@
       });
       updateProgress(nextState);
 
-      const notes = {
-        waiting: "支付成功后将自动开始制作",
-        paid: "请留意取货口，制作完成后请及时取走饮品",
-        failed: "如需帮助，请联系现场工作人员"
-      };
       const titles = {
         waiting: "请扫码支付 - Fuji Electric",
         paid: "支付成功 - Fuji Electric",
         failed: "支付失败 - Fuji Electric"
       };
-      document.getElementById("paymentNote").textContent = notes[nextState];
       document.title = titles[nextState];
 
       if (nextState === "waiting") {
