@@ -14,13 +14,27 @@
       --muted: #6d8494;
       --line: #dbe9f3;
       --warn: #e0912f;
+      /* 与商品页一致的状态栏高度（56 设计像素） */
+      --status-h: 3.5rem;
     }
     * { box-sizing: border-box; }
-    html, body { margin: 0; min-width: 860px; }
+    html, body { margin: 0; min-width: 47.5rem; }
+    /* 与商品售卖页相同的等比缩放基准：设计稿 1920×1080，1rem = 16 设计像素。
+       状态栏直接复用商品页的 rem 尺寸，两页在任意屏幕上宽度/高度/字号完全一致。 */
+    html {
+      font-size: min(100vw / 120, 100vh / 67.5);
+      font-size: min(100vw / 120, 100dvh / 67.5);
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
+    @media (orientation: landscape) {
+      html { font-size: max(12px, min(100vw / 120, 100vh / 67.5)); }
+      html { font-size: max(12px, min(100vw / 120, 100dvh / 67.5)); }
+    }
     body {
       color: var(--ink);
       background: #f4f8fb;
-      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Yu Gothic", "Noto Sans JP", "PingFang SC", "Microsoft YaHei", sans-serif;
       -webkit-font-smoothing: antialiased;
     }
     button { font: inherit; }
@@ -53,54 +67,98 @@
     .fault-page::before { top: -180px; left: -140px; width: 620px; height: 620px; }
     .fault-page::after { right: -190px; bottom: -220px; width: 720px; height: 720px; }
 
-    /* ── 顶部状态栏 ── */
+    /* ── 顶部状态栏（与商品售卖页同一套样式、布局与文案，含临时 Home 按钮） ── */
     .status-bar {
       position: relative;
       z-index: 20;
       display: flex;
-      flex: 0 0 72px;
+      flex: 0 0 var(--status-h);
       align-items: center;
       justify-content: space-between;
-      gap: 28px;
-      padding: 0 34px;
-      color: #eaf5fd;
+      gap: 1.5rem;
+      padding: 0 1.75rem;
+      color: #fff;
       background: var(--blue-dark);
-      font-size: 15px;
+      font-size: 0.8125rem;
       letter-spacing: .01em;
-      box-shadow: 0 6px 20px rgba(7,91,158,.14);
+      box-shadow: 0 0.375rem 1.25rem rgba(7,91,158,.14);
     }
-    .status-left, .status-right { display: flex; align-items: center; gap: 30px; }
-    .status-item { display: flex; align-items: center; gap: 9px; white-space: nowrap; }
-    .status-item svg { width: 18px; height: 18px; }
-    .machine-id { color: #c7e3f6; }
-    .machine-id strong {
-      color: #fff;
-      font-weight: 700;
-      letter-spacing: .06em;
-    }
-    .contact-label { color: #c7e3f6; }
-    .contact-value { color: #fff; font-weight: 700; letter-spacing: .04em; }
-
-    .demo-home {
-      display: inline-flex;
+    .status-left, .status-right, .status-item, .demo-control {
+      display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 8px;
-      height: 36px;
-      padding: 0 17px 0 13px;
-      border: 1px solid rgba(255,255,255,.34);
-      border-radius: 999px;
+    }
+    .status-left, .status-right { gap: 1.75rem; }
+    .status-item { gap: 0.5rem; white-space: nowrap; }
+    .status-item svg { width: 1rem; height: 1rem; }
+    .machine-id { color: #cfe8f8; }
+    .machine-id strong { color: #fff; font-weight: 600; }
+
+    .demo-control {
+      gap: 0.5625rem;
+      padding: 0.25rem 0.5rem 0.25rem 0.3125rem;
+      border: 0.0625rem solid rgba(255,255,255,.28);
+      border-radius: 62.4375rem;
       color: #fff;
-      background: rgba(255,255,255,.12);
-      font-size: 13px;
-      font-weight: 650;
+      background: rgba(0,0,0,.12);
+      cursor: pointer;
+    }
+    .demo-badge {
+      padding: 0.1875rem 0.4375rem;
+      border-radius: 62.4375rem;
+      color: var(--blue-deep);
+      background: #fff;
+      font-size: 0.625rem;
+      font-weight: 800;
+      letter-spacing: .09em;
+    }
+    .demo-label { font-size: 0.75rem; }
+    .switch-track {
+      position: relative;
+      width: 2.125rem;
+      height: 1.1875rem;
+      border-radius: 62.4375rem;
+      background: rgba(255,255,255,.32);
+      transition: background .2s ease;
+    }
+    .switch-thumb {
+      position: absolute;
+      top: 0.1875rem;
+      left: 0.1875rem;
+      width: 0.8125rem;
+      height: 0.8125rem;
+      border-radius: 50%;
+      background: #fff;
+      transition: transform .2s ease;
+    }
+    .demo-control[aria-checked="true"] .switch-track { background: #64d7ff; }
+    .demo-control[aria-checked="true"] .switch-thumb { transform: translateX(0.9375rem); }
+
+    /* 临时 Demo：返回欢迎首页 */
+    .home-button, .fault-button {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.3125rem 0.875rem 0.3125rem 0.6875rem;
+      border: 0.0625rem solid rgba(255,255,255,.34);
+      border-radius: 62.4375rem;
+      color: #fff;
+      background: rgba(255,255,255,.1);
+      font-size: 0.75rem;
+      font-weight: 600;
       letter-spacing: .02em;
-      white-space: nowrap;
       cursor: pointer;
       transition: background .18s ease, border-color .18s ease;
     }
-    .demo-home:hover { background: rgba(255,255,255,.24); border-color: rgba(255,255,255,.62); }
-    .demo-home svg { width: 16px; height: 16px; }
+    .home-button svg, .fault-button svg { width: 0.9375rem; height: 0.9375rem; }
+    .home-button:hover { background: rgba(255,255,255,.22); border-color: rgba(255,255,255,.62); }
+    .home-button:active { background: rgba(255,255,255,.3); }
+    .fault-button {
+      border-color: rgba(255,196,120,.46);
+      color: #ffdda8;
+      background: rgba(224,145,47,.16);
+    }
+    .fault-button:hover { background: rgba(224,145,47,.3); border-color: rgba(255,196,120,.78); }
+    .fault-button:active { background: rgba(224,145,47,.4); }
 
     /* ── 主内容 ── */
     .fault-body {
@@ -289,22 +347,32 @@
 </head>
 <body>
   <main class="fault-page" aria-label="Machine out of service">
-    <section class="status-bar">
+    <section class="status-bar" aria-label="マシン情報">
       <div class="status-left">
         <div class="status-item machine-id">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="5" y="2.5" width="14" height="19" rx="3"/><path d="M9 6h6M9 18h6"/></svg>
           <span>Machine ID：<strong>fuji12345678</strong></span>
         </div>
+        <div class="status-item contact-item">
+          <span><span data-i18n="contact">お問い合わせ</span>：800-1234-5678</span>
+        </div>
       </div>
       <div class="status-right">
-        <div class="status-item">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6.5 4h3l1.5 4-2 1.6a11 11 0 0 0 5.4 5.4L16 13l4 1.5v3a2 2 0 0 1-2.2 2A14.5 14.5 0 0 1 4 5.2 2 2 0 0 1 6 3z"/></svg>
-          <span><span class="contact-label" data-i18n="contact">联系方式</span>：<span class="contact-value">800-1234-5678</span></span>
-        </div>
-        <button class="demo-home" id="demoHomeButton" type="button" data-i18n-aria="homeAria" aria-label="返回首页（Demo）" title="Demo">
+        <button class="home-button" id="demoHomeButton" type="button" data-i18n-aria="homeAria" data-i18n-title="homeAria" aria-label="ホームに戻る" title="ホームに戻る（Demo）">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 10.6 12 3.6l8.5 7"/><path d="M5.6 9.9V20h12.8V9.9"/></svg>
-          <span data-i18n="home">首页</span>
+          <span data-i18n="home">ホーム</span>
         </button>
+        <button class="fault-button" id="demoFaultButton" type="button" data-i18n-aria="faultAria" data-i18n-title="faultAria" aria-label="故障画面を表示" title="故障（Demo）">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.6 21 19.4H3L12 3.6Z"/><path d="M12 9.6v4.3M12 16.9h.01"/></svg>
+          <span data-i18n="fault">故障</span>
+        </button>
+        <button class="demo-control" id="adToggle" type="button" role="switch" aria-checked="true" aria-label="左側広告を切り替える">
+          <span class="demo-badge">DEMO</span>
+          <span class="demo-label"><span data-i18n="adLabel">広告</span> <strong id="adState">ON</strong></span>
+          <span class="switch-track" aria-hidden="true"><span class="switch-thumb"></span></span>
+        </button>
+        <time class="status-item" datetime="2026-11-04T23:40" data-i18n="date">11月4日 23:40</time>
+        <svg width="18" height="16" viewBox="0 0 18 16" fill="currentColor" aria-label="電波状況"><rect x="1" y="11" width="3" height="4" rx="1"/><rect x="6" y="7" width="3" height="8" rx="1"/><rect x="11" y="3" width="3" height="12" rx="1"/></svg>
       </div>
     </section>
 
@@ -351,9 +419,13 @@
       zh: {
         htmlLang: "zh-CN",
         docTitle: "暂停服务",
-        contact: "联系方式",
+        contact: "联系我们",
         home: "首页",
-        homeAria: "返回首页（Demo）",
+        homeAria: "返回首页",
+        fault: "故障",
+        faultAria: "显示故障页面（Demo）",
+        adLabel: "广告",
+        date: "11月4日 23:40",
         title: "暂时无法提供服务",
         message: "非常抱歉，设备目前正在维护中。<br>请稍后再来或联系工作人员。",
         phoneLabel: "客服电话",
@@ -366,7 +438,11 @@
         docTitle: "サービス停止中",
         contact: "お問い合わせ",
         home: "ホーム",
-        homeAria: "ホームに戻る（Demo）",
+        homeAria: "ホームに戻る",
+        fault: "故障",
+        faultAria: "故障画面を表示（Demo）",
+        adLabel: "広告",
+        date: "11月4日 23:40",
         title: "ただいまサービスを停止しています",
         message: "誠に申し訳ございません。<br>現在メンテナンス中のため、ご利用いただけません。<br>しばらくしてから再度お試しいただくか、係員までお問い合わせください。",
         phoneLabel: "お問い合わせ電話番号",
@@ -379,7 +455,11 @@
         docTitle: "Out of service",
         contact: "Contact",
         home: "Home",
-        homeAria: "Back to home (Demo)",
+        homeAria: "Back to home",
+        fault: "Fault",
+        faultAria: "Show out-of-service screen (Demo)",
+        adLabel: "Ads",
+        date: "Nov 4, 23:40",
         title: "Service temporarily unavailable",
         message: "We are sorry — this machine is currently under maintenance.<br>Please come back later or contact our staff.",
         phoneLabel: "Customer service",
@@ -390,9 +470,13 @@
       ko: {
         htmlLang: "ko",
         docTitle: "서비스 중지",
-        contact: "문의처",
+        contact: "문의",
         home: "홈",
-        homeAria: "홈으로 이동 (Demo)",
+        homeAria: "홈으로 이동",
+        fault: "고장",
+        faultAria: "고장 화면 표시 (Demo)",
+        adLabel: "광고",
+        date: "11월 4일 23:40",
         title: "현재 서비스를 이용할 수 없습니다",
         message: "죄송합니다. 현재 장비 점검 중입니다.<br>잠시 후 다시 이용하시거나 직원에게 문의해 주세요.",
         phoneLabel: "고객센터 전화",
@@ -424,9 +508,21 @@
     document.querySelectorAll("[data-i18n-html]").forEach(element => {
       element.innerHTML = t(element.dataset.i18nHtml);
     });
+    document.querySelectorAll("[data-i18n-aria]").forEach(element => {
+      element.setAttribute("aria-label", t(element.dataset.i18nAria));
+    });
+    document.querySelectorAll("[data-i18n-title]").forEach(element => {
+      element.setAttribute("title", t(element.dataset.i18nTitle));
+    });
     const homeButton = document.getElementById("demoHomeButton");
-    homeButton.setAttribute("aria-label", t("homeAria"));
-    homeButton.setAttribute("title", t("homeAria"));
+    // Demo 广告开关：与商品页同款控件，本页没有广告位，仅保留视觉一致
+    const adToggle = document.getElementById("adToggle");
+    const adState = document.getElementById("adState");
+    adToggle.addEventListener("click", () => {
+      const next = adToggle.getAttribute("aria-checked") !== "true";
+      adToggle.setAttribute("aria-checked", String(next));
+      adState.textContent = next ? "ON" : "OFF";
+    });
     document.querySelector(".fault-page").setAttribute("aria-label", dictionary.docTitle);
 
     function goHome() {
