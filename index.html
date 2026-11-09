@@ -400,6 +400,8 @@
       transition: transform .25s ease;
     }
     .product-card:hover .product-media img { transform: scale(1.025); }
+    /* 实拍照片（自带背景）改为满铺裁切，避免出现灰底留边 */
+    .product-card.is-photo .product-media img { padding: 0; object-fit: cover; }
     .temperature-tag {
       position: absolute;
       bottom: 12px;
@@ -576,6 +578,7 @@
       padding: 24px 38px;
       border-bottom: 1px solid #edf1f4;
     }
+    .cart-thumb.is-photo { object-fit: cover; padding: 0; }
     .cart-thumb {
       width: 100%;
       height: clamp(84px, 5.9vw, 114px);
@@ -747,6 +750,7 @@
       overflow: hidden;
     }
     .custom-product { min-width: 0; }
+    .custom-product-image.is-photo { padding: 0; object-fit: cover; }
     .custom-product-image {
       display: block;
       width: 380px;
@@ -1286,7 +1290,11 @@
           2: { name: "ココナッツモカ", desc: "ココナッツの香りとチョコレートのまろやかさ。" },
           3: { name: "エスプレッソ", desc: "濃厚なエスプレッソをそのままに。" },
           4: { name: "アメリカーノ", desc: "すっきりとした後味のアイスアメリカーノ。" },
-          5: { name: "ベトナム風スパニッシュラテ", desc: "ベトナムコーヒーに濃厚ミルクを合わせて。" }
+          5: { name: "ベトナム風スパニッシュラテ", desc: "ベトナムコーヒーに濃厚ミルクを合わせて。" },
+          6: { name: "ジャバチップ フラペチーノ", desc: "チョコレートチップとコーヒーの濃厚フラペチーノ。" },
+          7: { name: "シェイクン アイスグリーンティー", desc: "緑茶をシェイクして、すっきり爽やかなアイスティーに。" },
+          8: { name: "ベリー ベリー ヒビスカス リフレッシャー", desc: "ハイビスカスとベリーの鮮やかな酸味が心地よい。" },
+          9: { name: "スノーキャップ マシュマロ モカ", desc: "マシュマロとチョコレートを重ねた、冬のご褒美モカ。" }
         }
       },
       zh: {
@@ -1344,7 +1352,11 @@
           2: { name: "椰子摩卡", desc: "椰香与巧克力的浓郁交织，顺滑清爽。" },
           3: { name: "浓缩咖啡", desc: "浓缩萃取，纯粹的咖啡本味。" },
           4: { name: "美式咖啡", desc: "冰爽美式，口感干净利落。" },
-          5: { name: "越南西班牙拿铁", desc: "越南咖啡搭配炼乳与绵密奶盖。" }
+          5: { name: "越南西班牙拿铁", desc: "越南咖啡搭配炼乳与绵密奶盖。" },
+          6: { name: "爪哇巧克力碎星冰乐", desc: "巧克力碎与咖啡打成的浓郁冰沙，顶覆绵密奶油。" },
+          7: { name: "摇摇冰绿茶", desc: "绿茶摇匀后清爽回甘，冰镇更解渴。" },
+          8: { name: "缤纷莓果木槿清爽饮", desc: "木槿花与莓果的鲜亮酸香，冰爽透亮。" },
+          9: { name: "雪顶棉花糖摩卡", desc: "棉花糖与巧克力碎堆叠的冬日摩卡。" }
         }
       },
       en: {
@@ -1402,7 +1414,11 @@
           2: { name: "Coconut Mocha", desc: "Coconut aroma with mellow chocolate mocha." },
           3: { name: "Espresso", desc: "A pure, intense shot of espresso." },
           4: { name: "Americano", desc: "Crisp iced americano with a clean finish." },
-          5: { name: "Vietnamese Spanish Latte", desc: "Vietnamese coffee with rich condensed milk." }
+          5: { name: "Vietnamese Spanish Latte", desc: "Vietnamese coffee with rich condensed milk." },
+          6: { name: "Java Chip Frappuccino", desc: "Chocolate chips blended with coffee, crowned with cream." },
+          7: { name: "Shaken Iced Green Tea", desc: "Green tea shaken over ice for a crisp, clean finish." },
+          8: { name: "Very Berry Hibiscus Starbucks Refresher", desc: "Bright hibiscus and berry notes, served over ice." },
+          9: { name: "Snowcap Marshmallow Mocha", desc: "Marshmallow and chocolate piled over a cozy mocha." }
         }
       },
       ko: {
@@ -1460,7 +1476,11 @@
           2: { name: "코코넛 모카", desc: "코코넛 향과 초콜릿 모카의 부드러운 조화." },
           3: { name: "에스프레소", desc: "에스프레소 본연의 진한 풍미." },
           4: { name: "아메리카노", desc: "깔끔한 목넘김의 아이스 아메리카노." },
-          5: { name: "베트남 스패니시 라테", desc: "베트남 커피에 진한 밀크를 더했습니다." }
+          5: { name: "베트남 스패니시 라테", desc: "베트남 커피에 진한 밀크를 더했습니다." },
+          6: { name: "자바 칩 프라페노", desc: "초콜릿 칩과 커피를 갈아 만든 진한 프라페노." },
+          7: { name: "셰이큰 아이스 그린티", desc: "녹차를 셰이크해 깔끔하고 상쾌한 아이스티." },
+          8: { name: "베리 베리 히비스커스 리프레셔", desc: "히비스커스와 베리의 상큼한 산미가 매력적." },
+          9: { name: "스노우캡 마시멜로 모카", desc: "마시멜로와 초콜릿을 올린 겨울 시즌 모카." }
         }
       }
     };
@@ -1471,7 +1491,11 @@
       { id: 2, price: 380, image: "assets/coconut-mocha.png", temperature: "iced" },
       { id: 3, price: 300, image: "assets/espresso.png", temperature: "hot" },
       { id: 4, price: 320, image: "assets/americano.png", temperature: "iced" },
-      { id: 5, price: 400, image: "assets/vietnamese-spanish-latte.png", temperature: "iced" }
+      { id: 5, price: 400, image: "assets/vietnamese-spanish-latte.png", temperature: "iced" },
+      { id: 6, price: 420, image: "assets/java-chip-frappuccino.jpg", temperature: "iced", photo: true },
+      { id: 7, price: 340, image: "assets/shaken-iced-green-tea.jpg", temperature: "iced", photo: true },
+      { id: 8, price: 360, image: "assets/very-berry-hibiscus.jpg", temperature: "iced", photo: true },
+      { id: 9, price: 420, image: "assets/snowcap-marshmallow-mocha.jpg", temperature: "hot", photo: true }
     ];
 
     const SUPPORTED_LANGUAGES = ["ja", "zh", "en", "ko"];
@@ -1564,7 +1588,7 @@
     function productCardMarkup(product, index) {
       const name = productName(product);
       return `
-        <article class="product-card" data-product-id="${product.id}" style="animation-delay:${index * 25}ms">
+        <article class="product-card${product.photo ? " is-photo" : ""}" data-product-id="${product.id}" style="animation-delay:${index * 25}ms">
           <button class="product-media" type="button" data-customize="${product.id}" aria-label="${t("customizeAria", { name })}">
             <img src="${product.image}" alt="${name}" width="700" height="700">
             <span class="temperature-tag">${t(`temperature.${product.temperature}`)}</span>
@@ -1624,7 +1648,8 @@
       productTrack.innerHTML = Array.from({ length: pages }, (_, pageIndex) => {
         const slice = products.slice(pageIndex * perPage, pageIndex * perPage + perPage);
         const cols = slice.length >= 7 ? 4 : 3;
-        const rows = Math.max(1, Math.ceil(slice.length / cols));
+        // 至少保留两行高度，避免末页只有 1 件时卡片被拉成整屏
+        const rows = Math.max(2, Math.ceil(slice.length / cols));
         return `
         <div class="product-page" style="--cols:${cols};--rows:${rows}">
           ${slice.map((product, index) => productCardMarkup(product, index)).join("")}
@@ -1663,7 +1688,7 @@
         const highlight = highlightId === product.id ? " is-new" : "";
         return `
         <article class="cart-item${highlight}">
-          <img class="cart-thumb" src="${product.image}" alt="${name}" width="210" height="210">
+          <img class="cart-thumb${product.photo ? " is-photo" : ""}" src="${product.image}" alt="${name}" width="210" height="210">
           <div class="cart-item-main">
             <h3 class="cart-item-name"><span class="cart-item-title" title="${name}">${name}</span><span class="cart-item-qty">× ${quantity}</span></h3>
             <p class="cart-item-variant">${variantLabel(variant)}</p>
@@ -1763,6 +1788,7 @@
       const image = document.getElementById("customProductImage");
       image.src = product.image;
       image.alt = name;
+      image.classList.toggle("is-photo", Boolean(product.photo));
       document.getElementById("customProductName").textContent = name;
       document.getElementById("customProductPrice").textContent = yen(product.price);
       document.getElementById("customProductDescription").textContent = productDescription(product);
