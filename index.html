@@ -581,29 +581,29 @@
     .customization-layer.open .customization-backdrop { opacity: 1; }
     .customization-sheet {
       position: absolute;
-      right: 24px;
       bottom: 0;
-      left: 24px;
+      left: 50%;
       display: flex;
       flex-direction: column;
-      height: min(960px, 90vh);
+      width: min(1240px, 86vw);
+      height: min(820px, 88vh);
       overflow: hidden;
-      border-radius: 28px 28px 0 0;
+      border-radius: 32px 32px 0 0;
       background: #fff;
-      box-shadow: 0 -18px 55px rgba(13,43,62,.2);
-      transform: translateY(105%);
+      box-shadow: 0 -20px 60px rgba(13,43,62,.24);
+      transform: translate(-50%, 105%);
       transition: transform .34s cubic-bezier(.22,.8,.28,1);
     }
-    .customization-layer.open .customization-sheet { transform: translateY(0); }
+    .customization-layer.open .customization-sheet { transform: translate(-50%, 0); }
     .customization-header {
       position: relative;
       display: flex;
-      flex: 0 0 96px;
+      flex: 0 0 92px;
       align-items: center;
       justify-content: center;
       border-bottom: 1px solid var(--border);
     }
-    .customization-title { margin: 0; font-size: 28px; font-weight: 750; }
+    .customization-title { margin: 0; font-size: 28px; font-weight: 750; letter-spacing: .5px; }
     .sheet-control {
       position: absolute;
       top: 16px;
@@ -620,29 +620,29 @@
       cursor: pointer;
     }
     .sheet-control:hover { background: var(--accent-weak); }
-    .sheet-control.collapse { left: 28px; }
-    .sheet-control.close { right: 28px; }
+    .sheet-control.collapse { left: 44px; }
+    .sheet-control.close { right: 44px; }
     .sheet-control svg { width: 30px; height: 30px; }
     .customization-body {
       display: grid;
       flex: 1 1 auto;
-      grid-template-columns: 450px minmax(0, 1fr);
-      gap: 44px;
+      grid-template-columns: 380px minmax(0, 1fr);
+      gap: 56px;
       min-height: 0;
-      padding: 20px 44px 26px;
+      padding: 26px 64px 28px;
       overflow: hidden;
     }
     .custom-product { min-width: 0; }
     .custom-product-image {
       display: block;
-      width: 450px;
-      height: 450px;
+      width: 380px;
+      height: 380px;
       aspect-ratio: 1 / 1;
-      border-radius: 18px;
+      border-radius: 20px;
       object-fit: cover;
       background: #edf2f4;
     }
-    .custom-product-name { margin: 22px 0 5px; font-size: 30px; font-weight: 750; }
+    .custom-product-name { margin: 20px 0 6px; font-size: 28px; font-weight: 750; }
     .custom-product-price { margin: 0; color: var(--accent-dark); font-size: 26px; font-weight: 800; }
     .custom-product-description { margin: 15px 0 0; color: var(--text-2); font-size: 16px; line-height: 1.75; }
     .custom-options {
@@ -672,10 +672,10 @@
     .option-button.active { border-color: var(--accent); color: #fff; background: var(--accent); }
     .customization-footer {
       display: flex;
-      flex: 0 0 120px;
+      flex: 0 0 116px;
       align-items: center;
-      gap: 34px;
-      padding: 20px 44px;
+      gap: 28px;
+      padding: 18px 64px;
       border-top: 1px solid var(--border);
       background: #fff;
       box-shadow: 0 -8px 22px rgba(33,73,101,.045);
@@ -785,25 +785,37 @@
     }
 
     @media (max-height: 850px) {
+      .customization-sheet { height: min(720px, 90vh); }
       .customization-header { flex-basis: 80px; }
       .sheet-control { top: 8px; }
-      .customization-body { grid-template-columns: 340px minmax(0,1fr); gap: 30px; padding: 16px 32px 18px; }
-      .custom-product-image { width: 340px; height: 340px; }
-      .custom-product-name { margin-top: 14px; font-size: 24px; }
-      .custom-product-price { font-size: 21px; }
+      .customization-body { grid-template-columns: 320px minmax(0,1fr); gap: 40px; padding: 18px 48px 20px; }
+      .custom-product-image { width: 320px; height: 320px; }
+      .custom-product-name { margin-top: 14px; font-size: 23px; }
+      .custom-product-price { font-size: 20px; }
       .custom-product-description { margin-top: 8px; font-size: 14px; }
       .option-row { padding: 4px 0 12px; }
       .option-label { margin-bottom: 10px; font-size: 15px; }
       .option-button { min-width: 88px; min-height: 42px; padding: 0 17px; font-size: 14px; }
-      .customization-footer { flex-basis: 96px; padding: 14px 32px; }
-      .add-order-button { min-height: 62px; }
+      .customization-footer { flex-basis: 92px; padding: 12px 48px; }
+      .add-order-button { min-height: 60px; }
+    }
+
+    @media (max-width: 1360px) {
+      .customization-sheet { width: 90vw; }
+      .customization-body { padding-right: 48px; padding-left: 48px; }
+      .customization-footer { padding-right: 48px; padding-left: 48px; }
+      .sheet-control.collapse { left: 34px; }
+      .sheet-control.close { right: 34px; }
     }
 
     @media (max-width: 1200px) {
-      .customization-body { grid-template-columns: 340px minmax(0,1fr); gap: 28px; padding-right: 30px; padding-left: 30px; }
-      .custom-product-image { width: 340px; height: 340px; }
-      .customization-footer { gap: 20px; padding-right: 30px; padding-left: 30px; }
-      .add-order-button { width: 290px; }
+      .customization-sheet { width: calc(100% - 48px); }
+      .customization-body { grid-template-columns: 300px minmax(0,1fr); gap: 32px; padding-right: 34px; padding-left: 34px; }
+      .custom-product-image { width: 300px; height: 300px; }
+      .customization-footer { gap: 20px; padding-right: 34px; padding-left: 34px; }
+      .sheet-control.collapse { left: 24px; }
+      .sheet-control.close { right: 24px; }
+      .add-order-button { width: 280px; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -944,7 +956,7 @@
 
       <div class="customization-body">
         <section class="custom-product" aria-label="商品信息">
-          <img class="custom-product-image" id="customProductImage" src="assets/latte.jpg" alt="カフェラテ" width="450" height="450">
+          <img class="custom-product-image" id="customProductImage" src="assets/latte.jpg" alt="カフェラテ" width="380" height="380">
           <h3 class="custom-product-name" id="customProductName">カフェラテ</h3>
           <p class="custom-product-price" id="customProductPrice">¥300</p>
           <p class="custom-product-description" id="customProductDescription">浓郁咖啡与香醇牛奶搭配，口感顺滑。</p>
