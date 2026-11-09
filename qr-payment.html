@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>请扫码支付 - Fuji Electric</title>
+  <style>
+    :root {
+      --bg: #f4f7fa;
+      --surface: #ffffff;
+      --border: #e3ebf0;
+      --text: #102d43;
+      --text-2: #6c7e8c;
+      --accent: #0877c9;
+      --accent-dark: #075b9e;
+      --accent-weak: #e8f4fd;
+      --success: #168565;
+      --success-weak: #eaf7f2;
+      --danger: #c64747;
+      --danger-weak: #fff0f0;
+      --status-h: 56px;
+      --progress-h: 104px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-width: 860px; }
+    body {
+      color: var(--text);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    button { font: inherit; }
+    button:focus-visible { outline: 3px solid rgba(8,119,201,.28); outline-offset: 3px; }
+
+    .qr-page {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100vh;
+      min-height: 680px;
+      overflow: hidden;
+    }
+
+    .status-bar {
+      display: flex;
+      flex: 0 0 var(--status-h);
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 0 32px;
+      color: #fff;
+      background: var(--accent-dark);
+      font-size: 13px;
+    }
+    .status-left, .status-right, .machine-id { display: flex; align-items: center; }
+    .status-left { gap: 28px; }
+    .status-right { gap: 18px; }
+    .machine-id { gap: 9px; white-space: nowrap; }
+    .machine-id svg { width: 17px; height: 17px; }
+    .machine-id span { color: #cfe8f8; }
+    .machine-id strong { color: #fff; font-weight: 600; }
+
+    .demo-controls {
+      display: none;
+      align-items: center;
+      gap: 5px;
+      padding: 4px;
+      border: 1px solid rgba(255,255,255,.24);
+      border-radius: 999px;
+      background: rgba(0,0,0,.09);
+    }
+    .demo-controls.visible { display: flex; }
+    .demo-label { padding: 0 8px; color: #d8edf9; font-size: 10px; font-weight: 800; letter-spacing: .08em; }
+    .demo-state {
+      min-width: 78px;
+      height: 30px;
+      padding: 0 13px;
+      border: 0;
+      border-radius: 999px;
+      color: #fff;
+      background: transparent;
+      font-size: 12px;
+      font-weight: 650;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .demo-state:hover { background: rgba(255,255,255,.13); }
+    .demo-state.active { color: var(--accent-dark); background: #fff; }
+
+    .progress-header {
+      position: relative;
+      display: flex;
+      flex: 0 0 var(--progress-h);
+      align-items: center;
+      padding: 0 48px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .progress-list {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(150px, 1fr));
+      width: min(1200px, calc(100% - 190px));
+      margin: 0 auto;
+      padding: 0;
+      list-style: none;
+    }
+    .progress-step {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 11px;
+      min-width: 0;
+      color: #91a0aa;
+      font-size: 16px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .progress-step:not(:last-child)::after {
+      position: absolute;
+      z-index: 0;
+      top: 50%;
+      left: calc(50% + 72px);
+      width: calc(100% - 144px);
+      height: 2px;
+      background: #dfe8ed;
+      content: "";
+      transform: translateY(-50%);
+    }
+    .step-number {
+      position: relative;
+      z-index: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      flex: 0 0 32px;
+      border: 2px solid #d4e0e7;
+      border-radius: 50%;
+      background: #fff;
+      font-size: 14px;
+      font-weight: 750;
+    }
+    .progress-step.done { color: var(--text-2); }
+    .progress-step.done .step-number { color: #fff; border-color: #75a9cc; background: #75a9cc; }
+    .progress-step.done:not(:last-child)::after { background: #a9c8dc; }
+    .progress-step.current { color: var(--accent); font-weight: 750; }
+    .progress-step.current .step-number { color: #fff; border-color: var(--accent); background: var(--accent); box-shadow: 0 0 0 6px var(--accent-weak); }
+    .home-button {
+      position: absolute;
+      right: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      min-width: 126px;
+      height: 54px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--text);
+      background: #fff;
+      font-size: 15px;
+      font-weight: 650;
+      cursor: pointer;
+    }
+    .home-button:hover { border-color: #b9d9ed; background: var(--accent-weak); }
+    .home-button svg { width: 20px; height: 20px; }
+
+    .checkout-main {
+      display: flex;
+      flex: 1 1 auto;
+      flex-direction: column;
+      align-items: center;
+      min-height: 0;
+      padding: 25px 48px 24px;
+    }
+    .order-heading { flex: 0 0 auto; text-align: center; }
+    .order-label { margin: 0 0 4px; color: var(--text-2); font-size: 16px; }
+    .order-total { margin: 0; font-size: 48px; font-weight: 800; line-height: 1.2; letter-spacing: -.025em; }
+    .order-count { margin: 9px 0 0; color: var(--text-2); font-size: 16px; }
+
+    .payment-content {
+      display: grid;
+      grid-template-columns: minmax(0, 1.06fr) minmax(0, 1fr);
+      gap: 28px;
+      width: min(1160px, 100%);
+      min-height: 0;
+      margin: 25px auto 0;
+    }
+    .media-card, .qr-card {
+      height: 530px;
+      min-width: 0;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      background: var(--surface);
+      box-shadow: 0 7px 22px rgba(33,73,101,.05);
+    }
+    .backend-image {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      background: #eaf0f3;
+    }
+
+    .qr-card { padding: 0; text-align: center; }
+    .payment-state-panel {
+      width: 100%;
+      height: 100%;
+      padding: 25px 32px 24px;
+    }
+    .payment-state-panel[hidden] { display: none; }
+    .payment-state-panel.active { display: flex; flex-direction: column; align-items: center; }
+    .state-title { margin: 0; font-size: 27px; font-weight: 750; line-height: 1.3; }
+    .state-hint { margin: 0; color: var(--text-2); font-size: 17px; line-height: 1.6; }
+
+    .qr-frame {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 274px;
+      height: 274px;
+      flex: 0 0 274px;
+      margin: 20px auto 16px;
+      padding: 12px;
+      border: 1px solid #dfe8ed;
+      border-radius: 15px;
+      background: #fff;
+    }
+    .qr-code { display: flex; align-items: center; justify-content: center; width: 248px; height: 248px; }
+    .qr-code img, .qr-code canvas { display: block; width: 248px !important; height: 248px !important; }
+    .countdown {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 12px;
+      margin-top: auto;
+      padding-top: 17px;
+      color: var(--text-2);
+      font-size: 15px;
+    }
+    .countdown strong { color: var(--accent); font-size: 30px; font-variant-numeric: tabular-nums; letter-spacing: .025em; }
+
+    .result-panel { justify-content: center; }
+    .state-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 146px;
+      height: 146px;
+      margin-bottom: 28px;
+      border-radius: 50%;
+    }
+    .state-icon svg { width: 92px; height: 92px; }
+    .state-icon.success { color: var(--success); background: var(--success-weak); }
+    .state-icon.failed { color: var(--danger); background: var(--danger-weak); }
+    .result-panel .state-title { margin-bottom: 14px; font-size: 34px; }
+    .making-dots { display: flex; gap: 8px; margin-top: 30px; }
+    .making-dots span { width: 8px; height: 8px; border-radius: 50%; background: var(--success); animation: making-dot 1.2s ease-in-out infinite; }
+    .making-dots span:nth-child(2) { animation-delay: .15s; }
+    .making-dots span:nth-child(3) { animation-delay: .3s; }
+    @keyframes making-dot { 0%,70%,100% { opacity: .25; transform: translateY(0); } 35% { opacity: 1; transform: translateY(-5px); } }
+
+    .state-actions { display: flex; gap: 12px; width: 100%; max-width: 390px; margin-top: 34px; }
+    .state-button {
+      display: inline-flex;
+      flex: 1;
+      align-items: center;
+      justify-content: center;
+      min-height: 58px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--text);
+      background: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .state-button.primary { color: #fff; border-color: var(--accent); background: var(--accent); }
+    .state-button.primary:hover { background: var(--accent-dark); }
+    .payment-note { flex: 0 0 auto; margin: 20px 0 0; color: var(--text-2); font-size: 15px; text-align: center; }
+
+    .modal-layer {
+      position: fixed;
+      z-index: 50;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+      background: rgba(10,30,43,.46);
+    }
+    .modal-layer.open { display: flex; }
+    .modal {
+      width: min(480px, 100%);
+      padding: 34px;
+      border-radius: 22px;
+      background: #fff;
+      box-shadow: 0 22px 70px rgba(10,40,60,.2);
+      text-align: center;
+      animation: modal-in .2s ease both;
+    }
+    @keyframes modal-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .modal-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 66px;
+      height: 66px;
+      margin: 0 auto 20px;
+      border-radius: 50%;
+      color: var(--accent);
+      background: var(--accent-weak);
+      font-size: 30px;
+      font-weight: 700;
+    }
+    .modal h2 { margin: 0 0 12px; font-size: 27px; }
+    .modal p { margin: 0; color: var(--text-2); font-size: 16px; line-height: 1.7; }
+    .modal-actions { display: flex; gap: 12px; margin-top: 28px; }
+    .modal-button {
+      display: inline-flex;
+      flex: 1;
+      align-items: center;
+      justify-content: center;
+      min-height: 56px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--text);
+      background: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .modal-button.primary { color: #fff; border-color: var(--accent); background: var(--accent); }
+
+    .toast {
+      position: fixed;
+      z-index: 80;
+      bottom: 24px;
+      left: 50%;
+      max-width: min(560px, 80vw);
+      padding: 12px 20px;
+      border-radius: 999px;
+      color: #fff;
+      background: rgba(16,45,67,.95);
+      font-size: 13px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, 10px);
+      transition: opacity .2s ease, transform .2s ease;
+    }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+    @media (max-height: 900px) {
+      .checkout-main { padding-top: 18px; padding-bottom: 18px; }
+      .order-total { font-size: 40px; }
+      .payment-content { margin-top: 18px; }
+      .media-card, .qr-card { height: 450px; }
+      .payment-state-panel { padding-top: 18px; padding-bottom: 18px; }
+      .state-title { font-size: 23px; }
+      .qr-frame { width: 230px; height: 230px; flex-basis: 230px; margin: 13px auto 11px; }
+      .qr-code, .qr-code img, .qr-code canvas { width: 204px !important; height: 204px !important; }
+      .countdown { padding-top: 10px; }
+      .payment-note { margin-top: 14px; }
+      .state-icon { width: 120px; height: 120px; margin-bottom: 20px; }
+      .state-icon svg { width: 76px; height: 76px; }
+    }
+    @media (max-width: 1400px) {
+      .status-left { gap: 16px; }
+      .status-right { gap: 10px; }
+      .demo-state { min-width: 66px; padding: 0 9px; }
+      .demo-label { padding: 0 4px; }
+    }
+    @media (max-width: 1250px) {
+      .progress-header { padding: 0 28px; }
+      .progress-list { width: calc(100% - 145px); grid-template-columns: repeat(4, minmax(120px, 1fr)); }
+      .progress-step { gap: 7px; font-size: 14px; }
+      .progress-step:not(:last-child)::after { left: calc(50% + 62px); width: calc(100% - 124px); }
+      .home-button { right: 24px; min-width: 108px; }
+      .checkout-main { padding-right: 30px; padding-left: 30px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="qr-page" id="qrPage">
+    <section class="status-bar" aria-label="机器状态">
+      <div class="status-left">
+        <div class="machine-id">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="5" y="2.5" width="14" height="19" rx="3"/><path d="M9 6h6M9 18h6"/></svg>
+          <span>MACHINE ID：<strong>fuji12345678</strong></span>
+        </div>
+        <div>CONTACT：800-1234-5678</div>
+      </div>
+      <div class="status-right">
+        <div class="demo-controls" id="demoControls" aria-label="Demo 支付状态">
+          <span class="demo-label">DEMO</span>
+          <button class="demo-state active" type="button" data-demo-state="waiting" aria-pressed="true">请扫码</button>
+          <button class="demo-state" type="button" data-demo-state="paid" aria-pressed="false">支付成功</button>
+          <button class="demo-state" type="button" data-demo-state="failed" aria-pressed="false">支付失败</button>
+        </div>
+        <time id="machineTime">11/09 14:57</time>
+        <svg width="18" height="16" viewBox="0 0 18 16" fill="currentColor" aria-label="网络状态正常"><rect x="1" y="11" width="3" height="4" rx="1"/><rect x="6" y="7" width="3" height="8" rx="1"/><rect x="11" y="3" width="3" height="12" rx="1"/></svg>
+      </div>
+    </section>
+
+    <header class="progress-header">
+      <ol class="progress-list" aria-label="订单进度">
+        <li class="progress-step done" data-step="1" aria-label="选择商品，已完成"><span class="step-number">✓</span><span>选择商品</span></li>
+        <li class="progress-step done" data-step="2" aria-label="口味定制，已完成"><span class="step-number">✓</span><span>口味定制</span></li>
+        <li class="progress-step current" data-step="3" aria-current="step"><span class="step-number">3</span><span>结账</span></li>
+        <li class="progress-step" data-step="4" aria-label="开始制作，待支付完成后自动进入"><span class="step-number">4</span><span>开始制作</span></li>
+      </ol>
+      <button class="home-button" id="homeButton" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m3 11 9-8 9 8M5.5 9.5V21h13V9.5M9.5 21v-7h5v7"/></svg>
+        Home
+      </button>
+    </header>
+
+    <section class="checkout-main" aria-label="订单支付">
+      <div class="order-heading">
+        <p class="order-label">订单总金额</p>
+        <h1 class="order-total" id="orderTotal">¥1,000</h1>
+        <p class="order-count" id="orderCount">购买商品（3件）</p>
+      </div>
+
+      <div class="payment-content">
+        <section class="media-card" aria-label="后台配置图片">
+          <img class="backend-image" id="backendImage" src="assets/welcome-bg.jpg" alt="后台上传的展示图片">
+        </section>
+
+        <section class="qr-card" id="paymentStatusCard" aria-label="支付状态">
+          <div class="payment-state-panel active" data-state-panel="waiting">
+            <h2 class="state-title">请扫码支付</h2>
+            <div class="qr-frame">
+              <div class="qr-code" id="qrCode" role="img" aria-label="订单支付二维码"></div>
+            </div>
+            <p class="state-hint">请使用手机扫描二维码</p>
+            <div class="countdown" aria-live="polite">剩余时间 <strong id="countdown">03:00</strong></div>
+          </div>
+
+          <div class="payment-state-panel result-panel" data-state-panel="paid" hidden>
+            <div class="state-icon success" aria-hidden="true">
+              <svg viewBox="0 0 96 96" fill="none"><circle cx="48" cy="48" r="41" stroke="currentColor" stroke-width="5"/><path d="m29 49 13 13 26-29" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <h2 class="state-title">支付成功</h2>
+            <p class="state-hint">正在为您制作饮品</p>
+            <div class="making-dots" aria-label="制作中"><span></span><span></span><span></span></div>
+          </div>
+
+          <div class="payment-state-panel result-panel" data-state-panel="failed" hidden>
+            <div class="state-icon failed" aria-hidden="true">
+              <svg viewBox="0 0 96 96" fill="none"><circle cx="48" cy="48" r="41" stroke="currentColor" stroke-width="5"/><path d="m34 34 28 28M62 34 34 62" stroke="currentColor" stroke-width="7" stroke-linecap="round"/></svg>
+            </div>
+            <h2 class="state-title">支付失败</h2>
+            <p class="state-hint">支付未成功，请重试</p>
+            <div class="state-actions">
+              <button class="state-button primary" id="retryButton" type="button">重新支付</button>
+              <button class="state-button" id="failedHomeButton" type="button">返回首页</button>
+            </div>
+          </div>
+        </section>
+      </div>
+      <p class="payment-note" id="paymentNote">支付成功后将自动开始制作</p>
+    </section>
+  </main>
+
+  <div class="modal-layer" id="homeModal" role="dialog" aria-modal="true" aria-labelledby="homeTitle" aria-hidden="true">
+    <div class="modal">
+      <div class="modal-icon">⌂</div>
+      <h2 id="homeTitle">返回欢迎页？</h2>
+      <p>当前订单尚未完成。确认返回后，将清除本订单及未提交的支付信息。</p>
+      <div class="modal-actions">
+        <button class="modal-button" id="stayButton" type="button">继续支付</button>
+        <button class="modal-button primary" id="confirmHomeButton" type="button">清除订单并返回</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="assets/qrcode.min.js"></script>
+  <script>
+    const PAYMENT_TIMEOUT_SECONDS = 180;
+    const demoMode = new URLSearchParams(window.location.search).get("demo") !== "off";
+    const qrCodeElement = document.getElementById("qrCode");
+    const countdownElement = document.getElementById("countdown");
+    const homeModal = document.getElementById("homeModal");
+    const toast = document.getElementById("toast");
+    const defaultOrder = {
+      items: [
+        { name: "カフェラテ", price: 300, quantity: 1, image: "assets/latte.jpg" },
+        { name: "タピオカミルクティー", price: 360, quantity: 1, image: "assets/tapioca.jpg" },
+        { name: "抹茶ラテ", price: 340, quantity: 1, image: "assets/matcha.jpg" }
+      ]
+    };
+    const paymentConfig = {
+      backendImage: "assets/welcome-bg.jpg",
+      paymentUrl: "https://pay.example.com/fuji/checkout"
+    };
+    let paymentState = "waiting";
+    let paymentSession = 0;
+    let deadline = 0;
+    let countdownTimer = null;
+    let toastTimer = null;
+
+    function loadOrder() {
+      try {
+        const saved = JSON.parse(localStorage.getItem("fujiOrder"));
+        if (saved && Array.isArray(saved.items) && saved.items.length) return saved;
+      } catch (error) {
+        console.warn("使用默认演示订单。", error);
+      }
+      return defaultOrder;
+    }
+
+    function renderOrder() {
+      const order = loadOrder();
+      const items = order.items.filter(item => item && Number(item.price) >= 0);
+      const quantity = items.reduce((sum, item) => sum + (Number(item.quantity) || 1), 0);
+      const total = items.reduce((sum, item) => sum + Number(item.price || 0) * (Number(item.quantity) || 1), 0);
+      document.getElementById("orderTotal").textContent = `¥${total.toLocaleString("zh-CN")}`;
+      document.getElementById("orderCount").textContent = `购买商品（${quantity}件）`;
+    }
+
+    function updateMachineTime() {
+      const now = new Date();
+      const date = `${String(now.getMonth() + 1).padStart(2, "0")}/${String(now.getDate()).padStart(2, "0")}`;
+      const time = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+      const clock = document.getElementById("machineTime");
+      clock.textContent = `${date} ${time}`;
+      clock.dateTime = now.toISOString();
+    }
+
+    function showToast(message) {
+      window.clearTimeout(toastTimer);
+      toast.textContent = message;
+      toast.classList.add("show");
+      toastTimer = window.setTimeout(() => toast.classList.remove("show"), 2400);
+    }
+
+    function setHomeModal(open) {
+      homeModal.classList.toggle("open", open);
+      homeModal.setAttribute("aria-hidden", String(!open));
+    }
+
+    function formatTime(seconds) {
+      return `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
+    }
+
+    function createPaymentCode() {
+      paymentSession += 1;
+      const orderId = `FUJI-${Date.now()}-${paymentSession}`;
+      const separator = paymentConfig.paymentUrl.includes("?") ? "&" : "?";
+      const payload = `${paymentConfig.paymentUrl}${separator}order=${encodeURIComponent(orderId)}`;
+      qrCodeElement.replaceChildren();
+      if (typeof window.QRCode !== "function") {
+        qrCodeElement.textContent = "二维码加载失败，请重新支付";
+        return;
+      }
+      new window.QRCode(qrCodeElement, {
+        text: payload,
+        width: 248,
+        height: 248,
+        colorDark: "#102d43",
+        colorLight: "#ffffff",
+        correctLevel: window.QRCode.CorrectLevel.M
+      });
+    }
+
+    function stopCountdown() {
+      if (countdownTimer !== null) window.clearInterval(countdownTimer);
+      countdownTimer = null;
+    }
+
+    function updateProgress(state) {
+      const paid = state === "paid";
+      const checkout = document.querySelector('[data-step="3"]');
+      const making = document.querySelector('[data-step="4"]');
+      checkout.classList.toggle("done", paid);
+      checkout.classList.toggle("current", !paid);
+      checkout.querySelector(".step-number").textContent = paid ? "✓" : "3";
+      checkout.setAttribute("aria-label", paid ? "结账，已完成" : "结账，当前步骤");
+      making.classList.toggle("current", paid);
+      making.setAttribute("aria-label", paid ? "开始制作，当前步骤" : "开始制作，待支付完成后自动进入");
+      if (paid) {
+        checkout.removeAttribute("aria-current");
+        making.setAttribute("aria-current", "step");
+      } else {
+        checkout.setAttribute("aria-current", "step");
+        making.removeAttribute("aria-current");
+      }
+    }
+
+    function tickCountdown() {
+      if (paymentState !== "waiting") return;
+      const remaining = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+      countdownElement.textContent = formatTime(remaining);
+      if (remaining === 0) setPaymentState("failed");
+    }
+
+    function setPaymentState(nextState) {
+      if (!["waiting", "paid", "failed"].includes(nextState)) return false;
+      stopCountdown();
+      paymentState = nextState;
+      setHomeModal(false);
+
+      document.querySelectorAll("[data-state-panel]").forEach(panel => {
+        const active = panel.dataset.statePanel === nextState;
+        panel.hidden = !active;
+        panel.classList.toggle("active", active);
+      });
+      document.querySelectorAll("[data-demo-state]").forEach(button => {
+        const active = button.dataset.demoState === nextState;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-pressed", String(active));
+      });
+      updateProgress(nextState);
+
+      const notes = {
+        waiting: "支付成功后将自动开始制作",
+        paid: "请留意取货口，制作完成后请及时取走饮品",
+        failed: "如需帮助，请联系现场工作人员"
+      };
+      const titles = {
+        waiting: "请扫码支付 - Fuji Electric",
+        paid: "支付成功 - Fuji Electric",
+        failed: "支付失败 - Fuji Electric"
+      };
+      document.getElementById("paymentNote").textContent = notes[nextState];
+      document.title = titles[nextState];
+
+      if (nextState === "waiting") {
+        createPaymentCode();
+        deadline = Date.now() + PAYMENT_TIMEOUT_SECONDS * 1000;
+        countdownElement.textContent = formatTime(PAYMENT_TIMEOUT_SECONDS);
+        countdownTimer = window.setInterval(tickCountdown, 250);
+      } else if (nextState === "paid") {
+        try { sessionStorage.setItem("fujiPaymentStatus", "paid"); } catch (error) { console.warn(error); }
+      } else {
+        try { sessionStorage.setItem("fujiPaymentStatus", "failed"); } catch (error) { console.warn(error); }
+      }
+      return true;
+    }
+
+    // 真实支付网关接入入口；Demo 按钮可直接切换相同状态，不依赖接口。
+    function handlePaymentResult(result) {
+      const status = typeof result === "string" ? result : result && result.status;
+      if (paymentState !== "waiting") return false;
+      if (["paid", "success", "succeeded"].includes(status)) return setPaymentState("paid");
+      if (["failed", "failure", "expired"].includes(status)) return setPaymentState("failed");
+      return false;
+    }
+
+    function clearOrderAndGoHome() {
+      stopCountdown();
+      try {
+        localStorage.removeItem("fujiOrder");
+        sessionStorage.removeItem("fujiPaymentStatus");
+      } catch (error) { console.warn(error); }
+      window.location.href = "welcome.html";
+    }
+
+    function configureQRPayment(config) {
+      if (config && typeof config.backendImage === "string" && config.backendImage) {
+        paymentConfig.backendImage = config.backendImage;
+        document.getElementById("backendImage").src = config.backendImage;
+      }
+      if (config && typeof config.paymentUrl === "string" && config.paymentUrl) {
+        paymentConfig.paymentUrl = config.paymentUrl;
+      }
+      if (paymentState === "waiting") setPaymentState("waiting");
+    }
+
+    window.handlePaymentResult = handlePaymentResult;
+    window.configureQRPayment = configureQRPayment;
+    window.setPaymentState = setPaymentState;
+
+    document.getElementById("demoControls").classList.toggle("visible", demoMode);
+    document.querySelectorAll("[data-demo-state]").forEach(button => {
+      button.addEventListener("click", () => setPaymentState(button.dataset.demoState));
+    });
+    document.getElementById("homeButton").addEventListener("click", () => {
+      if (paymentState === "paid") {
+        showToast("饮品正在制作，请稍候，暂不能取消订单。");
+        return;
+      }
+      setHomeModal(true);
+      document.getElementById("stayButton").focus();
+    });
+    document.getElementById("stayButton").addEventListener("click", () => {
+      setHomeModal(false);
+      document.getElementById("homeButton").focus();
+    });
+    document.getElementById("confirmHomeButton").addEventListener("click", clearOrderAndGoHome);
+    document.getElementById("failedHomeButton").addEventListener("click", clearOrderAndGoHome);
+    document.getElementById("retryButton").addEventListener("click", () => setPaymentState("waiting"));
+    homeModal.addEventListener("click", event => {
+      if (event.target === homeModal) setHomeModal(false);
+    });
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape" && homeModal.classList.contains("open")) setHomeModal(false);
+    });
+
+    renderOrder();
+    updateMachineTime();
+    window.setInterval(updateMachineTime, 30000);
+    setPaymentState("waiting");
+  </script>
+</body>
+</html>
