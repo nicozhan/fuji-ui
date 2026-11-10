@@ -141,6 +141,59 @@
     .demo-control[aria-checked="true"] .switch-track { background: #64d7ff; }
     .demo-control[aria-checked="true"] .switch-thumb { transform: translateX(0.9375rem); }
 
+    /* 临时 Demo：预包装页排版档位（10 / 21 / 27 吋屏对应的网格），三段式直选 */
+    .layout-switch { gap: 0.5rem; padding: 0.25rem 0.375rem 0.25rem 0.3125rem; cursor: default; }
+    .layout-options {
+      display: flex;
+      align-items: center;
+      gap: 0.125rem;
+      padding: 0.125rem;
+      border-radius: 62.4375rem;
+      background: rgba(0,0,0,.18);
+    }
+    .layout-option {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.0625rem;
+      min-width: 2.5rem;
+      padding: 0.1875rem 0.3125rem;
+      border: 0;
+      border-radius: 62.4375rem;
+      color: rgba(255,255,255,.76);
+      background: transparent;
+      line-height: 1.05;
+      cursor: pointer;
+      transition: color .16s ease, background .16s ease, box-shadow .16s ease;
+    }
+    .layout-option b { font-size: 0.6875rem; font-weight: 750; letter-spacing: .01em; }
+    .layout-option i { font-size: 0.5625rem; font-style: normal; font-weight: 650; opacity: .72; }
+    .layout-option:hover { color: #fff; background: rgba(255,255,255,.16); }
+    .layout-option[aria-pressed="true"] {
+      color: var(--accent-deep);
+      background: #fff;
+      box-shadow: 0 0.125rem 0.375rem rgba(0,0,0,.18);
+    }
+    .layout-option[aria-pressed="true"] i { opacity: .78; }
+    .layout-option:focus-visible { outline: 0.125rem solid #fff; outline-offset: 0.0625rem; }
+
+    /* 状态栏宽度收紧：先舍「排版」文字，再舍两个 DEMO 徽标，最后舍联系电话与时钟 */
+    @media (max-width: 1500px) {
+      .layout-switch .demo-label { display: none; }
+      .status-right { gap: 1.375rem; }
+    }
+    @media (max-width: 1240px) {
+      .status-bar .contact-item { display: none; }
+      .layout-switch .demo-badge { display: none; }
+      .status-right { gap: 1rem; }
+    }
+    @media (max-width: 1120px) {
+      .status-right time { display: none; }
+      .status-bar { font-size: 0.75rem; }
+      .layout-option { min-width: 2.25rem; padding: 0.1875rem 0.25rem; }
+    }
+
     .home-button, .fault-button, .mode-button {
       display: flex;
       align-items: center;
@@ -390,7 +443,12 @@
     }
     .workspace.ad-off .ad-sidebar { display: none; }
     .workspace.ad-off .product-stage { padding: 1.25rem 1.625rem 0; }
-    .workspace.ad-off .product-card { grid-template-rows: 70% 30%; }
+    /* 排版档位：27 吋 6 列时收紧横向间距，给卡片留出更多宽度 */
+    .workspace[data-layout="l27"] .product-page { gap: clamp(0.5rem, .72vw, 0.75rem); }
+    /* 6 列但卡片够宽时（大屏），名称整体降一档，长英文名也能压在两行内 */
+    @container card (min-width: 340px) {
+      .workspace[data-layout="l27"] .product-name { font-size: clamp(0.8125rem, .88vw, 1.0625rem); }
+    }
     /* 多页时左右留出箭头通道，避免箭头压住最后一列商品的「＋」 */
     .product-stage.has-pages { padding-right: 4.625rem; padding-left: 4.625rem; }
     .workspace.ad-off .product-stage.has-pages { padding: 1.25rem 4.625rem 0; }
@@ -426,7 +484,9 @@
     .product-card {
       position: relative;
       display: grid;
-      grid-template-rows: 70% 30%;
+      /* 信息区按内容取高（名称固定预留两行 + 价格），图片区吃掉剩余高度：
+         这样 2 行 / 3 行排版切换时卡片内比例自动平衡，不会把文字挤扁 */
+      grid-template-rows: minmax(0, 1fr) auto;
       width: 100%;
       height: 100%;
       overflow: hidden;
@@ -435,6 +495,9 @@
       background: var(--card-surface);
       box-shadow: 0 0.1875rem 0.75rem rgba(33,73,101,.07);
       animation: card-in .24s ease both;
+      /* 密度自适应：卡片宽度/高度决定名称、价格、按钮的尺寸 */
+      container-type: size;
+      container-name: card;
     }
     @keyframes card-in {
       from { opacity: 0; transform: translateY(0.375rem); }
@@ -592,6 +655,30 @@
     }
     .add-button:active { transform: scale(.94); box-shadow: 0 0.125rem 0.375rem rgba(8,119,201,.24); }
     .add-button svg { width: 50%; height: 50%; stroke-width: 2.4; }
+
+    /* ===== 高密度排版（6 列、3 行）的卡片微调 =====
+       用容器查询而不是视口媒体查询：同一块屏上广告开/关、列数不同，
+       卡片实际宽度会从 344px 变到 215px，各自都要匹配自己的字号。 */
+    @container card (max-width: 310px) {
+      .product-name { font-size: clamp(0.75rem, 1.02vw, 0.9375rem); }
+      .product-price .price-currency { font-size: clamp(0.625rem, .72vw, 0.8125rem); }
+      .product-price .price-amount { font-size: clamp(0.875rem, 1vw, 1.0625rem); }
+      .product-price .price-was { margin-left: 0.3125rem; font-size: clamp(0.6875rem, .78vw, 0.875rem); }
+      .product-info { gap: 0.375rem; padding: 0.4375rem 0.5625rem; }
+      .add-button { width: clamp(1.75rem, 2.1vw, 2.25rem); }
+      .product-tag { top: 0.5rem; left: 0.5rem; height: 1.375rem; padding: 0 0.4375rem; }
+      .product-tag svg { width: 0.75rem; height: 0.75rem; flex-basis: 0.75rem; }
+    }
+    @container card (max-width: 250px) {
+      .product-name { font-size: clamp(0.6875rem, .95vw, 0.875rem); }
+      .product-price .price-was { margin-left: 0.25rem; }
+      .product-info { padding: 0.375rem 0.4375rem; }
+      .add-button { width: 1.75rem; }
+    }
+    /* 极窄卡片（10 吋屏同时开广告、或大屏强行开 6 列）：名称放宽到 3 行，避免长英文名被拦腰截断 */
+    @container card (max-width: 170px) {
+      .product-name { -webkit-line-clamp: 3; min-height: 3.75em; }
+    }
 
     .pagination {
       display: flex;
@@ -1026,6 +1113,15 @@
           <span class="demo-label"><span data-i18n="adLabel">広告</span> <strong id="adState">ON</strong></span>
           <span class="switch-track" aria-hidden="true"><span class="switch-thumb"></span></span>
         </button>
+        <div class="demo-control layout-switch" id="layoutSwitch" role="group" aria-labelledby="layoutSwitchLabel">
+          <span class="demo-badge">DEMO</span>
+          <span class="demo-label" id="layoutSwitchLabel" data-i18n="layoutLabel">レイアウト</span>
+          <span class="layout-options">
+            <button class="layout-option" type="button" data-layout="s10" aria-pressed="true" data-i18n-title="layoutTitleS10" title="10 吋横屏 · 5 × 2 · 10 件/页"><b>10″</b><i>5×2</i></button>
+            <button class="layout-option" type="button" data-layout="m21" aria-pressed="false" data-i18n-title="layoutTitleM21" title="21 吋横屏 · 5 × 3 · 15 件/页"><b>21″</b><i>5×3</i></button>
+            <button class="layout-option" type="button" data-layout="l27" aria-pressed="false" data-i18n-title="layoutTitleL27" title="27 吋横屏 · 6 × 3 · 18 件/页"><b>27″</b><i>6×3</i></button>
+          </span>
+        </div>
         <time class="status-item" datetime="2026-11-04T23:40" data-i18n="date">11月4日 23:40</time>
         <svg width="18" height="16" viewBox="0 0 18 16" fill="currentColor" aria-label="電波状況"><rect x="1" y="11" width="3" height="4" rx="1"/><rect x="6" y="7" width="3" height="8" rx="1"/><rect x="11" y="3" width="3" height="12" rx="1"/></svg>
       </div>
@@ -1163,6 +1259,11 @@
         adLabel: "広告",
         adOn: "広告 ON：{n}商品を表示しています。",
         adOff: "広告 OFF：{n}商品を表示しています。",
+        layoutLabel: "レイアウト",
+        layoutTitleS10: "10 インチ横画面 · 5 × 2 · 1ページ 10 点",
+        layoutTitleM21: "21 インチ横画面 · 5 × 3 · 1ページ 15 点",
+        layoutTitleL27: "27 インチ横画面 · 6 × 3 · 1ページ 18 点",
+        layoutToast: "{diag} インチ · {cols} × {rows} · 1ページ {n} 点",
         date: "11月4日 23:40",
         help: "ヘルプ",
         helpToast: "ヘルプ：係員にお問い合わせください。",
@@ -1250,6 +1351,11 @@
         adLabel: "广告",
         adOn: "广告 开：显示 {n} 件商品。",
         adOff: "广告 关：显示 {n} 件商品。",
+        layoutLabel: "排版",
+        layoutTitleS10: "10 寸横屏 · 5 × 2 · 每页 10 件",
+        layoutTitleM21: "21 寸横屏 · 5 × 3 · 每页 15 件",
+        layoutTitleL27: "27 寸横屏 · 6 × 3 · 每页 18 件",
+        layoutToast: "{diag} 寸 · {cols} × {rows} · 每页 {n} 件",
         date: "11月4日 23:40",
         help: "帮助",
         helpToast: "帮助：请联系现场工作人员。",
@@ -1337,6 +1443,11 @@
         adLabel: "Ads",
         adOn: "Ads ON: showing {n} items.",
         adOff: "Ads OFF: showing {n} items.",
+        layoutLabel: "Layout",
+        layoutTitleS10: "10-inch landscape · 5 × 2 · 10 per page",
+        layoutTitleM21: "21-inch landscape · 5 × 3 · 15 per page",
+        layoutTitleL27: "27-inch landscape · 6 × 3 · 18 per page",
+        layoutToast: "{diag}\" · {cols} × {rows} · {n} per page",
         date: "Nov 4, 23:40",
         help: "Help",
         helpToast: "Help: please contact our staff.",
@@ -1424,6 +1535,11 @@
         adLabel: "광고",
         adOn: "광고 켜짐: {n}개 상품 표시",
         adOff: "광고 꺼짐: {n}개 상품 표시",
+        layoutLabel: "레이아웃",
+        layoutTitleS10: "10인치 가로 · 5 × 2 · 페이지당 10개",
+        layoutTitleM21: "21인치 가로 · 5 × 3 · 페이지당 15개",
+        layoutTitleL27: "27인치 가로 · 6 × 3 · 페이지당 18개",
+        layoutToast: "{diag}인치 · {cols} × {rows} · 페이지당 {n}개",
         date: "11월 4일 23:40",
         help: "도움말",
         helpToast: "도움말: 직원에게 문의해 주세요.",
@@ -1560,9 +1676,20 @@
     const productName = product => t(`products.${product.id}.name`);
     const productDescription = product => t(`products.${product.id}.desc`);
     const previewParams = new URLSearchParams(window.location.search);
+
+    // 排版档位：按目标屏幕尺寸给出「列 × 行」，每页数量 = 列 × 行
+    const LAYOUTS = {
+      s10: { cols: 5, rows: 2, diag: 10 },  // 10 吋横屏：5 × 2 = 10
+      m21: { cols: 5, rows: 3, diag: 21 },  // 21 吋横屏：5 × 3 = 15
+      l27: { cols: 6, rows: 3, diag: 27 }   // 27 吋横屏：6 × 3 = 18
+    };
+    const LAYOUT_ALIASES = { "10": "s10", "21": "m21", "27": "l27", s10: "s10", m21: "m21", l27: "l27" };
+    const initialLayout = LAYOUT_ALIASES[previewParams.get("layout")] || "s10";
+
     const state = {
       category: "all",
       adEnabled: previewParams.get("ad") !== "off",
+      layout: initialLayout,
       cartOpen: previewParams.get("cart") === "open",
       page: 0,
       cart: new Map([[1, 1], [3, 1], [4, 1]]),
@@ -1587,6 +1714,7 @@
     const pageNextButton = document.getElementById("pageNextButton");
     const adToggle = document.getElementById("adToggle");
     const adState = document.getElementById("adState");
+    const layoutSwitch = document.getElementById("layoutSwitch");
     const visibleCount = document.getElementById("visibleCount");
     const cartPanel = document.getElementById("cartPanel");
     const openCartButton = document.getElementById("openCart");
@@ -1611,9 +1739,10 @@
       toastTimer = window.setTimeout(() => toast.classList.remove("show"), 2200);
     }
 
-    // 预包装：广告开启 4 列 × 2 行 = 8 个/页；关闭广告后 5 列 × 2 行 = 10 个/页
+    // 预包装：每页数量完全由排版档位决定（10 / 15 / 18），广告开关只管左侧广告栏的显隐
     function pageSize() {
-      return state.adEnabled ? 8 : 10;
+      const layout = LAYOUTS[state.layout];
+      return layout.cols * layout.rows;
     }
 
     function visibleProducts() {
@@ -1678,20 +1807,23 @@
 
     function renderProducts() {
       workspace.classList.toggle("ad-off", !state.adEnabled);
+      const layout = LAYOUTS[state.layout];
       const perPage = pageSize();
       const pages = pageCount();
       state.page = Math.max(0, Math.min(state.page, pages - 1));
 
+      workspace.dataset.layout = state.layout;
       adToggle.setAttribute("aria-checked", String(state.adEnabled));
       adState.textContent = state.adEnabled ? "ON" : "OFF";
+      layoutSwitch.querySelectorAll("[data-layout]").forEach(button => {
+        button.setAttribute("aria-pressed", String(button.dataset.layout === state.layout));
+      });
 
       const list = visibleProducts();
       productTrack.innerHTML = Array.from({ length: pages }, (_, pageIndex) => {
         const slice = list.slice(pageIndex * perPage, pageIndex * perPage + perPage);
-        // 列数按每页容量决定（而非本页实际件数），保证末页卡片与前面页同尺寸
-        const cols = perPage >= 10 ? 5 : 4;
-        // 固定 2 行，末页不足一页时卡片也不会被拉高
-        const rows = 2;
+        // 列数/行数取自当前档位（而非本页实际件数），保证末页卡片与前面页同尺寸
+        const { cols, rows } = layout;
         return `
         <div class="product-page" style="--cols:${cols};--rows:${rows}">
           ${slice.map((product, index) => productCardMarkup(product, index)).join("")}
@@ -1815,6 +1947,17 @@
       renderProducts();
       const count = Math.min(visibleProducts().length, pageSize());
       showToast(state.adEnabled ? t("adOn", { n: count }) : t("adOff", { n: count }));
+    });
+
+    // 排版档位切换：重置到第一页，并提示当前档位（屏幕尺寸 / 网格 / 每页数量）
+    layoutSwitch.addEventListener("click", event => {
+      const button = event.target.closest("[data-layout]");
+      if (!button || button.dataset.layout === state.layout) return;
+      state.layout = button.dataset.layout;
+      state.page = 0;
+      renderProducts();
+      const layout = LAYOUTS[state.layout];
+      showToast(t("layoutToast", { diag: layout.diag, cols: layout.cols, rows: layout.rows, n: pageSize() }));
     });
 
     slideNext.addEventListener("click", () => goToPage(state.page + 1));
