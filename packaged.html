@@ -826,6 +826,10 @@
       padding: 1.5rem 2.375rem;
       border-bottom: 0.0625rem solid #edf1f4;
     }
+    /* 小屏（10 吋）购物车：左右留白与栏间距收紧，抵消放大后的价格/删除按钮占地，商品名不被省略 */
+    @media (max-width: 1100px) {
+      .cart-item { gap: 0.875rem 1rem; padding: 1.125rem 1.375rem; }
+    }
     .cart-thumb {
       width: 100%;
       height: clamp(5.25rem, 5.9vw, 7.125rem);
@@ -856,17 +860,18 @@
       font-weight: 800;
       white-space: nowrap;
     }
-    .cart-item-variant { margin: 0; color: var(--text-2); font-size: 0.875rem; line-height: 1.45; }
+    /* 购物车条目：第二行分类、价格、删除按钮统一放大一档，触摸屏上更好读也更好点 */
+    .cart-item-variant { margin: 0; color: var(--text-2); font-size: 1rem; line-height: 1.45; }
     .cart-item-tail { display: flex; flex-direction: column; align-items: flex-end; gap: 0.75rem; }
-    .cart-item-price { font-size: 1.125rem; font-weight: 750; letter-spacing: -.01em; white-space: nowrap; }
+    .cart-item-price { font-size: 1.375rem; font-weight: 750; letter-spacing: -.01em; white-space: nowrap; }
     .remove-item {
-      width: 2rem;
-      height: 2rem;
-      border-radius: 0.5625rem;
-      color: #5e7180;
+      width: 2.75rem;
+      height: 2.75rem;
+      border-radius: 0.75rem;
+      color: #4c6172;
     }
     .remove-item:hover { color: var(--accent); background: #f0f6fa; }
-    .remove-item svg { width: 1.125rem; height: 1.125rem; }
+    .remove-item svg { width: 1.5rem; height: 1.5rem; }
     .empty-cart { padding: 4.375rem 1.875rem; color: var(--text-2); text-align: center; }
 
     .cart-footer {
