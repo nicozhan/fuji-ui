@@ -429,6 +429,8 @@
     }
     function productName(item) {
       const names = PRODUCT_NAMES[Number(item.productId)];
+      // 预包装订单没有定制参数，直接使用下单时的商品名，避免被套用成饮品名
+      if (!item.variantData && item.name) return item.name;
       return names && names[language] ? names[language] : (item.name || "Drink");
     }
     function variantLabel(item) {

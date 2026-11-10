@@ -1,0 +1,1936 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fuji Packaged Goods Vending UI</title>
+  <style>
+    :root {
+      --bg: #f4f7fa;
+      --surface: #ffffff;
+      /* 商品卡单层背景：上浅下白，无分界线，透明底饮品直接落在上面 */
+      --card-surface: #ffffff;
+      --surface-2: #eef5fa;
+      --border: #e4ebf0;
+      --text: #102d43;
+      --text-2: #6c7e8c;
+      --accent: #0877c9;
+      --accent-dark: #075b9e;
+      --accent-deep: #064b83;
+      --accent-weak: #e8f4fd;
+      --danger: #8a9aa6;
+      --radius: 0.9375rem;
+      --radius-sm: 0.5rem;
+      --status-h: 3.5rem;
+      --header-h: 6.5rem;
+      --pager-h: 4rem;
+      --grid-gap: 0.75rem;
+      /* 左右区域比例（初始值 35:65）：只改这一个数字，广告区 / 商品区会按比例重排 */
+      --ad-ratio: 35%;
+    }
+
+    /* ===== 视口等比缩放基准 =====
+       设计稿 1920×1080，1rem = 16 设计像素。
+       根字号随视口按 min(宽比, 高比) 缩放，所有尺寸（rem）随之等比变化，
+       因此在 10 吋平板、27 吋大屏上看起来完全一致，只是整体放大/缩小。 */
+    html {
+      font-size: min(100vw / 120, 100vh / 67.5);
+      font-size: min(100vw / 120, 100dvh / 67.5);
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
+    @media (orientation: landscape) {
+      /* 横屏时给字号一个下限：小屏（10 吋平板）上文字不会等比缩到看不清，改为版面更紧凑 */
+      html { font-size: max(12px, min(100vw / 120, 100vh / 67.5)); }
+      html { font-size: max(12px, min(100vw / 120, 100dvh / 67.5)); }
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { margin: 0; min-width: 47.5rem; }
+
+    body {
+      color: var(--text);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Yu Gothic", "Noto Sans JP", "PingFang SC", "Microsoft YaHei", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button { font: inherit; }
+    button, [role="switch"] { -webkit-tap-highlight-color: transparent; }
+    button:focus-visible { outline: 0.1875rem solid rgba(8, 119, 201, .28); outline-offset: 0.1875rem; }
+    .hidden { display: none !important; }
+
+    .vending-app {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100vh;
+      height: 100dvh;
+      min-height: 40rem;
+      overflow: hidden;
+    }
+
+    .status-bar {
+      z-index: 30;
+      display: flex;
+      flex: 0 0 var(--status-h);
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+      padding: 0 1.75rem;
+      color: #fff;
+      background: var(--accent-dark);
+      font-size: 0.8125rem;
+      letter-spacing: .01em;
+    }
+
+    .status-left, .status-right, .status-item, .demo-control {
+      display: flex;
+      align-items: center;
+    }
+
+    .status-left, .status-right { gap: 1.75rem; }
+    .status-item { gap: 0.5rem; white-space: nowrap; }
+    .status-item svg { width: 1rem; height: 1rem; }
+    .machine-id { color: #cfe8f8; }
+    .machine-id strong { color: #fff; font-weight: 600; }
+
+    .demo-control {
+      gap: 0.5625rem;
+      padding: 0.25rem 0.5rem 0.25rem 0.3125rem;
+      border: 0.0625rem solid rgba(255,255,255,.28);
+      border-radius: 62.4375rem;
+      color: #fff;
+      background: rgba(0,0,0,.12);
+      cursor: pointer;
+    }
+
+    .demo-badge {
+      padding: 0.1875rem 0.4375rem;
+      border-radius: 62.4375rem;
+      color: var(--accent-deep);
+      background: #fff;
+      font-size: 0.625rem;
+      font-weight: 800;
+      letter-spacing: .09em;
+    }
+
+    .demo-label { font-size: 0.75rem; }
+    .switch-track {
+      position: relative;
+      width: 2.125rem;
+      height: 1.1875rem;
+      border-radius: 62.4375rem;
+      background: rgba(255,255,255,.32);
+      transition: background .2s ease;
+    }
+    .switch-thumb {
+      position: absolute;
+      top: 0.1875rem;
+      left: 0.1875rem;
+      width: 0.8125rem;
+      height: 0.8125rem;
+      border-radius: 50%;
+      background: #fff;
+      transition: transform .2s ease;
+    }
+    .demo-control[aria-checked="true"] .switch-track { background: #64d7ff; }
+    .demo-control[aria-checked="true"] .switch-thumb { transform: translateX(0.9375rem); }
+
+    .home-button, .fault-button, .mode-button {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.3125rem 0.875rem 0.3125rem 0.6875rem;
+      border: 0.0625rem solid rgba(255,255,255,.34);
+      border-radius: 62.4375rem;
+      color: #fff;
+      background: rgba(255,255,255,.1);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: .02em;
+      cursor: pointer;
+      transition: background .18s ease, border-color .18s ease;
+    }
+    .home-button svg, .fault-button svg, .mode-button svg { width: 0.9375rem; height: 0.9375rem; }
+    .home-button:hover { background: rgba(255,255,255,.22); border-color: rgba(255,255,255,.62); }
+    .home-button:active { background: rgba(255,255,255,.3); }
+    .mode-button:hover { background: rgba(255,255,255,.22); border-color: rgba(255,255,255,.62); }
+    .mode-button:active { background: rgba(255,255,255,.3); }
+    .mode-button.is-active, .mode-button.is-active:hover {
+      border-color: rgba(255,255,255,.7);
+      color: var(--accent-deep);
+      background: #fff;
+    }
+    /* 临时 Demo：进入「暂停服务」画面 */
+    .fault-button {
+      border-color: rgba(255,196,120,.46);
+      color: #ffdda8;
+      background: rgba(224,145,47,.16);
+    }
+    .fault-button:hover { background: rgba(224,145,47,.3); border-color: rgba(255,196,120,.78); }
+    .fault-button:active { background: rgba(224,145,47,.4); }
+
+    .main-header {
+      z-index: 25;
+      display: flex;
+      flex: 0 0 var(--header-h);
+      align-items: center;
+      gap: 1.5rem;
+      padding: 0 2.125rem;
+      border-bottom: 0.0625rem solid var(--border);
+      background: var(--surface);
+    }
+
+    .brand {
+      display: flex;
+      flex: 0 0 auto;
+      align-items: center;
+      gap: 0.625rem;
+      color: #101c26;
+      font-size: 1.25rem;
+      font-weight: 750;
+      white-space: nowrap;
+    }
+    .brand-mark {
+      color: var(--accent);
+      font-size: 1.9375rem;
+      font-style: italic;
+      font-weight: 900;
+      letter-spacing: -.12em;
+      transform: skew(-8deg);
+    }
+
+    .pill-button, .category-button, .language-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5625rem;
+      min-height: 3.25rem;
+      border: 0.0625rem solid var(--border);
+      border-radius: 62.4375rem;
+      color: var(--text);
+      background: var(--surface);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background .18s ease, color .18s ease, border-color .18s ease;
+    }
+    .pill-button { padding: 0 1.4375rem; }
+    .pill-button svg, .language-button svg { width: 1.25rem; height: 1.25rem; }
+    .pill-button:hover { border-color: #b9d9ed; background: var(--accent-weak); }
+
+    .category-nav {
+      display: flex;
+      flex: 1 1 auto;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      min-width: 0;
+    }
+    .category-button {
+      min-width: 8.25rem;
+      padding: 0 1.5rem;
+      /* 触摸屏无悬浮态：默认就带浅蓝底与描边，让用户一眼看出这是可点的按钮 */
+      border-color: #b9d9ed;
+      background: var(--accent-weak);
+      font-size: 1.0625rem;
+      font-weight: 650;
+      transition: background .18s ease, color .18s ease, border-color .18s ease, transform .14s ease;
+    }
+    .category-button svg { width: 1.125rem; height: 1.125rem; }
+    .category-button:hover { border-color: #9ecbe8; background: #ddedfa; }
+    .category-button:active { transform: translateY(0.0625rem); border-color: #8dc3e5; background: #d2e8f8; }
+    .category-button.active,
+    .category-button.active:hover { color: #fff; border-color: var(--accent); background: var(--accent); }
+    .category-button.active:active { transform: translateY(0.0625rem); background: var(--accent-dark); }
+    .category-button .chevron { width: 0.875rem; height: 0.875rem; margin-left: 0.3125rem; }
+    .language-button { flex: 0 0 auto; padding: 0 1.3125rem; }
+    .language-picker { position: relative; display: flex; flex: 0 0 auto; }
+    .language-picker .caret { transition: transform .18s ease; }
+    .language-picker.open .caret { transform: rotate(180deg); }
+    .language-menu {
+      position: absolute;
+      z-index: 70;
+      top: calc(100% + 0.75rem);
+      right: 0;
+      display: none;
+      min-width: 14.125rem;
+      padding: 0.625rem;
+      border: 0.0625rem solid var(--border);
+      border-radius: 1.25rem;
+      background: #fff;
+      box-shadow: 0 1.125rem 2.5rem rgba(16,45,67,.16);
+    }
+    .language-picker.open .language-menu { display: block; }
+    .language-option {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      width: 100%;
+      min-height: 3.5rem;
+      padding: 0 1rem;
+      border: 0;
+      border-radius: 0.8125rem;
+      color: var(--text);
+      background: transparent;
+      font-size: 1rem;
+      font-weight: 600;
+      text-align: left;
+      cursor: pointer;
+    }
+    .language-option:hover { background: var(--accent-weak); }
+    .language-option.active { color: #fff; background: var(--accent); }
+    .language-option .lang-flag { font-size: 1.3125rem; line-height: 1; }
+
+    .workspace {
+      position: relative;
+      display: flex;
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .ad-sidebar {
+      position: relative;
+      /* 左右比例 35 : 65 —— 广告区吃 35%，商品区用剩余空间自适应 */
+      flex: 0 0 var(--ad-ratio);
+      min-width: 0;
+      overflow: hidden;
+      /* 图片按 contain 显示后会留出左右（或上下）留白，用中性底衬住海报 */
+      background: linear-gradient(180deg, #f1f4f7 0%, #e7edf2 55%, #dfe6ec 100%);
+    }
+    .ad-slides {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .ad-slide {
+      position: absolute;
+      inset: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+      /* 只做等比缩放：不拉伸、不裁切，整张海报始终完整可见 */
+      object-fit: contain;
+      object-position: center;
+      opacity: 0;
+      transition: opacity .7s ease;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+    .ad-slide.active { opacity: 1; }
+    .ad-dots {
+      position: absolute;
+      right: 0;
+      bottom: 1.125rem;
+      left: 0;
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      pointer-events: none;
+    }
+    .ad-dots span {
+      width: 0.4375rem;
+      height: 0.4375rem;
+      border-radius: 62.4375rem;
+      background: rgba(255,255,255,.58);
+      box-shadow: 0 0.0625rem 0.3125rem rgba(12,45,70,.35);
+      transition: width .3s ease, background .3s ease;
+    }
+    .ad-dots span.active { width: 1.375rem; background: #fff; }
+
+    .product-stage {
+      position: relative;
+      display: flex;
+      flex: 1 1 auto;
+      flex-direction: column;
+      min-width: 0;
+      min-height: 0;
+      padding: 1.75rem 2rem 0;
+      overflow: hidden;
+    }
+
+    .product-viewport {
+      position: relative;
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .product-track {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      transition: transform .42s cubic-bezier(.22,.8,.28,1);
+      will-change: transform;
+    }
+
+    .product-page {
+      --cols: 5;
+      --rows: 3;
+      display: grid;
+      flex: 0 0 100%;
+      grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+      grid-template-rows: repeat(var(--rows), minmax(0, 1fr));
+      align-content: stretch;
+      justify-content: stretch;
+      justify-items: stretch;
+      gap: var(--grid-gap);
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+    }
+    .workspace.ad-off .ad-sidebar { display: none; }
+    .workspace.ad-off .product-stage { padding: 1.25rem 1.625rem 0; }
+    .workspace.ad-off .product-card { grid-template-rows: 63% 37%; }
+    /* 多页时左右留出箭头通道，避免箭头压住最后一列商品的「＋」 */
+    .product-stage.has-pages { padding-right: 4.625rem; padding-left: 4.625rem; }
+    .workspace.ad-off .product-stage.has-pages { padding: 1.25rem 4.625rem 0; }
+
+    .slide-arrow {
+      position: absolute;
+      z-index: 6;
+      top: calc((100% - var(--pager-h)) / 2);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: clamp(2.75rem, 3vw, 3.5rem);
+      aspect-ratio: 1;
+      padding: 0;
+      border: 0.0625rem solid rgba(255,255,255,.72);
+      border-radius: 50%;
+      color: #fff;
+      background: linear-gradient(135deg, #2b8fd6, #0f6cb0);
+      box-shadow: 0 0.625rem 1.625rem rgba(11,84,140,.3);
+      cursor: pointer;
+      transform: translateY(-50%);
+      transition: opacity .22s ease, transform .22s ease, box-shadow .22s ease;
+    }
+    .slide-arrow.next { right: 0.625rem; }
+    .slide-arrow.prev { left: 0.625rem; }
+    .slide-arrow svg { width: 46%; height: 46%; }
+    .slide-arrow:hover { transform: translateY(-50%) scale(1.07); box-shadow: 0 0.875rem 2rem rgba(11,84,140,.38); }
+    .slide-arrow:disabled { opacity: 0; pointer-events: none; }
+    .product-stage.single-page .slide-arrow { display: none; }
+
+    /* 商品卡：单层背景。饮品是透明底素材，直接呈现在卡片底色上，
+       不再有「图片自带背景 + 卡片背景」双层的方形底板。 */
+    .product-card {
+      position: relative;
+      display: grid;
+      grid-template-rows: 63% 37%;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      border: 0.0625rem solid #e6edf2;
+      border-radius: var(--radius);
+      background: var(--card-surface);
+      box-shadow: 0 0.1875rem 0.75rem rgba(33,73,101,.07);
+      animation: card-in .24s ease both;
+    }
+    @keyframes card-in {
+      from { opacity: 0; transform: translateY(0.375rem); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 商品图区：透明，只负责给主体留出呼吸空间（无独立底色、无圆角、无投影框） */
+    .product-media {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      padding: 0;
+      border: 0;
+      overflow: hidden;
+      container-type: size;
+      background: transparent;
+    }
+    .product-media img {
+      display: block;
+      flex: 0 0 auto;
+      width: 100%;
+      height: 100%;
+      padding: 5% 6% 2%;
+      object-fit: contain;
+      object-position: center center;
+      background: transparent;
+      border-radius: 0;
+      box-shadow: none;
+      filter: drop-shadow(0 0.75rem 1.125rem rgba(24,58,84,.13));
+      transition: transform .25s ease;
+    }
+    .product-card:hover .product-media img { transform: translateY(-2%) scale(1.02); }
+    /* 不同包装形态给出不同的留白：罐/瓶更窄高，袋/盒更饱满 */
+    .product-media img.pack-can, .product-media img.pack-bottle { padding: 2% 12% 2%; }
+    .product-media img.pack-bag { padding: 4% 5% 2%; }
+    .product-media img.pack-box { padding: 5% 4% 2%; }
+    /* Hot / Iced：左上角固定位置、统一尺寸，颜色 + 图标双通道辨识 */
+    .product-tag {
+      position: absolute;
+      z-index: 2;
+      top: 0.75rem;
+      left: 0.75rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.3125rem;
+      box-sizing: border-box;
+      min-width: 0;
+      height: 1.625rem;
+      padding: 0 0.625rem;
+      border-radius: 62.4375rem;
+      color: #fff;
+      font-size: clamp(0.625rem, .62vw, 0.8125rem);
+      font-weight: 700;
+      line-height: 1;
+      box-shadow: 0 0.25rem 0.625rem rgba(0,0,0,.14), inset 0 0.0625rem 0 rgba(255,255,255,.28);
+    }
+    .product-tag svg { width: 0.875rem; height: 0.875rem; flex: 0 0 0.875rem; }
+    .product-tag.is-hot { background: linear-gradient(135deg, #ffa154, #ea6a18); }
+    .product-tag.is-new { background: linear-gradient(135deg, #58c98d, #1c9a5f); }
+    .product-tag.is-popular { background: linear-gradient(135deg, #b39df5, #7a4fd6); }
+    .product-tag.is-cold { background: linear-gradient(135deg, #57b7ef, #147cc7); }
+
+    /* 信息区：左「名称 / 价格」两行，右圆形加购按钮 */
+    .product-info {
+      z-index: 2;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: clamp(0.5rem, .8vw, 1rem);
+      min-height: 0;
+      padding: clamp(0.5rem, .78vw, 0.9375rem) clamp(0.6875rem, 1vw, 1.1875rem);
+      background: transparent;
+    }
+    .product-copy {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 0.3125rem;
+      min-width: 0;
+    }
+    /* 阅读层级：名称（加粗加大） > 价格（品牌蓝独立一行） > 加购按钮 */
+    .product-name {
+      overflow: hidden;
+      margin: 0;
+      color: #102d43;
+      display: -webkit-box;
+      font-size: clamp(0.875rem, 1.02vw, 1.25rem);
+      font-weight: 750;
+      letter-spacing: -.008em;
+      line-height: 1.25;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      white-space: normal;
+    }
+    .product-price {
+      display: flex;
+      align-items: baseline;
+      gap: 0.125rem;
+      margin: 0;
+      color: var(--accent);
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+      white-space: nowrap;
+    }
+    .product-price .price-currency {
+      font-size: clamp(0.6875rem, .8vw, 0.9375rem);
+      font-weight: 750;
+      opacity: .92;
+    }
+    .product-price .price-amount {
+      font-size: clamp(1rem, 1.14vw, 1.3125rem);
+      letter-spacing: .004em;
+    }
+    /* 加购按钮：统一圆形 + 品牌蓝描边，视觉更突出 */
+    .add-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: clamp(2.125rem, 2.5vw, 2.875rem);
+      aspect-ratio: 1;
+      padding: 0;
+      border: 0.125rem solid var(--accent);
+      border-radius: 50%;
+      color: var(--accent);
+      background: #fff;
+      box-shadow: 0 0.25rem 0.75rem rgba(8,119,201,.16);
+      cursor: pointer;
+      transition: color .18s ease, background .18s ease, box-shadow .18s ease, transform .14s ease;
+    }
+    .add-button:hover {
+      color: #fff;
+      background: var(--accent);
+      box-shadow: 0 0.5rem 1.125rem rgba(8,119,201,.32);
+      transform: translateY(-0.0625rem);
+    }
+    .add-button:active { transform: scale(.94); box-shadow: 0 0.125rem 0.375rem rgba(8,119,201,.24); }
+    .add-button svg { width: 50%; height: 50%; stroke-width: 2.4; }
+
+    .pagination {
+      display: flex;
+      flex: 0 0 var(--pager-h);
+      align-items: center;
+      justify-content: center;
+      gap: 0.625rem;
+      color: var(--text-2);
+      font-size: 0.8125rem;
+    }
+    .page-numbers { display: inline-flex; align-items: center; gap: 0.625rem; }
+    .page-nav,
+    .page-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 2.75rem;
+      height: 2.625rem;
+      padding: 0 0.875rem;
+      border: 0.0625rem solid #c6dbe8;
+      border-radius: 0.75rem;
+      color: var(--accent-dark);
+      background: linear-gradient(180deg, #ffffff, #f2f8fc);
+      box-shadow: 0 0.1875rem 0.5rem rgba(24,66,96,.09), inset 0 0.0625rem 0 #fff;
+      font-size: 0.9375rem;
+      font-weight: 750;
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+      cursor: pointer;
+      transition: color .16s ease, background .16s ease, border-color .16s ease, box-shadow .16s ease, transform .16s ease;
+    }
+    .page-nav:hover:not(:disabled),
+    .page-number:hover:not(.active) {
+      border-color: var(--accent);
+      color: var(--accent);
+      transform: translateY(-0.125rem);
+      box-shadow: 0 0.5625rem 1.125rem rgba(8,119,201,.2);
+    }
+    .page-nav:active:not(:disabled),
+    .page-number:active:not(.active) { transform: translateY(0); box-shadow: 0 0.125rem 0.375rem rgba(8,119,201,.14); }
+    .page-number.active {
+      border-color: transparent;
+      color: #fff;
+      background: linear-gradient(135deg, #2f95da, #0e6bad);
+      box-shadow: 0 0.5rem 1.25rem rgba(8,119,201,.32), inset 0 0.0625rem 0 rgba(255,255,255,.28);
+    }
+    .page-nav:disabled { opacity: .38; cursor: not-allowed; box-shadow: none; background: #f5f9fc; }
+    .page-nav svg { width: 1.125rem; height: 1.125rem; }
+    .page-summary { margin-left: 0.875rem; color: var(--text-2); font-size: 0.875rem; white-space: nowrap; }
+    /* 小屏（10 吋平板）上翻页行右侧会让出悬浮购物车按钮的位置，避免摘要被按钮压住 */
+    @media (max-width: 1100px) {
+      .pagination { padding-right: 4rem; }
+    }
+
+    .cart-panel {
+      position: absolute;
+      z-index: 20;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      flex-direction: column;
+      width: clamp(24.375rem, 34.8vw, 41.75rem);
+      overflow: hidden;
+      border-left: 0.0625rem solid rgba(7,91,158,.1);
+      border-radius: 1.375rem 0 0 1.375rem;
+      background: var(--surface);
+      box-shadow: -0.875rem 0 2.375rem rgba(21,54,77,.15);
+      transform: translateX(0);
+      transition: transform .28s ease;
+    }
+    .cart-panel.closed { pointer-events: none; transform: translateX(calc(100% + 1.875rem)); }
+    .cart-header {
+      display: flex;
+      flex: 0 0 6.25rem;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2.375rem;
+      color: #fff;
+      background: var(--accent-dark);
+    }
+    .cart-title { display: flex; align-items: center; gap: 0.8125rem; margin: 0; font-size: 1.625rem; font-weight: 720; }
+    .cart-title > svg { width: 1.6875rem; height: 1.6875rem; }
+    .cart-count {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 1.8125rem;
+      height: 1.8125rem;
+      padding: 0 0.5rem;
+      border-radius: 62.4375rem;
+      color: var(--accent-dark);
+      background: #fff;
+      font-size: 0.9375rem;
+      font-weight: 800;
+    }
+    .close-cart, .remove-item {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+    }
+    .close-cart { width: 2.5rem; height: 2.5rem; color: #fff; }
+    .close-cart svg { width: 1.625rem; height: 1.625rem; }
+
+    .cart-items { flex: 1 1 auto; min-height: 0; overflow-y: hidden; scroll-behavior: smooth; }
+    .cart-items.scrollable { overflow-y: auto; }
+    @keyframes cart-item-pop {
+      0% { background: #dcecf9; box-shadow: inset 0.1875rem 0 0 var(--accent); }
+      70% { background: #eef6fc; box-shadow: inset 0.1875rem 0 0 var(--accent); }
+      100% { background: transparent; box-shadow: inset 0.1875rem 0 0 transparent; }
+    }
+    .cart-item.is-new { animation: cart-item-pop 1.6s ease-out both; }
+    .cart-item {
+      display: grid;
+      grid-template-columns: clamp(5.25rem, 5.9vw, 7.125rem) minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 1rem 1.375rem;
+      padding: 1.5rem 2.375rem;
+      border-bottom: 0.0625rem solid #edf1f4;
+    }
+    .cart-thumb {
+      width: 100%;
+      height: clamp(5.25rem, 5.9vw, 7.125rem);
+      aspect-ratio: 1 / 1;
+      object-fit: contain;
+      border-radius: 0;
+      background: transparent;
+      filter: drop-shadow(0 0.25rem 0.5rem rgba(24,58,84,.12));
+    }
+    .cart-item-main { min-width: 0; }
+    .cart-item-name {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+      margin: 0 0 0.5625rem;
+      font-size: 1.1875rem;
+      font-weight: 750;
+      line-height: 1.25;
+    }
+    .cart-item-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cart-item-qty {
+      flex: none;
+      padding: 0.1875rem 0.625rem;
+      border-radius: 62.4375rem;
+      color: var(--accent-dark);
+      background: #eaf2fa;
+      font-size: 0.8125rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .cart-item-variant { margin: 0; color: var(--text-2); font-size: 0.875rem; line-height: 1.45; }
+    .cart-item-tail { display: flex; flex-direction: column; align-items: flex-end; gap: 0.75rem; }
+    .cart-item-price { font-size: 1.125rem; font-weight: 750; letter-spacing: -.01em; white-space: nowrap; }
+    .remove-item {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 0.5625rem;
+      color: #5e7180;
+    }
+    .remove-item:hover { color: var(--accent); background: #f0f6fa; }
+    .remove-item svg { width: 1.125rem; height: 1.125rem; }
+    .empty-cart { padding: 4.375rem 1.875rem; color: var(--text-2); text-align: center; }
+
+    .cart-footer {
+      flex: 0 0 auto;
+      padding: 1.5625rem 2.375rem 2.125rem;
+      border-top: 0.0625rem solid var(--border);
+      background: #fff;
+    }
+    .cart-total-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.4375rem; }
+    .cart-total-label { font-size: 1.1875rem; font-weight: 650; }
+    .cart-total { font-size: 2.125rem; font-weight: 800; letter-spacing: -.02em; }
+    .checkout-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1.125rem;
+      width: 100%;
+      min-height: 4rem;
+      border: 0;
+      border-radius: 62.4375rem;
+      color: #fff;
+      background: var(--accent);
+      font-size: 1.0625rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .checkout-button:hover { background: var(--accent-dark); }
+    .checkout-button svg { width: 1.3125rem; height: 1.3125rem; }
+
+    .open-cart-button {
+      position: absolute;
+      z-index: 15;
+      right: 1.75rem;
+      bottom: 1.375rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.625rem;
+      min-height: 3.25rem;
+      padding: 0 1.5rem;
+      border: 0;
+      border-radius: 62.4375rem;
+      color: #fff;
+      background: var(--accent);
+      box-shadow: 0 0.5rem 1.25rem rgba(8,119,201,.22);
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: .01em;
+      cursor: pointer;
+    }
+    .open-cart-button svg { width: 1.3125rem; height: 1.3125rem; }
+    .open-cart-button .cart-count { min-width: 1.75rem; height: 1.75rem; font-size: 1rem; color: var(--accent); }
+
+    .product-media {
+      padding: 0;
+      border: 0;
+      color: inherit;
+      cursor: pointer;
+    }
+
+    .sheet-control {
+      position: absolute;
+      top: 1rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 4rem;
+      height: 4rem;
+      padding: 0;
+      border: 0.0625rem solid #d9e6ed;
+      border-radius: 50%;
+      color: var(--accent-dark);
+      background: #fff;
+      cursor: pointer;
+    }
+    .sheet-control:hover { background: var(--accent-weak); }
+    .sheet-control.collapse { left: 2.75rem; }
+    .sheet-control.close { right: 2.75rem; }
+    .sheet-control svg { width: 1.875rem; height: 1.875rem; }
+    .option-row { padding: 0.5rem 0 1.375rem; border-bottom: 0.0625rem solid var(--border); }
+    .option-row:last-child { padding-bottom: 0.5rem; border-bottom: 0; }
+    .option-label { display: block; margin-bottom: 1rem; font-size: 1.125rem; font-weight: 700; }
+    .option-buttons { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+    .option-button {
+      min-width: 6.75rem;
+      min-height: 3.25rem;
+      padding: 0 1.4375rem;
+      border: 0.0625rem solid #cedfe8;
+      border-radius: 62.4375rem;
+      color: var(--text);
+      background: #fff;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    .option-button:hover { border-color: var(--accent); }
+    .option-button.active { border-color: var(--accent); color: #fff; background: var(--accent); }
+    .add-order-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5rem;
+      width: 21.875rem;
+      min-height: 4.5rem;
+      border: 0;
+      border-radius: 62.4375rem;
+      color: #fff;
+      background: var(--accent);
+      font-size: 1.25rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .add-order-button:hover { background: var(--accent-dark); }
+    .add-order-button svg { width: 1.5rem; height: 1.5rem; }
+
+    /* 单笔订单上限：仅一行文字的轻提示，不遮挡操作，3 秒自动关闭 */
+    .order-limit-layer {
+      position: fixed;
+      z-index: 80;
+      top: 50%;
+      left: 50%;
+      display: flex;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, -46%);
+      transition: opacity .2s ease, transform .24s cubic-bezier(.22,.8,.28,1);
+    }
+    .order-limit-layer.show { opacity: 1; transform: translate(-50%, -50%); }
+    .order-limit-notice {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      max-width: 92vw;
+      padding: 0.9375rem 2rem;
+      border-radius: 62.4375rem;
+      background: rgba(255,255,255,.98);
+      box-shadow: 0 1rem 2.5rem rgba(9,38,58,.2);
+      white-space: nowrap;
+    }
+    .order-limit-icon {
+      display: inline-flex;
+      flex: 0 0 auto;
+      align-items: center;
+      justify-content: center;
+      width: 1.875rem;
+      height: 1.875rem;
+      color: #d98510;
+    }
+    .order-limit-icon svg { width: 1.75rem; height: 1.75rem; }
+    .order-limit-text {
+      margin: 0;
+      color: var(--text);
+      font-size: 1.375rem;
+      font-weight: 680;
+      line-height: 1.3;
+      letter-spacing: -.005em;
+    }
+    .toast {
+      position: fixed;
+      z-index: 60;
+      bottom: 1.5rem;
+      left: 50%;
+      max-width: min(32.5rem, 80vw);
+      padding: 0.75rem 1.25rem;
+      border-radius: 62.4375rem;
+      color: #fff;
+      background: rgba(16,45,67,.94);
+      box-shadow: 0 0.5rem 1.5rem rgba(16,45,67,.18);
+      font-size: 0.8125rem;
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, 0.625rem);
+      transition: opacity .2s ease, transform .2s ease;
+    }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; }
+    }
+
+    /* 竖屏兜底：本界面只提供横屏布局，设备竖放时提示旋转，而不是重排成竖版 */
+    .landscape-guard { display: none; }
+    @media (orientation: portrait) and (max-aspect-ratio: 1 / 1) {
+      .landscape-guard {
+        position: fixed;
+        inset: 0;
+        z-index: 220;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2.4vw;
+        padding: 8vw;
+        background: var(--bg);
+        color: var(--text);
+        text-align: center;
+      }
+      .landscape-guard svg { width: 16vw; height: 16vw; color: var(--accent); }
+      .landscape-guard-title { margin: 0; font-size: 5vw; font-weight: 800; letter-spacing: -.01em; }
+      .landscape-guard-text { margin: 0; max-width: 62vw; color: var(--text-2); font-size: 3.4vw; line-height: 1.6; }
+    }
+  </style>
+</head>
+<body>
+  <div class="landscape-guard" role="alert">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <rect x="2.5" y="6.5" width="19" height="11" rx="2.4"/>
+      <path d="M8.5 3.6A8.6 8.6 0 0 1 12 1.6"/>
+      <path d="M10.4 1.4 12.6 1.6 11.6 3.7"/>
+    </svg>
+    <p class="landscape-guard-title" data-i18n="rotateTitle"></p>
+    <p class="landscape-guard-text" data-i18n="rotateText"></p>
+  </div>
+  <main class="vending-app" aria-label="Fuji Electric 自動販売機">
+    <section class="status-bar" aria-label="マシン情報">
+      <div class="status-left">
+        <div class="status-item machine-id">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="5" y="2.5" width="14" height="19" rx="3"/><path d="M9 6h6M9 18h6"/></svg>
+          <span>Machine ID：<strong>fuji12345678</strong></span>
+        </div>
+        <div class="status-item contact-item">
+          <span><span data-i18n="contact">お問い合わせ</span>：800-1234-5678</span>
+        </div>
+      </div>
+      <div class="status-right">
+        <button class="home-button" id="demoHomeButton" type="button" data-i18n-aria="homeAria" data-i18n-title="homeAria" aria-label="ホームに戻る" title="ホームに戻る（Demo）">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 10.6 12 3.6l8.5 7"/><path d="M5.6 9.9V20h12.8V9.9"/></svg>
+          <span data-i18n="home">Home</span>
+        </button>
+        <button class="mode-button" id="modeDrinksButton" type="button" data-i18n-aria="drinksAria" data-i18n-title="drinksAria" aria-label="ドリンク販売画面へ" title="ドリンク（Demo）">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3h10l-1 18H8L7 3ZM8 9h8"/></svg>
+          <span data-i18n="drinksMode">ドリンク</span>
+        </button>
+        <button class="mode-button is-active" id="modePackagedButton" type="button" data-i18n-aria="packagedAria" data-i18n-title="packagedAria" aria-current="page" aria-label="包装商品画面" title="包装商品（Demo）">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 21 8v8l-9 5-9-5V8l9-5Z"/><path d="m3 8 9 5 9-5M12 13v8"/></svg>
+          <span data-i18n="packaged">包装商品</span>
+        </button>
+        <button class="fault-button" id="demoFaultButton" type="button" data-i18n-aria="faultAria" data-i18n-title="faultAria" aria-label="故障画面を表示" title="故障（Demo）">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.6 21 19.4H3L12 3.6Z"/><path d="M12 9.6v4.3M12 16.9h.01"/></svg>
+          <span data-i18n="fault">故障</span>
+        </button>
+        <button class="demo-control" id="adToggle" type="button" role="switch" aria-checked="true" aria-label="左側広告を切り替える">
+          <span class="demo-badge">DEMO</span>
+          <span class="demo-label"><span data-i18n="adLabel">広告</span> <strong id="adState">ON</strong></span>
+          <span class="switch-track" aria-hidden="true"><span class="switch-thumb"></span></span>
+        </button>
+        <time class="status-item" datetime="2026-11-04T23:40" data-i18n="date">11月4日 23:40</time>
+        <svg width="18" height="16" viewBox="0 0 18 16" fill="currentColor" aria-label="電波状況"><rect x="1" y="11" width="3" height="4" rx="1"/><rect x="6" y="7" width="3" height="8" rx="1"/><rect x="11" y="3" width="3" height="12" rx="1"/></svg>
+      </div>
+    </section>
+
+    <header class="main-header">
+      <div class="brand" aria-label="Fuji Electric">
+        <span class="brand-mark">FE</span>
+        <span class="brand-name">Fuji Electric</span>
+      </div>
+      <button class="pill-button" type="button" data-toast="ヘルプ：係員にお問い合わせください。" data-i18n-toast="helpToast">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.8 9a2.3 2.3 0 1 1 3.3 2.1c-.8.4-1.1.9-1.1 1.9M12 16.8h.01"/></svg>
+        <span class="help-label" data-i18n="help">ヘルプ</span>
+      </button>
+      <nav class="category-nav" aria-label="商品カテゴリー">
+        <button class="category-button active" type="button" data-category="all" data-label-key="categories.all" aria-current="page">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.3-5.7L4 8.6M4 4v4.6h4.6"/></svg>
+          <span data-i18n="categories.all">すべて</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+        </button>
+        <button class="category-button" type="button" data-category="drinks" data-label-key="categories.drinks">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M7 3h10l-1 18H8L7 3ZM8 9h8"/></svg>
+          <span data-i18n="categories.drinks">ドリンク</span>
+        </button>
+        <button class="category-button" type="button" data-category="snacks" data-label-key="categories.snacks">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="m5 4 14 0-2 16H7L5 4ZM5 8h14"/></svg>
+          <span data-i18n="categories.snacks">スナック</span>
+        </button>
+        <button class="category-button" type="button" data-category="bakery" data-label-key="categories.bakery">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 13a8 8 0 0 1 16 0v5H4v-5ZM9 12v3M15 12v3"/></svg>
+          <span data-i18n="categories.bakery">ベーカリー</span>
+        </button>
+        <button class="category-button" type="button" data-category="others" data-label-key="categories.others">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3 21 8v8l-9 5-9-5V8l9-5Z"/></svg>
+          <span data-i18n="categories.others">その他</span>
+        </button>
+      <div class="language-picker" id="languagePicker">
+        <button class="language-button" id="languageButton" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="言語">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
+          <span id="languageLabel">日本語</span>
+          <svg class="caret" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m7 9 5 5 5-5"/></svg>
+        </button>
+        <div class="language-menu" id="languageMenu" role="listbox" aria-label="言語">
+          <button class="language-option" type="button" role="option" data-set-language="ja"><span class="lang-flag" aria-hidden="true">🇯🇵</span>日本語</button>
+          <button class="language-option" type="button" role="option" data-set-language="zh"><span class="lang-flag" aria-hidden="true">🇨🇳</span>简体中文</button>
+          <button class="language-option" type="button" role="option" data-set-language="en"><span class="lang-flag" aria-hidden="true">🇺🇸</span>English</button>
+          <button class="language-option" type="button" role="option" data-set-language="ko"><span class="lang-flag" aria-hidden="true">🇰🇷</span>한국어</button>
+        </div>
+      </div>
+    </header>
+
+    <section class="workspace" id="workspace" aria-label="商品選択エリア">
+      <aside class="ad-sidebar" id="adSidebar" aria-label="コーヒー広告">
+        <div class="ad-slides" id="adSlides">
+          <img class="ad-slide active" src="assets/ad-poster-1.jpg" alt="こだわりのコーヒー体験" width="848" height="1855" fetchpriority="high">
+          <img class="ad-slide" src="assets/ad-poster-2.jpg" alt="上島珈琲店のこだわりの一杯" width="848" height="1855">
+        </div>
+        <div class="ad-dots" aria-hidden="true"><span class="active"></span><span></span></div>
+      </aside>
+
+      <div class="product-stage" id="productStage">
+        <div class="product-viewport">
+          <div class="product-track" id="productTrack" aria-live="polite"></div>
+        </div>
+        <button class="slide-arrow prev" id="slidePrev" type="button" data-i18n-aria="slidePrev" aria-label="前の商品を見る">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m14.5 5.5-7 6.5 7 6.5"/></svg>
+        </button>
+        <button class="slide-arrow next" id="slideNext" type="button" data-i18n-aria="slideNext" aria-label="次の商品を見る">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9.5 5.5 7 6.5-7 6.5"/></svg>
+        </button>
+        <div class="pagination" role="group" aria-label="ページネーション">
+          <button class="page-nav prev" id="pagePrevButton" type="button" data-i18n-aria="prevPage" aria-label="前のページ">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg>
+          </button>
+          <div class="page-numbers" id="pageNumbers"></div>
+          <button class="page-nav next" id="pageNextButton" type="button" data-i18n-aria="nextPage" aria-label="次のページ">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+          </button>
+          <span class="page-summary"><span id="pageSummary">1 / 1</span>　<span id="visibleCount">6商品</span></span>
+        </div>
+      </div>
+
+      <aside class="cart-panel" id="cartPanel" aria-label="ショッピングカート">
+        <div class="cart-header">
+          <h2 class="cart-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 4h2l2.2 11.2a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 2-1.6L20 8H6M10 21h.01M17 21h.01"/></svg>
+            <span data-i18n="cart">カート</span> <span class="cart-count" data-cart-count>3</span>
+          </h2>
+          <button class="close-cart" id="closeCart" type="button" data-i18n-aria="cartClose" aria-label="カートを閉じる">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+          </button>
+        </div>
+        <div class="cart-items" id="cartItems"></div>
+        <div class="cart-footer">
+          <div class="cart-total-row">
+            <span class="cart-total-label" id="cartTotalLabel">合計（<span data-cart-count>3</span>点）</span>
+            <strong class="cart-total" id="cartTotal">¥1,000</strong>
+          </div>
+          <button class="checkout-button" id="checkoutButton" type="button">
+            <span data-i18n="checkout">注文に進む</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 12h15M14 7l5 5-5 5"/></svg>
+          </button>
+        </div>
+      </aside>
+
+      <button class="open-cart-button hidden" id="openCart" type="button" data-i18n-aria="cartOpen" aria-label="カートを開く">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 4h2l2.2 11.2a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 2-1.6L20 8H6M10 21h.01M17 21h.01"/></svg>
+        <span data-i18n="cart">カート</span> <span class="cart-count" data-cart-count>3</span>
+      </button>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <div class="order-limit-layer" id="orderLimitLayer" role="status" aria-live="assertive" hidden>
+    <div class="order-limit-notice">
+      <span class="order-limit-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.4v5.6M12 16.7h.01"/></svg>
+      </span>
+      <p class="order-limit-text" id="orderLimitText">已达单笔订单上限，单笔最多 3 件商品</p>
+    </div>
+  </div>
+
+  <script>
+    const I18N = {
+      ja: {
+        langName: "日本語",
+        contact: "お問い合わせ",
+        home: "ホーム",
+        homeAria: "ホームに戻る",
+        fault: "故障",
+        faultAria: "故障画面を表示（Demo）",
+        rotateTitle: "横画面でご利用ください",
+        rotateText: "この画面は横向き専用です。端末を回転してご利用ください。",
+        adLabel: "広告",
+        adOn: "広告 ON：{n}商品を表示しています。",
+        adOff: "広告 OFF：{n}商品を表示しています。",
+        date: "11月4日 23:40",
+        help: "ヘルプ",
+        helpToast: "ヘルプ：係員にお問い合わせください。",
+        categories: { all: "すべて", drinks: "ドリンク", snacks: "スナック", bakery: "ベーカリー", others: "その他" },
+        tags: { cold: "冷蔵", hot: "ホット", new: "新商品", popular: "人気" },
+        packaged: "包装商品",
+        packagedAria: "包装商品画面（現在）",
+        drinksMode: "ドリンク",
+        drinksAria: "ドリンク販売画面へ切り替える",
+        categoryToast: "{name}：{n}件を表示しています。",
+        items: "{n}商品",
+        pageOf: "{current} / {total}",
+        pageNumber: "ページ {n}",
+        slidePrev: "前の商品を見る",
+        slideNext: "次の商品を見る",
+        prevPage: "前のページ",
+        nextPage: "次のページ",
+        firstPage: "最初のページです。",
+        demoPage: "デモでは1ページ目を表示しています。",
+        cart: "カート",
+        cartOpen: "カートを開く",
+        cartClose: "カートを閉じる",
+        cartTotal: "合計（{n}点）",
+        checkout: "注文に進む",
+        emptyCart: "カートに商品がありません。<br>商品の「＋」から追加してください。",
+        selectProduct: "商品を選択してください。",
+        added: "{name}をカートに追加しました。",
+        addedCustom: "{name} × {qty}を注文に追加しました。",
+        limitReached: "1回のご注文は最大 {max} 点までです",
+        customizeAria: "{name}をカスタマイズ",
+        addAria: "{name}をカートに追加",
+        removeAria: "{name}を削除",
+        qtyAria: "{name}の数量",
+        decrease: "数量を減らす",
+        increase: "数量を増やす",
+        languageMenu: "言語",
+        customize: {
+          title: "カスタマイズ", collapse: "パネルを閉じる", close: "カスタマイズを終了",
+          temperature: "温度", size: "杯型", sweetness: "甘さ", milk: "ミルク",
+          quantity: "数量", total: "合計", submit: "注文に追加"
+        },
+        temperature: { hot: "ホット", iced: "アイス" },
+        size: { small: "スモール", medium: "レギュラー", large: "ラージ", regular: "レギュラー" },
+        sweetness: { none: "無糖", light: "微糖", half: "半糖", less: "甘さ控えめ", standard: "標準" },
+        milk: { milk: "ミルク", lowfat: "低脂肪乳", oat: "オーツミルク", soy: "豆乳" },
+        products: {
+          1: { name: "コーラ" },
+          2: { name: "レモンライムソーダ" },
+          3: { name: "オレンジソーダ" },
+          4: { name: "ミネラルウォーター" },
+          5: { name: "緑茶" },
+          6: { name: "オレンジジュース" },
+          7: { name: "エナジードリンク" },
+          8: { name: "炭酸水" },
+          9: { name: "アイスレモンティー" },
+          10: { name: "ポテトチップス うす塩" },
+          11: { name: "ポテトチップス のり" },
+          12: { name: "スパイシーコーンチップス" },
+          13: { name: "チョコレートバー" },
+          14: { name: "クリームサンドクッキー" },
+          15: { name: "クラッカー" },
+          16: { name: "ミックスナッツ" },
+          17: { name: "ポップコーン" },
+          18: { name: "グミキャンディ" },
+          19: { name: "ジャムパン" },
+          20: { name: "ロールケーキ" },
+          21: { name: "サンドイッチ" },
+          22: { name: "食パン" },
+          23: { name: "おにぎり" },
+          24: { name: "カップヌードル" },
+          25: { name: "プロテインバー" },
+          26: { name: "クロワッサン" },
+          27: { name: "ヨーグルト" },
+        }
+      },
+      zh: {
+        langName: "简体中文",
+        contact: "联系我们",
+        home: "首页",
+        homeAria: "返回首页",
+        fault: "故障",
+        faultAria: "显示故障页面（Demo）",
+        rotateTitle: "请横屏使用",
+        rotateText: "本界面为横屏布局，请将设备旋转至横向后使用。",
+        adLabel: "广告",
+        adOn: "广告 开：显示 {n} 件商品。",
+        adOff: "广告 关：显示 {n} 件商品。",
+        date: "11月4日 23:40",
+        help: "帮助",
+        helpToast: "帮助：请联系现场工作人员。",
+        categories: { all: "全部", drinks: "饮料", snacks: "零食", bakery: "烘焙", others: "其他" },
+        tags: { cold: "冷饮", hot: "热食", new: "新品", popular: "热卖" },
+        packaged: "预包装",
+        packagedAria: "预包装商品页（当前）",
+        drinksMode: "饮品",
+        drinksAria: "切换到饮品售卖页",
+        categoryToast: "{name}：共 {n} 件商品。",
+        items: "{n} 件商品",
+        pageOf: "{current} / {total}",
+        pageNumber: "第 {n} 页",
+        slidePrev: "查看前面的商品",
+        slideNext: "查看后面的商品",
+        prevPage: "上一页",
+        nextPage: "下一页",
+        firstPage: "已经是第一页。",
+        demoPage: "演示中仅展示第 1 页。",
+        cart: "购物车",
+        cartOpen: "打开购物车",
+        cartClose: "关闭购物车",
+        cartTotal: "合计（{n} 件）",
+        checkout: "去结算",
+        emptyCart: "购物车中还没有商品。<br>点击商品的「＋」即可添加。",
+        selectProduct: "请先选择商品。",
+        added: "已将{name}加入购物车。",
+        addedCustom: "已添加 {name} × {qty}。",
+        limitReached: "已达单笔订单上限，单笔最多 {max} 件商品",
+        customizeAria: "定制{name}",
+        addAria: "将{name}加入购物车",
+        removeAria: "删除{name}",
+        qtyAria: "{name}的数量",
+        decrease: "减少数量",
+        increase: "增加数量",
+        languageMenu: "语言",
+        customize: {
+          title: "定制饮品", collapse: "收起定制面板", close: "关闭并取消本次修改",
+          temperature: "温度", size: "杯型", sweetness: "甜度", milk: "奶类",
+          quantity: "数量", total: "合计", submit: "加入订单"
+        },
+        temperature: { hot: "热饮", iced: "冷饮" },
+        size: { small: "小杯", medium: "中杯", large: "大杯", regular: "标准杯" },
+        sweetness: { none: "无糖", light: "微糖", half: "半糖", less: "少糖", standard: "标准糖" },
+        milk: { milk: "牛奶", lowfat: "低脂奶", oat: "燕麦奶", soy: "豆奶" },
+        products: {
+          1: { name: "可乐" },
+          2: { name: "柠檬汽水" },
+          3: { name: "橙子汽水" },
+          4: { name: "矿泉水" },
+          5: { name: "绿茶" },
+          6: { name: "橙汁" },
+          7: { name: "能量饮料" },
+          8: { name: "气泡水" },
+          9: { name: "冰柠檬茶" },
+          10: { name: "原味薯片" },
+          11: { name: "海苔薯片" },
+          12: { name: "辣味玉米片" },
+          13: { name: "巧克力棒" },
+          14: { name: "奶油夹心饼干" },
+          15: { name: "苏打饼干" },
+          16: { name: "混合坚果" },
+          17: { name: "爆米花" },
+          18: { name: "果汁软糖" },
+          19: { name: "果酱面包" },
+          20: { name: "蛋糕卷" },
+          21: { name: "三明治" },
+          22: { name: "吐司面包" },
+          23: { name: "饭团" },
+          24: { name: "杯面" },
+          25: { name: "蛋白棒" },
+          26: { name: "牛角包" },
+          27: { name: "酸奶" },
+        }
+      },
+      en: {
+        langName: "English",
+        contact: "Contact",
+        home: "Home",
+        homeAria: "Back to home",
+        fault: "Fault",
+        faultAria: "Show out-of-service screen (Demo)",
+        rotateTitle: "Please rotate to landscape",
+        rotateText: "This screen is built for landscape orientation. Please rotate your device.",
+        adLabel: "Ads",
+        adOn: "Ads ON: showing {n} items.",
+        adOff: "Ads OFF: showing {n} items.",
+        date: "Nov 4, 23:40",
+        help: "Help",
+        helpToast: "Help: please contact our staff.",
+        categories: { all: "All", drinks: "Drinks", snacks: "Snacks", bakery: "Bakery", others: "Others" },
+        tags: { cold: "Cold", hot: "Hot", new: "New", popular: "Popular" },
+        packaged: "Packaged",
+        packagedAria: "Packaged products screen (current)",
+        drinksMode: "Drinks",
+        drinksAria: "Switch to the drinks screen",
+        categoryToast: "{name}: {n} items.",
+        items: "{n} items",
+        pageOf: "{current} / {total}",
+        pageNumber: "Page {n}",
+        slidePrev: "Previous products",
+        slideNext: "Next products",
+        prevPage: "Previous page",
+        nextPage: "Next page",
+        firstPage: "This is the first page.",
+        demoPage: "Demo shows page 1 only.",
+        cart: "Cart",
+        cartOpen: "Open cart",
+        cartClose: "Close cart",
+        cartTotal: "Total ({n} items)",
+        checkout: "Checkout",
+        emptyCart: "Your cart is empty.<br>Tap “+” on a product to add it.",
+        selectProduct: "Please select a product.",
+        added: "{name} added to cart.",
+        addedCustom: "{name} × {qty} added to your order.",
+        limitReached: "Order limit reached — a single order can contain up to {max} items",
+        customizeAria: "Customize {name}",
+        addAria: "Add {name} to cart",
+        removeAria: "Remove {name}",
+        qtyAria: "Quantity of {name}",
+        decrease: "Decrease quantity",
+        increase: "Increase quantity",
+        languageMenu: "Language",
+        customize: {
+          title: "Customize", collapse: "Collapse panel", close: "Close and discard changes",
+          temperature: "Temperature", size: "Size", sweetness: "Sweetness", milk: "Milk",
+          quantity: "Quantity", total: "Total", submit: "Add to order"
+        },
+        temperature: { hot: "Hot", iced: "Iced" },
+        size: { small: "Small", medium: "Medium", large: "Large", regular: "Regular" },
+        sweetness: { none: "No sugar", light: "Light", half: "Half", less: "Less", standard: "Standard" },
+        milk: { milk: "Milk", lowfat: "Low-fat", oat: "Oat", soy: "Soy" },
+        products: {
+          1: { name: "Cola" },
+          2: { name: "Lemon-lime soda" },
+          3: { name: "Orange soda" },
+          4: { name: "Mineral water" },
+          5: { name: "Green tea" },
+          6: { name: "Orange juice" },
+          7: { name: "Energy drink" },
+          8: { name: "Sparkling water" },
+          9: { name: "Iced lemon tea" },
+          10: { name: "Potato chips" },
+          11: { name: "Seaweed chips" },
+          12: { name: "Spicy corn chips" },
+          13: { name: "Chocolate bar" },
+          14: { name: "Cream sandwich cookies" },
+          15: { name: "Salted crackers" },
+          16: { name: "Mixed nuts" },
+          17: { name: "Popcorn" },
+          18: { name: "Gummy candies" },
+          19: { name: "Jam bun" },
+          20: { name: "Swiss roll" },
+          21: { name: "Sandwich" },
+          22: { name: "Toast bread" },
+          23: { name: "Onigiri" },
+          24: { name: "Cup noodles" },
+          25: { name: "Protein bar" },
+          26: { name: "Croissant" },
+          27: { name: "Yogurt" },
+        }
+      },
+      ko: {
+        langName: "한국어",
+        contact: "문의",
+        home: "홈",
+        homeAria: "홈으로 이동",
+        fault: "고장",
+        faultAria: "고장 화면 표시 (Demo)",
+        rotateTitle: "가로 화면으로 사용해 주세요",
+        rotateText: "이 화면은 가로 방향 전용입니다. 기기를 가로로 돌려 주세요.",
+        adLabel: "광고",
+        adOn: "광고 켜짐: {n}개 상품 표시",
+        adOff: "광고 꺼짐: {n}개 상품 표시",
+        date: "11월 4일 23:40",
+        help: "도움말",
+        helpToast: "도움말: 직원에게 문의해 주세요.",
+        categories: { all: "전체", drinks: "음료", snacks: "스낵", bakery: "베이커리", others: "기타" },
+        tags: { cold: "콜드", hot: "핫", new: "신상", popular: "인기" },
+        packaged: "패키지",
+        packagedAria: "패키지 상품 화면(현재)",
+        drinksMode: "음료",
+        drinksAria: "음료 판매 화면으로 전환",
+        categoryToast: "{name}: {n}개 상품을 표시합니다.",
+        items: "{n}개 상품",
+        pageOf: "{current} / {total}",
+        pageNumber: "{n}페이지",
+        slidePrev: "이전 상품 보기",
+        slideNext: "다음 상품 보기",
+        prevPage: "이전 페이지",
+        nextPage: "다음 페이지",
+        firstPage: "첫 페이지입니다.",
+        demoPage: "데모에서는 1페이지만 표시합니다.",
+        cart: "장바구니",
+        cartOpen: "장바구니 열기",
+        cartClose: "장바구니 닫기",
+        cartTotal: "합계 ({n}개)",
+        checkout: "주문하기",
+        emptyCart: "장바구니가 비어 있습니다.<br>상품의 “+”를 눌러 추가하세요.",
+        selectProduct: "상품을 선택해 주세요.",
+        added: "{name}을(를) 장바구니에 담았습니다.",
+        addedCustom: "{name} × {qty}을(를) 주문에 추가했습니다.",
+        limitReached: "주문 한도에 도달했습니다 — 1회 주문은 최대 {max}개까지 가능합니다",
+        customizeAria: "{name} 커스터마이즈",
+        addAria: "{name} 장바구니에 담기",
+        removeAria: "{name} 삭제",
+        qtyAria: "{name} 수량",
+        decrease: "수량 줄이기",
+        increase: "수량 늘리기",
+        languageMenu: "언어",
+        customize: {
+          title: "커스터마이즈", collapse: "패널 접기", close: "닫고 변경 취소",
+          temperature: "온도", size: "사이즈", sweetness: "당도", milk: "우유",
+          quantity: "수량", total: "합계", submit: "주문에 추가"
+        },
+        temperature: { hot: "핫", iced: "아이스" },
+        size: { small: "스몰", medium: "미디엄", large: "라지", regular: "레귤러" },
+        sweetness: { none: "무당", light: "약간", half: "반", less: "적게", standard: "표준" },
+        milk: { milk: "우유", lowfat: "저지방", oat: "오트", soy: "두유" },
+        products: {
+          1: { name: "콜라" },
+          2: { name: "레몬라임 소다" },
+          3: { name: "오렌지 소다" },
+          4: { name: "생수" },
+          5: { name: "녹차" },
+          6: { name: "오렌지 주스" },
+          7: { name: "에너지 드링크" },
+          8: { name: "탄산수" },
+          9: { name: "아이스 레몬티" },
+          10: { name: "감자칩 오리지널" },
+          11: { name: "김 감자칩" },
+          12: { name: "매콤 콘칩" },
+          13: { name: "초콜릿 바" },
+          14: { name: "크림 샌드 쿠키" },
+          15: { name: "크래커" },
+          16: { name: "믹스 너트" },
+          17: { name: "팝콘" },
+          18: { name: "젤리 캔디" },
+          19: { name: "잼 빵" },
+          20: { name: "롤케이크" },
+          21: { name: "샌드위치" },
+          22: { name: "식빵" },
+          23: { name: "주먹밥" },
+          24: { name: "컵라면" },
+          25: { name: "프로틴 바" },
+          26: { name: "크루아상" },
+          27: { name: "요거트" },
+        }
+      }
+    };
+
+    const MAX_ORDER_ITEMS = 3;
+    const products = [
+      { id: 1, price: 180, image: "packaged-27/p01.webp", category: "drinks", tag: "cold", pack: "can" },
+      { id: 2, price: 180, image: "packaged-27/p02.webp", category: "drinks", tag: "cold", pack: "can" },
+      { id: 3, price: 180, image: "packaged-27/p03.webp", category: "drinks", tag: "cold", pack: "can" },
+      { id: 4, price: 120, image: "packaged-27/p04.webp", category: "drinks", tag: "cold", pack: "bottle" },
+      { id: 5, price: 160, image: "packaged-27/p05.webp", category: "drinks", pack: "bottle" },
+      { id: 6, price: 200, image: "packaged-27/p06.webp", category: "drinks", tag: "cold", pack: "bottle" },
+      { id: 7, price: 280, image: "packaged-27/p07.webp", category: "drinks", tag: "popular", pack: "can" },
+      { id: 8, price: 160, image: "packaged-27/p08.webp", category: "drinks", tag: "new", pack: "bottle" },
+      { id: 9, price: 180, image: "packaged-27/p09.webp", category: "drinks", tag: "cold", pack: "bottle" },
+      { id: 10, price: 220, image: "packaged-27/p10.webp", category: "snacks", tag: "popular", pack: "bag" },
+      { id: 11, price: 220, image: "packaged-27/p11.webp", category: "snacks", tag: "new", pack: "bag" },
+      { id: 12, price: 240, image: "packaged-27/p12.webp", category: "snacks", pack: "bag" },
+      { id: 13, price: 200, image: "packaged-27/p13.webp", category: "snacks", pack: "bag" },
+      { id: 14, price: 240, image: "packaged-27/p14.webp", category: "snacks", tag: "popular", pack: "box" },
+      { id: 15, price: 210, image: "packaged-27/p15.webp", category: "snacks", pack: "box" },
+      { id: 16, price: 320, image: "packaged-27/p16.webp", category: "snacks", tag: "new", pack: "bag" },
+      { id: 17, price: 200, image: "packaged-27/p17.webp", category: "snacks", pack: "bag" },
+      { id: 18, price: 180, image: "packaged-27/p18.webp", category: "snacks", tag: "new", pack: "bag" },
+      { id: 19, price: 260, image: "packaged-27/p19.webp", category: "bakery", pack: "bag" },
+      { id: 20, price: 280, image: "packaged-27/p20.webp", category: "bakery", tag: "new", pack: "box" },
+      { id: 21, price: 380, image: "packaged-27/p21.webp", category: "bakery", tag: "cold", pack: "box" },
+      { id: 22, price: 340, image: "packaged-27/p22.webp", category: "bakery", pack: "bag" },
+      { id: 23, price: 220, image: "packaged-27/p23.webp", category: "others", tag: "popular", pack: "bag" },
+      { id: 24, price: 320, image: "packaged-27/p24.webp", category: "others", tag: "hot", pack: "box" },
+      { id: 25, price: 260, image: "packaged-27/p25.webp", category: "others", pack: "bag" },
+      { id: 26, price: 280, image: "packaged-27/p26.webp", category: "bakery", tag: "popular", pack: "bag" },
+      { id: 27, price: 200, image: "packaged-27/p27.webp", category: "others", tag: "cold", pack: "box" },
+    ];
+
+    const SUPPORTED_LANGUAGES = ["ja", "zh", "en", "ko"];
+
+    function resolveLanguage() {
+      const requested = new URLSearchParams(window.location.search).get("lang");
+      if (SUPPORTED_LANGUAGES.includes(requested)) return requested;
+      try {
+        const saved = localStorage.getItem("fujiLanguage");
+        if (SUPPORTED_LANGUAGES.includes(saved)) return saved;
+      } catch (error) {
+        console.warn("语言偏好读取失败。", error);
+      }
+      return "ja";
+    }
+
+    let currentLanguage = resolveLanguage();
+
+    function t(key, vars) {
+      const dictionary = I18N[currentLanguage] || I18N.ja;
+      const value = key.split(".").reduce((node, part) => (node ? node[part] : undefined), dictionary);
+      const template = typeof value === "string" ? value : key;
+      return vars
+        ? template.replace(/\{(\w+)\}/g, (match, name) => (vars[name] !== undefined ? vars[name] : match))
+        : template;
+    }
+
+    const productName = product => t(`products.${product.id}.name`);
+    const productDescription = product => t(`products.${product.id}.desc`);
+    const previewParams = new URLSearchParams(window.location.search);
+    const state = {
+      category: "all",
+      adEnabled: previewParams.get("ad") !== "off",
+      cartOpen: previewParams.get("cart") === "open",
+      page: 0,
+      cart: new Map([[1, 1], [3, 1], [4, 1]]),
+      cartVariants: new Map()
+    };
+
+    const icons = {
+      plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
+      trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M7 7l1 14h8l1-14M10 11v6M14 11v6"/></svg>',
+      flame: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 22c4 0 7-2.8 7-6.6 0-3.5-2.3-5.8-4.2-7.8-.5 2-1.7 3-3 3.9.5-3.5-1.1-6.5-3.4-9.8-.4 3.4-2 5.2-3.6 7.1C3.3 11 5 14.1 5 15.4 5 19.2 8 22 12 22z"/></svg>',
+      snow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v20M3.5 7l17 10M3.5 17l17-10M9 4.5 12 7l3-2.5M9 19.5 12 17l3 2.5"/></svg>'
+    };
+
+    const workspace = document.getElementById("workspace");
+    const productStage = document.getElementById("productStage");
+    const productTrack = document.getElementById("productTrack");
+    const pageNumbers = document.getElementById("pageNumbers");
+    const pageSummary = document.getElementById("pageSummary");
+    const slidePrev = document.getElementById("slidePrev");
+    const slideNext = document.getElementById("slideNext");
+    const pagePrevButton = document.getElementById("pagePrevButton");
+    const pageNextButton = document.getElementById("pageNextButton");
+    const adToggle = document.getElementById("adToggle");
+    const adState = document.getElementById("adState");
+    const visibleCount = document.getElementById("visibleCount");
+    const cartPanel = document.getElementById("cartPanel");
+    const openCartButton = document.getElementById("openCart");
+    const cartItems = document.getElementById("cartItems");
+    const cartTotal = document.getElementById("cartTotal");
+    const toast = document.getElementById("toast");
+    let toastTimer;
+
+    const yen = value => `¥${value.toLocaleString("ja-JP")}`;
+    // 价格拆成「货币符号 + 数字」，符号小一号，数字更突出
+    const priceMarkup = value =>
+      `<span class="price-currency">¥</span><span class="price-amount">${value.toLocaleString("ja-JP")}</span>`;
+    const getProduct = id => products.find(product => product.id === Number(id));
+
+    function showToast(message) {
+      window.clearTimeout(toastTimer);
+      toast.textContent = message;
+      toast.classList.add("show");
+      toastTimer = window.setTimeout(() => toast.classList.remove("show"), 2200);
+    }
+
+    // 预包装：广告开启 5 列 × 3 行 = 15 个/页；关闭广告后 6 列 × 3 行 = 18 个/页
+    function pageSize() {
+      return state.adEnabled ? 15 : 18;
+    }
+
+    function visibleProducts() {
+      return state.category === "all" ? products : products.filter(p => p.category === state.category);
+    }
+
+    function pageCount() {
+      return Math.max(1, Math.ceil(visibleProducts().length / pageSize()));
+    }
+
+    function productCardMarkup(product, index) {
+      const name = productName(product);
+      return `
+        <article class="product-card" data-product-id="${product.id}" style="animation-delay:${index * 25}ms">
+          <button class="product-media" type="button" data-add="${product.id}" aria-label="${t("addAria", { name })}">
+            <img class="pack-${product.pack}" src="${product.image}" alt="${name}" width="640" height="640">
+            ${product.tag ? `<span class="product-tag is-${product.tag}">${t(`tags.${product.tag}`)}</span>` : ""}
+          </button>
+          <div class="product-info">
+            <div class="product-copy">
+              <h2 class="product-name" title="${name}">${name}</h2>
+              <p class="product-price">${priceMarkup(product.price)}</p>
+            </div>
+            <button class="add-button" type="button" data-add="${product.id}" aria-label="${t("addAria", { name })}">${icons.plus}</button>
+          </div>
+        </article>
+      `;
+    }
+
+    function updatePager() {
+      const pages = pageCount();
+      const current = Math.min(state.page, pages - 1);
+      const list = visibleProducts();
+      const perPage = pageSize();
+      const start = current * perPage;
+      const shown = list.slice(start, start + perPage).length;
+
+      productTrack.style.transform = `translateX(-${current * 100}%)`;
+      productStage.classList.toggle("single-page", pages <= 1);
+      productStage.classList.toggle("has-pages", pages > 1);
+      slidePrev.disabled = current <= 0;
+      slideNext.disabled = current >= pages - 1;
+      pagePrevButton.disabled = current <= 0;
+      pageNextButton.disabled = current >= pages - 1;
+      pageSummary.textContent = t("pageOf", { current: current + 1, total: pages });
+      visibleCount.textContent = t("items", { n: shown });
+
+      pageNumbers.querySelectorAll("[data-page]").forEach(button => {
+        const active = Number(button.dataset.page) === current;
+        button.classList.toggle("active", active);
+        if (active) button.setAttribute("aria-current", "page");
+        else button.removeAttribute("aria-current");
+      });
+    }
+
+    function goToPage(next) {
+      const target = Math.max(0, Math.min(pageCount() - 1, next));
+      if (target === state.page) return;
+      state.page = target;
+      updatePager();
+    }
+
+    function renderProducts() {
+      workspace.classList.toggle("ad-off", !state.adEnabled);
+      const perPage = pageSize();
+      const pages = pageCount();
+      state.page = Math.max(0, Math.min(state.page, pages - 1));
+
+      adToggle.setAttribute("aria-checked", String(state.adEnabled));
+      adState.textContent = state.adEnabled ? "ON" : "OFF";
+
+      const list = visibleProducts();
+      productTrack.innerHTML = Array.from({ length: pages }, (_, pageIndex) => {
+        const slice = list.slice(pageIndex * perPage, pageIndex * perPage + perPage);
+        // 列数按每页容量决定（而非本页实际件数），保证末页卡片与前面页同尺寸
+        const cols = perPage >= 18 ? 6 : 5;
+        // 固定 3 行，末页不足 15 件时卡片也不会被拉高
+        const rows = 3;
+        return `
+        <div class="product-page" style="--cols:${cols};--rows:${rows}">
+          ${slice.map((product, index) => productCardMarkup(product, index)).join("")}
+        </div>`;
+      }).join("");
+
+      pageNumbers.innerHTML = Array.from({ length: pages }, (_, index) => `
+        <button class="page-number${index === state.page ? " active" : ""}" type="button" data-page="${index}" aria-label="${t("pageNumber", { n: index + 1 })}">${index + 1}</button>
+      `).join("");
+
+      updatePager();
+    }
+
+    function renderCart(highlightId) {
+      const entries = [...state.cart.entries()]
+        .map(([id, quantity]) => ({ product: getProduct(id), quantity }))
+        .filter(entry => entry.product && entry.quantity > 0);
+      const itemCount = entries.reduce((sum, entry) => sum + entry.quantity, 0);
+      const total = entries.reduce((sum, entry) => sum + entry.product.price * entry.quantity, 0);
+
+      document.querySelectorAll("[data-cart-count]").forEach(element => {
+        element.textContent = itemCount;
+      });
+      document.getElementById("cartTotalLabel").textContent = t("cartTotal", { n: itemCount });
+      cartTotal.textContent = yen(total);
+      cartItems.classList.toggle("scrollable", entries.length > 3);
+
+      if (!entries.length) {
+        cartItems.innerHTML = `<div class="empty-cart">${t("emptyCart")}</div>`;
+        return;
+      }
+
+      cartItems.innerHTML = entries.map(({ product, quantity }) => {
+        const name = productName(product);
+        const variant = t(`categories.${product.category}`);
+        const highlight = highlightId === product.id ? " is-new" : "";
+        return `
+        <article class="cart-item${highlight}">
+          <img class="cart-thumb" src="${product.image}" alt="${name}" width="210" height="210">
+          <div class="cart-item-main">
+            <h3 class="cart-item-name"><span class="cart-item-title" title="${name}">${name}</span><span class="cart-item-qty">× ${quantity}</span></h3>
+            <p class="cart-item-variant">${variant}</p>
+          </div>
+          <div class="cart-item-tail">
+            <span class="cart-item-price">${yen(product.price * quantity)}</span>
+            <button class="remove-item" type="button" data-remove="${product.id}" aria-label="${t("removeAria", { name })}">${icons.trash}</button>
+          </div>
+        </article>
+      `;
+      }).join("");
+    }
+
+    function setCartOpen(open) {
+      state.cartOpen = open;
+      cartPanel.classList.toggle("closed", !open);
+      openCartButton.classList.toggle("hidden", open);
+      cartPanel.setAttribute("aria-hidden", String(!open));
+    }
+
+    function cartItemCount() {
+      return [...state.cart.values()].reduce((sum, quantity) => sum + (Number(quantity) || 0), 0);
+    }
+
+    const ORDER_LIMIT_NOTICE_MS = 3000;
+    const orderLimitLayer = document.getElementById("orderLimitLayer");
+    const orderLimitText = document.getElementById("orderLimitText");
+    let orderLimitTimer;
+    let orderLimitCloseTimer;
+
+    function hideOrderLimit() {
+      window.clearTimeout(orderLimitTimer);
+      window.clearTimeout(orderLimitCloseTimer);
+      orderLimitLayer.classList.remove("show");
+      orderLimitCloseTimer = window.setTimeout(() => {
+        orderLimitLayer.hidden = true;
+      }, 220);
+    }
+
+    function showOrderLimit() {
+      window.clearTimeout(orderLimitTimer);
+      window.clearTimeout(orderLimitCloseTimer);
+      orderLimitText.textContent = t("limitReached", { max: MAX_ORDER_ITEMS });
+      orderLimitLayer.hidden = false;
+      requestAnimationFrame(() => orderLimitLayer.classList.add("show"));
+      orderLimitTimer = window.setTimeout(hideOrderLimit, ORDER_LIMIT_NOTICE_MS);
+    }
+
+    function addToCart(id) {
+      if (cartItemCount() >= MAX_ORDER_ITEMS) {
+        showOrderLimit();
+        return;
+      }
+      state.cart.set(id, (state.cart.get(id) || 0) + 1);
+      renderCart();
+      showToast(t("added", { name: productName(getProduct(id)) }));
+    }
+
+    adToggle.addEventListener("click", () => {
+      state.adEnabled = !state.adEnabled;
+      state.page = 0;
+      renderProducts();
+      const count = Math.min(visibleProducts().length, pageSize());
+      showToast(state.adEnabled ? t("adOn", { n: count }) : t("adOff", { n: count }));
+    });
+
+    slideNext.addEventListener("click", () => goToPage(state.page + 1));
+    slidePrev.addEventListener("click", () => goToPage(state.page - 1));
+    pageNextButton.addEventListener("click", () => goToPage(state.page + 1));
+    pagePrevButton.addEventListener("click", () => goToPage(state.page - 1));
+    pageNumbers.addEventListener("click", event => {
+      const button = event.target.closest("[data-page]");
+      if (button) goToPage(Number(button.dataset.page));
+    });
+
+    document.getElementById("demoHomeButton").addEventListener("click", () => {
+      window.location.href = "welcome.html";
+    });
+
+    document.getElementById("modeDrinksButton").addEventListener("click", () => {
+      window.location.href = `index.html?lang=${currentLanguage}`;
+    });
+
+    document.getElementById("demoFaultButton").addEventListener("click", () => {
+      window.location.href = `out-of-service.html?lang=${currentLanguage}`;
+    });
+
+    const adSlides = Array.from(document.querySelectorAll(".ad-slide"));
+    const adDots = Array.from(document.querySelectorAll(".ad-dots span"));
+    let adSlideIndex = 0;
+    let adSlideTimer = null;
+
+    function showAdSlide(nextIndex) {
+      adSlideIndex = (nextIndex + adSlides.length) % adSlides.length;
+      adSlides.forEach((slide, index) => slide.classList.toggle("active", index === adSlideIndex));
+      adDots.forEach((dot, index) => dot.classList.toggle("active", index === adSlideIndex));
+    }
+
+    function startAdRotation() {
+      if (adSlideTimer !== null || adSlides.length < 2) return;
+      adSlideTimer = window.setInterval(() => showAdSlide(adSlideIndex + 1), 6000);
+    }
+
+    function stopAdRotation() {
+      if (adSlideTimer === null) return;
+      window.clearInterval(adSlideTimer);
+      adSlideTimer = null;
+    }
+
+    startAdRotation();
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) stopAdRotation();
+      else startAdRotation();
+    });
+
+    productTrack.addEventListener("click", event => {
+      const addButton = event.target.closest("[data-add]");
+      if (addButton) {
+        addToCart(Number(addButton.dataset.add));
+        return;
+      }
+    });
+
+    cartItems.addEventListener("click", event => {
+      const remove = event.target.closest("[data-remove]");
+      if (!remove) return;
+      const id = Number(remove.dataset.remove);
+      state.cart.delete(id);
+      state.cartVariants.delete(id);
+      renderCart();
+    });
+
+    document.getElementById("closeCart").addEventListener("click", () => setCartOpen(false));
+    openCartButton.addEventListener("click", () => setCartOpen(true));
+    document.getElementById("checkoutButton").addEventListener("click", () => {
+      if (!state.cart.size) {
+        showToast(t("selectProduct"));
+        return;
+      }
+      const order = {
+        items: [...state.cart.entries()].map(([id, quantity]) => {
+          const product = getProduct(id);
+          const variant = t(`categories.${product.category}`);
+          return { productId: product.id, name: productName(product), price: product.price, quantity, image: product.image, variant, variantData: null };
+        }),
+        language: currentLanguage
+      };
+      try {
+        localStorage.setItem("fujiOrder", JSON.stringify(order));
+      } catch (error) {
+        console.warn("订单暂存不可用，将使用默认演示订单。", error);
+      }
+      window.location.href = "payment.html";
+    });
+
+    document.querySelectorAll("[data-toast]").forEach(button => {
+      button.addEventListener("click", () => showToast(button.dataset.toast));
+    });
+
+    document.querySelectorAll("[data-category]").forEach(button => {
+      button.addEventListener("click", () => {
+        if (state.category === button.dataset.category) return;
+        state.category = button.dataset.category;
+        state.page = 0;
+        document.querySelectorAll("[data-category]").forEach(item => {
+          item.classList.toggle("active", item === button);
+          item.removeAttribute("aria-current");
+        });
+        button.setAttribute("aria-current", "page");
+        renderProducts();
+        showToast(t("categoryToast", { name: t(button.dataset.labelKey), n: visibleProducts().length }));
+      });
+    });
+
+    const languagePicker = document.getElementById("languagePicker");
+    const languageButton = document.getElementById("languageButton");
+    const languageMenu = document.getElementById("languageMenu");
+
+    function setLanguageMenuOpen(open) {
+      languagePicker.classList.toggle("open", open);
+      languageButton.setAttribute("aria-expanded", String(open));
+    }
+
+    function applyLanguage(language, options = {}) {
+      currentLanguage = I18N[language] ? language : "ja";
+      document.documentElement.lang = I18N[currentLanguage].htmlLang || currentLanguage;
+
+      document.querySelectorAll("[data-i18n]").forEach(element => {
+        element.textContent = t(element.dataset.i18n);
+      });
+      document.querySelectorAll("[data-i18n-aria]").forEach(element => {
+        element.setAttribute("aria-label", t(element.dataset.i18nAria));
+      });
+      document.querySelectorAll("[data-i18n-title]").forEach(element => {
+        element.setAttribute("title", t(element.dataset.i18nTitle));
+      });
+      document.querySelectorAll("[data-i18n-toast]").forEach(element => {
+        element.dataset.toast = t(element.dataset.i18nToast);
+      });
+
+      document.getElementById("languageLabel").textContent = t("langName");
+      languageMenu.setAttribute("aria-label", t("languageMenu"));
+      languageButton.setAttribute("aria-label", t("languageMenu"));
+      languageMenu.querySelectorAll("[data-set-language]").forEach(option => {
+        const active = option.dataset.setLanguage === currentLanguage;
+        option.classList.toggle("active", active);
+        option.setAttribute("aria-selected", String(active));
+      });
+
+      renderProducts();
+      renderCart();
+
+      if (options.persist !== false) {
+        try {
+          localStorage.setItem("fujiLanguage", currentLanguage);
+        } catch (error) {
+          console.warn("语言偏好无法保存。", error);
+        }
+      }
+    }
+
+    languageButton.addEventListener("click", event => {
+      event.stopPropagation();
+      setLanguageMenuOpen(!languagePicker.classList.contains("open"));
+    });
+
+    languageMenu.addEventListener("click", event => {
+      const option = event.target.closest("[data-set-language]");
+      if (!option) return;
+      event.stopPropagation();
+      setLanguageMenuOpen(false);
+      applyLanguage(option.dataset.setLanguage);
+    });
+
+    document.addEventListener("click", event => {
+      if (!languagePicker.contains(event.target)) setLanguageMenuOpen(false);
+    });
+
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape") setLanguageMenuOpen(false);
+    });
+
+    applyLanguage(currentLanguage, { persist: false });
+    setCartOpen(state.cartOpen);
+  </script>
+</body>
+</html>

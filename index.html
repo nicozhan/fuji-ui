@@ -139,7 +139,7 @@
     .demo-control[aria-checked="true"] .switch-track { background: #64d7ff; }
     .demo-control[aria-checked="true"] .switch-thumb { transform: translateX(0.9375rem); }
 
-    .home-button, .fault-button {
+    .home-button, .fault-button, .mode-button {
       display: flex;
       align-items: center;
       gap: 0.5rem;
@@ -154,9 +154,12 @@
       cursor: pointer;
       transition: background .18s ease, border-color .18s ease;
     }
-    .home-button svg, .fault-button svg { width: 0.9375rem; height: 0.9375rem; }
+    .home-button svg, .fault-button svg, .mode-button svg { width: 0.9375rem; height: 0.9375rem; }
     .home-button:hover { background: rgba(255,255,255,.22); border-color: rgba(255,255,255,.62); }
     .home-button:active { background: rgba(255,255,255,.3); }
+    /* 预包装 / 饮品模式切换入口（Demo） */
+    .mode-button:hover { background: rgba(255,255,255,.22); border-color: rgba(255,255,255,.62); }
+    .mode-button:active { background: rgba(255,255,255,.3); }
     /* 临时 Demo：进入「暂停服务」画面 */
     .fault-button {
       border-color: rgba(255,196,120,.46);
@@ -1061,6 +1064,10 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 10.6 12 3.6l8.5 7"/><path d="M5.6 9.9V20h12.8V9.9"/></svg>
           <span data-i18n="home">Home</span>
         </button>
+        <button class="mode-button" id="modePackagedButton" type="button" data-i18n-aria="packagedAria" data-i18n-title="packagedAria" aria-label="包装商品画面へ" title="包装商品（Demo）">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 21 8v8l-9 5-9-5V8l9-5Z"/><path d="m3 8 9 5 9-5M12 13v8"/></svg>
+          <span data-i18n="packaged">包装商品</span>
+        </button>
         <button class="fault-button" id="demoFaultButton" type="button" data-i18n-aria="faultAria" data-i18n-title="faultAria" aria-label="故障画面を表示" title="故障（Demo）">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.6 21 19.4H3L12 3.6Z"/><path d="M12 9.6v4.3M12 16.9h.01"/></svg>
           <span data-i18n="fault">故障</span>
@@ -1275,6 +1282,8 @@
   <script>
     const I18N = {
       ja: {
+        packaged: "包装商品",
+        packagedAria: "包装商品画面へ切り替える",
         langName: "日本語",
         contact: "お問い合わせ",
         home: "ホーム",
@@ -1357,6 +1366,8 @@
         }
       },
       zh: {
+        packaged: "预包装",
+        packagedAria: "切换到预包装商品页",
         langName: "简体中文",
         contact: "联系我们",
         home: "首页",
@@ -1439,6 +1450,8 @@
         }
       },
       en: {
+        packaged: "Packaged",
+        packagedAria: "Switch to the packaged products screen",
         langName: "English",
         contact: "Contact",
         home: "Home",
@@ -1521,6 +1534,8 @@
         }
       },
       ko: {
+        packaged: "패키지",
+        packagedAria: "패키지 상품 화면으로 전환",
         langName: "한국어",
         contact: "문의",
         home: "홈",
@@ -2026,6 +2041,10 @@
 
     document.getElementById("demoHomeButton").addEventListener("click", () => {
       window.location.href = "welcome.html";
+    });
+
+    document.getElementById("modePackagedButton").addEventListener("click", () => {
+      window.location.href = `packaged.html?lang=${currentLanguage}`;
     });
 
     document.getElementById("demoFaultButton").addEventListener("click", () => {
