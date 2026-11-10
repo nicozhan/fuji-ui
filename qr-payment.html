@@ -49,7 +49,7 @@
       width: 100%;
       height: 100vh;
       height: 100dvh;
-      min-height: 42.5rem;
+      min-height: 0;
       overflow: hidden;
     }
 
@@ -195,6 +195,8 @@
     .payment-content {
       display: grid;
       grid-template-columns: minmax(0, 1.06fr) minmax(0, 1fr);
+      grid-template-rows: minmax(0, 1fr);
+      flex: 1 1 auto;
       gap: 1.75rem;
       width: min(72.5rem, 100%);
       min-height: 0;
@@ -202,12 +204,16 @@
     }
     .media-card {
       width: auto;
+      max-width: 100%;
       aspect-ratio: 1 / 1;
       justify-self: center;
     }
+    /* 卡片高度跟随剩余空间（不再写死 33.125rem），小屏自动缩小而不是溢出 */
     .media-card, .qr-card {
-      height: 33.125rem;
+      height: 100%;
+      max-height: 33.125rem;
       min-width: 0;
+      min-height: 0;
       overflow: hidden;
       border: 0.0625rem solid var(--border);
       border-radius: 1.375rem;
@@ -226,6 +232,7 @@
     .payment-state-panel {
       width: 100%;
       height: 100%;
+      min-height: 0;
       padding: 1.5625rem 2rem 1.5rem;
     }
     .payment-state-panel[hidden] { display: none; }
@@ -241,21 +248,26 @@
       letter-spacing: .34em;
       text-indent: .34em;
     }
+    /* 二维码框：随卡片剩余高度缩放并保持正方（10 吋平板上不会把卡片顶出屏幕） */
     .qr-frame {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 17.125rem;
-      height: 17.125rem;
-      flex: 0 0 17.125rem;
-      margin: 1.25rem auto 1rem;
+      flex: 1 1 auto;
+      width: auto;
+      height: 100%;
+      min-height: 0;
+      max-width: 17.125rem;
+      max-height: 17.125rem;
+      aspect-ratio: 1 / 1;
+      margin: 0.9375rem auto 0.8125rem;
       padding: 0.75rem;
       border: 0.0625rem solid #dfe8ed;
       border-radius: 0.9375rem;
       background: #fff;
     }
-    .qr-code { display: flex; align-items: center; justify-content: center; width: 15.5rem; height: 15.5rem; }
-    .qr-code img, .qr-code canvas { display: block; width: 15.5rem !important; height: 15.5rem !important; }
+    .qr-code { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; min-width: 0; min-height: 0; }
+    .qr-code img, .qr-code canvas { display: block; width: 100% !important; height: 100% !important; }
     .countdown {
       display: flex;
       align-items: baseline;
@@ -376,6 +388,28 @@
       transition: opacity .2s ease, transform .2s ease;
     }
     .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+    /* 10 吋平板（视口高度不足）：收紧留白与字号，保证一屏放得下、不出现裁切 */
+    @media (max-height: 660px) {
+      .checkout-main { padding: 0.75rem 2rem 0.875rem; }
+      .order-label, .order-count { font-size: 0.9375rem; }
+      .order-total { font-size: 2.375rem; }
+      .payment-content { margin-top: 0.875rem; gap: 1.25rem; }
+      .progress-header { flex-basis: 5rem; }
+      .progress-step { font-size: 0.9375rem; }
+      .payment-state-panel { padding: 0.875rem 1.25rem 0.9375rem; }
+      .state-title { font-size: 1.375rem; }
+      .state-hint { font-size: 0.9375rem; line-height: 1.45; }
+      .countdown { padding-top: 0.5rem; font-size: 0.875rem; }
+      .countdown strong { font-size: 1.5rem; }
+      .qr-frame { margin: 0.5rem auto; padding: 0.5rem; border-radius: 0.75rem; }
+      .state-icon { width: min(9.125rem, 20vh); height: min(9.125rem, 20vh); margin-bottom: 1rem; }
+      .state-icon svg { width: 58%; height: 58%; }
+      .result-panel .state-title { font-size: 1.75rem; margin-bottom: 0.625rem; }
+      .making-dots { margin-top: 1.125rem; }
+      .state-actions { margin-top: 1rem; }
+      .state-button { min-height: 3rem; }
+    }
 
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation: none !important; transition: none !important; }

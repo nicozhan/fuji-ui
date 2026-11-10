@@ -47,7 +47,7 @@
       width: 100%;
       height: 100vh;
       height: 100dvh;
-      min-height: 42.5rem;
+      min-height: 0;
       overflow: hidden;
       background:
         radial-gradient(circle at 13% 43%, rgba(168,220,245,.2), transparent 28%),
@@ -168,21 +168,29 @@
       align-items: center;
       justify-content: center;
       width: 100%;
-      min-height: 19.375rem;
+      min-height: 0;
     }
-    .hero-stage { position: relative; display: flex; align-items: center; justify-content: center; width: 26.25rem; height: 21.875rem; }
+    /* 舞台与商品图按视口高度收缩：10 吋平板上不会把进度卡顶出屏幕 */
+    .hero-stage {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: min(26.25rem, 100%);
+      height: min(21.875rem, 33vh);
+    }
     .halo { position: absolute; border-radius: 50%; }
-    .halo.outer { width: 21rem; height: 21rem; border: 0.0625rem solid rgba(62,157,210,.18); animation: breathe 4s ease-in-out infinite; }
-    .halo.middle { width: 18.25rem; height: 18.25rem; background: rgba(219,240,251,.55); box-shadow: 0 1.25rem 4.375rem rgba(47,132,181,.08); }
-    .halo.inner { width: 15.125rem; height: 15.125rem; border: 0.0625rem dashed rgba(8,119,201,.22); animation: spin 28s linear infinite; }
+    .halo.outer { width: min(21rem, 31vh); height: min(21rem, 31vh); border: 0.0625rem solid rgba(62,157,210,.18); animation: breathe 4s ease-in-out infinite; }
+    .halo.middle { width: min(18.25rem, 27vh); height: min(18.25rem, 27vh); background: rgba(219,240,251,.55); box-shadow: 0 1.25rem 4.375rem rgba(47,132,181,.08); }
+    .halo.inner { width: min(15.125rem, 22.5vh); height: min(15.125rem, 22.5vh); border: 0.0625rem dashed rgba(8,119,201,.22); animation: spin 28s linear infinite; }
     .orbit-dot { position: absolute; top: 1.5rem; left: 50%; width: 0.75rem; height: 0.75rem; margin-left: -0.375rem; border: 0.1875rem solid #f5fbff; border-radius: 50%; background: #55b2e3; box-shadow: 0 0.125rem 0.5625rem rgba(8,119,201,.2); }
     /* 商品图为方形实拍照片：做成圆角相片卡，避免白底方块直接贴在浅蓝背景上 */
     .hero-image {
       position: relative;
       z-index: 2;
       display: block;
-      width: 15.625rem;
-      height: 15.625rem;
+      width: min(15.625rem, 23vh);
+      height: min(15.625rem, 23vh);
       border-radius: 0;
       object-fit: contain;
       background: transparent;
@@ -202,15 +210,15 @@
     .ambient.two { right: calc(50% - 20.3125rem); bottom: 29%; width: 0.5625rem; height: 0.5625rem; }
     .ambient.three { top: 18%; right: calc(50% - 16.875rem); width: 0.375rem; height: 0.375rem; }
 
-    .completion-products { position: relative; display: flex; align-items: center; justify-content: center; gap: 2.625rem; min-height: 20.625rem; }
-    .completion-item { position: relative; display: flex; align-items: center; justify-content: center; width: 13.125rem; height: 17.5rem; border: 0.0625rem solid rgba(200,224,237,.75); border-radius: 1.875rem; background: rgba(255,255,255,.65); box-shadow: 0 1.125rem 2.8125rem rgba(40,106,143,.08); animation: complete-in .45s ease both; }
+    .completion-products { position: relative; display: flex; flex: 1 1 auto; align-items: center; justify-content: center; gap: 2.625rem; min-height: 0; }
+    .completion-item { position: relative; display: flex; align-items: center; justify-content: center; width: min(13.125rem, 31vh); height: min(17.5rem, 40vh); border: 0.0625rem solid rgba(200,224,237,.75); border-radius: 1.875rem; background: rgba(255,255,255,.65); box-shadow: 0 1.125rem 2.8125rem rgba(40,106,143,.08); animation: complete-in .45s ease both; }
     .completion-item:nth-child(2) { animation-delay: .08s; }
     .completion-item:nth-child(3) { animation-delay: .16s; }
-    .completion-item img { display: block; width: 10.3125rem; height: 14.0625rem; object-fit: contain; filter: drop-shadow(0 0.875rem 0.875rem rgba(24,65,89,.13)); }
+    .completion-item img { display: block; width: min(10.3125rem, 24vh); height: min(14.0625rem, 32vh); object-fit: contain; filter: drop-shadow(0 0.875rem 0.875rem rgba(24,65,89,.13)); }
     .complete-check { position: absolute; top: -0.75rem; right: -0.75rem; display: flex; align-items: center; justify-content: center; width: 2.75rem; height: 2.75rem; border: 0.3125rem solid #f4fafc; border-radius: 50%; color: #fff; background: var(--green); }
     .complete-check svg { width: 1.375rem; height: 1.375rem; }
-    .completion-products.count-1 .completion-item { width: 17.5rem; height: 20rem; }
-    .completion-products.count-1 .completion-item img { width: 13.75rem; height: 16.875rem; }
+    .completion-products.count-1 .completion-item { width: min(17.5rem, 36vh); height: min(20rem, 42vh); }
+    .completion-products.count-1 .completion-item img { width: min(13.75rem, 28vh); height: min(16.875rem, 35vh); }
 
     .return-bar { display: flex; flex: 0 0 4.375rem; align-items: center; justify-content: center; gap: 0.875rem; width: 100%; margin: -0.3125rem auto 1.125rem; }
     .return-countdown { display: flex; flex: 0 1 auto; align-items: center; justify-content: center; gap: 0.75rem; min-width: 24.375rem; height: 100%; padding: 0 1.625rem; border: 0.0625rem solid #d5e8f2; border-radius: 62.4375rem; color: var(--muted); background: rgba(255,255,255,.8); box-shadow: 0 0.5rem 1.5rem rgba(33,92,124,.05); font-size: 0.9375rem; }
@@ -222,7 +230,7 @@
     .return-home-button svg { width: 1.25rem; height: 1.25rem; }
 
     .order-progress-card {
-      flex: 0 0 12.25rem;
+      flex: 0 0 auto;
       width: min(78.75rem, 100%);
       min-height: 0;
       padding: 1.125rem 1.5rem 1.25rem;
@@ -239,11 +247,11 @@
     .order-track { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 1rem; width: 100%; }
     .order-track.count-1 { grid-template-columns: minmax(0,1fr); }
     .order-track.count-2 { grid-template-columns: repeat(2, minmax(0,1fr)); }
-    .cup-card { position: relative; display: grid; grid-template-columns: 5.125rem minmax(0,1fr) auto; grid-template-rows: auto auto; column-gap: 0.9375rem; align-items: center; min-width: 0; height: 7.25rem; padding: 0.75rem 0.9375rem; border: 0.0625rem solid #e1ebf0; border-radius: 1rem; background: #f8fbfd; transition: border .25s, background .25s, box-shadow .25s; }
+    .cup-card { position: relative; display: grid; grid-template-columns: min(5.125rem, 9vh) minmax(0,1fr) auto; grid-template-rows: auto auto; column-gap: 0.9375rem; align-items: center; min-width: 0; height: min(7.25rem, 12.5vh); padding: 0.75rem 0.9375rem; border: 0.0625rem solid #e1ebf0; border-radius: 1rem; background: #f8fbfd; transition: border .25s, background .25s, box-shadow .25s; }
     .cup-card.making { border-color: #9fcfe9; background: #f2f9fd; box-shadow: inset 0 0 0 0.0625rem rgba(8,119,201,.05); }
     .cup-card.done { border-color: #d4e9e1; background: #f6fbf9; }
     .cup-card.waiting { opacity: .58; }
-    .cup-image { grid-row: 1 / 3; display: block; width: 5.125rem; height: 5.625rem; border-radius: 0.6875rem; object-fit: contain; background: #edf3f6; }
+    .cup-image { grid-row: 1 / 3; display: block; width: min(5.125rem, 9vh); height: min(5.625rem, 9.8vh); border-radius: 0.6875rem; object-fit: contain; background: #edf3f6; }
     .cup-info { align-self: end; min-width: 0; }
     .cup-name { overflow: hidden; margin: 0 0 0.25rem; font-size: 1rem; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
     .cup-variant { overflow: hidden; margin: 0; color: var(--muted); font-size: 0.6875rem; text-overflow: ellipsis; white-space: nowrap; }
@@ -314,6 +322,20 @@
 
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation: none !important; transition: none !important; }
+    }
+
+    /* 10 吋平板（视口高度不足）：收紧留白与标题，进度卡与取走提示仍完整可见 */
+    @media (max-height: 660px) {
+      .main-content { padding: 0.875rem 2rem 0.75rem; }
+      .eyebrow { margin-bottom: 0.375rem; }
+      .page-title { font-size: 1.875rem; }
+      .page-subtitle { margin-top: 0.375rem; font-size: 1rem; }
+      .demo-bar { flex-basis: 3.5rem; }
+      .brand-header { flex-basis: 4.25rem; }
+      .order-progress-card { padding: 0.75rem 1rem 0.875rem; border-radius: 1.125rem; }
+      .order-progress-top { margin-bottom: 0.5rem; }
+      .return-bar { flex-basis: 3.25rem; margin-bottom: 0.5rem; }
+      .pickup-cue { bottom: 0.25rem; }
     }
   </style>
 </head>

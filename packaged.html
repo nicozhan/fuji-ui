@@ -29,6 +29,10 @@
       --ad-poster-w: 848;
       --ad-poster-h: 1855;
       --ad-max-w: 62.5rem; /* 1000 设计像素，超大屏封顶 */
+      /* 分类标签栏：一屏固定露出 4 个标签位，第 5 个起横向滑动 */
+      --tab-w: 11.5rem;
+      --tab-gap: 0.75rem;
+      --tab-window: calc(var(--tab-w) * 4 + var(--tab-gap) * 3);
     }
 
     /* ===== 视口等比缩放基准 =====
@@ -276,25 +280,74 @@
     .pill-button svg, .language-button svg { width: 1.25rem; height: 1.25rem; }
     .pill-button:hover { border-color: #b9d9ed; background: var(--accent-weak); }
 
+    /* 分类标签栏：固定 4 个标签位宽，超出部分横向滑动（触摸拖拽 / 滚轮 / 边缘渐隐提示） */
+    .category-nav-wrap {
+      position: relative;
+      flex: 0 1 auto;
+      width: var(--tab-window);
+      max-width: 100%;
+      min-width: 0;
+      margin: 0 auto;
+    }
     .category-nav {
       display: flex;
-      flex: 1 1 auto;
       align-items: center;
-      justify-content: center;
-      gap: 0.75rem;
+      justify-content: flex-start;
+      gap: var(--tab-gap);
+      width: 100%;
       min-width: 0;
+      overflow-x: auto;
+      overflow-y: hidden;
+      overscroll-behavior-x: contain;
+      scroll-snap-type: x proximity;
+      scroll-behavior: smooth;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      touch-action: pan-x;
+      cursor: grab;
+    }
+    .category-nav::-webkit-scrollbar { display: none; }
+    .category-nav.is-dragging { cursor: grabbing; scroll-behavior: auto; scroll-snap-type: none; }
+    .category-fade {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 1.375rem;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity .2s ease;
+    }
+    .category-fade.left { left: 0; background: linear-gradient(90deg, var(--surface) 55%, rgba(255,255,255,0)); }
+    .category-fade.right { right: 0; background: linear-gradient(270deg, var(--surface) 55%, rgba(255,255,255,0)); }
+    .category-nav-wrap.can-left .category-fade.left { opacity: 1; }
+    .category-nav-wrap.can-right .category-fade.right { opacity: 1; }
+
+    /* 大屏（≥1440）横向空间充裕：标签全部展开，不必滑动；小屏仍是 4 个位置 + 滑动 */
+    @media (min-width: 1440px) {
+      .category-nav-wrap { width: auto; }
+      .category-nav { overflow: visible; }
+      .category-fade { display: none; }
     }
     .category-button {
-      min-width: 8.25rem;
-      padding: 0 1.5rem;
+      flex: 0 0 var(--tab-w);
+      min-width: 0;
+      padding: 0 1rem;
       /* 触摸屏无悬浮态：默认就带浅蓝底与描边，让用户一眼看出这是可点的按钮 */
       border-color: #b9d9ed;
       background: var(--accent-weak);
-      font-size: 1.0625rem;
+      font-size: 0.9375rem;
       font-weight: 650;
+      scroll-snap-align: start;
       transition: background .18s ease, color .18s ease, border-color .18s ease, transform .14s ease;
     }
-    .category-button svg { width: 1.125rem; height: 1.125rem; }
+    .category-button > span {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .category-button:focus-visible { outline-offset: -0.125rem; }
+    .category-button svg { flex: 0 0 auto; width: 1.125rem; height: 1.125rem; }
     .category-button:hover { border-color: #9ecbe8; background: #ddedfa; }
     .category-button:active { transform: translateY(0.0625rem); border-color: #8dc3e5; background: #d2e8f8; }
     .category-button.active,
@@ -901,6 +954,31 @@
     .checkout-button:hover { background: var(--accent-dark); }
     .checkout-button svg { width: 1.3125rem; height: 1.3125rem; }
 
+    /* 10 吋平板：视口高度吃紧时压缩面板留白与条目高度，保证 3 件商品完整可见 */
+    @media (max-height: 780px) {
+      .cart-header { flex-basis: 4.5rem; padding: 0 1.5rem; }
+      .cart-title { font-size: 1.375rem; gap: 0.5rem; }
+      .cart-title > svg { width: 1.375rem; height: 1.375rem; }
+      .cart-count { min-width: 1.5rem; height: 1.5rem; font-size: 0.8125rem; }
+      .close-cart { width: 2.125rem; height: 2.125rem; }
+      .close-cart svg { width: 1.375rem; height: 1.375rem; }
+      .cart-item {
+        grid-template-columns: 4.5rem minmax(0, 1fr) auto;
+        gap: 0.625rem 0.875rem;
+        padding: 0.625rem 1.375rem;
+      }
+      .cart-thumb { height: 4.5rem; }
+      .cart-item-name { margin-bottom: 0.25rem; }
+      .cart-item-tail { gap: 0.375rem; }
+      .remove-item { width: 2.375rem; height: 2.375rem; }
+      .remove-item svg { width: 1.25rem; height: 1.25rem; }
+      .cart-footer { padding: 0.875rem 1.375rem 1.125rem; }
+      .cart-total-row { margin-bottom: 0.75rem; }
+      .cart-total { font-size: 1.875rem; }
+      .checkout-button { min-height: 3.25rem; }
+    }
+
+
     .open-cart-button {
       position: absolute;
       z-index: 15;
@@ -1137,11 +1215,8 @@
         <span class="brand-mark">FE</span>
         <span class="brand-name">Fuji Electric</span>
       </div>
-      <button class="pill-button" type="button" data-toast="ヘルプ：係員にお問い合わせください。" data-i18n-toast="helpToast">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.8 9a2.3 2.3 0 1 1 3.3 2.1c-.8.4-1.1.9-1.1 1.9M12 16.8h.01"/></svg>
-        <span class="help-label" data-i18n="help">ヘルプ</span>
-      </button>
-      <nav class="category-nav" aria-label="商品カテゴリー">
+      <div class="category-nav-wrap" id="categoryWrap">
+        <nav class="category-nav" id="categoryNav" aria-label="商品カテゴリー" tabindex="0">
         <button class="category-button active" type="button" data-category="all" data-label-key="categories.all" aria-current="page">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.3-5.7L4 8.6M4 4v4.6h4.6"/></svg>
           <span data-i18n="categories.all">すべて</span>
@@ -1163,6 +1238,10 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3 21 8v8l-9 5-9-5V8l9-5Z"/></svg>
           <span data-i18n="categories.others">その他</span>
         </button>
+        </nav>
+        <span class="category-fade left" aria-hidden="true"></span>
+        <span class="category-fade right" aria-hidden="true"></span>
+      </div>
       <div class="language-picker" id="languagePicker">
         <button class="language-button" id="languageButton" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="言語">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
@@ -1270,8 +1349,6 @@
         layoutTitleL27: "27 インチ横画面 · 6 × 3 · 1ページ 18 点",
         layoutToast: "{diag} インチ · {cols} × {rows} · 1ページ {n} 点",
         date: "11月4日 23:40",
-        help: "ヘルプ",
-        helpToast: "ヘルプ：係員にお問い合わせください。",
         categories: { all: "すべて", drinks: "ドリンク", snacks: "スナック", bakery: "ベーカリー", others: "その他" },
         tags: { cold: "冷蔵", hot: "ホット", new: "新商品", popular: "人気" },
         packaged: "包装商品",
@@ -1362,8 +1439,6 @@
         layoutTitleL27: "27 寸横屏 · 6 × 3 · 每页 18 件",
         layoutToast: "{diag} 寸 · {cols} × {rows} · 每页 {n} 件",
         date: "11月4日 23:40",
-        help: "帮助",
-        helpToast: "帮助：请联系现场工作人员。",
         categories: { all: "全部", drinks: "饮料", snacks: "零食", bakery: "烘焙", others: "其他" },
         tags: { cold: "冷饮", hot: "热食", new: "新品", popular: "热卖" },
         packaged: "预包装",
@@ -1454,8 +1529,6 @@
         layoutTitleL27: "27-inch landscape · 6 × 3 · 18 per page",
         layoutToast: "{diag}\" · {cols} × {rows} · {n} per page",
         date: "Nov 4, 23:40",
-        help: "Help",
-        helpToast: "Help: please contact our staff.",
         categories: { all: "All", drinks: "Drinks", snacks: "Snacks", bakery: "Bakery", others: "Others" },
         tags: { cold: "Cold", hot: "Hot", new: "New", popular: "Popular" },
         packaged: "Packaged",
@@ -1546,8 +1619,6 @@
         layoutTitleL27: "27인치 가로 · 6 × 3 · 페이지당 18개",
         layoutToast: "{diag}인치 · {cols} × {rows} · 페이지당 {n}개",
         date: "11월 4일 23:40",
-        help: "도움말",
-        helpToast: "도움말: 직원에게 문의해 주세요.",
         categories: { all: "전체", drinks: "음료", snacks: "스낵", bakery: "베이커리", others: "기타" },
         tags: { cold: "콜드", hot: "핫", new: "신상", popular: "인기" },
         packaged: "패키지",
@@ -2058,6 +2129,93 @@
       button.addEventListener("click", () => showToast(button.dataset.toast));
     });
 
+    /* ===== 分类标签栏：一屏 4 个标签位，多余部分横向滑动 =====
+       触摸屏本就能直接拖（touch-action: pan-x），这里补齐鼠标拖拽、滚轮横滚、
+       边缘渐隐提示，以及切换分类后把选中项滚进可视区。 */
+    const categoryWrap = document.getElementById("categoryWrap");
+    const categoryNav = document.getElementById("categoryNav");
+
+    function updateCategoryScrollState() {
+      if (!categoryNav) return;
+      const max = categoryNav.scrollWidth - categoryNav.clientWidth;
+      categoryWrap.classList.toggle("can-left", categoryNav.scrollLeft > 2);
+      categoryWrap.classList.toggle("can-right", max > 2 && categoryNav.scrollLeft < max - 2);
+    }
+
+    function revealCategory(button) {
+      if (!categoryNav || !button) return;
+      const navBox = categoryNav.getBoundingClientRect();
+      const box = button.getBoundingClientRect();
+      if (box.left < navBox.left) {
+        categoryNav.scrollLeft -= navBox.left - box.left + 8;
+      } else if (box.right > navBox.right) {
+        categoryNav.scrollLeft += box.right - navBox.right + 8;
+      }
+      updateCategoryScrollState();
+    }
+
+    if (categoryNav) {
+      let dragging = false;
+      let moved = false;
+      let startX = 0;
+      let startLeft = 0;
+
+      categoryNav.addEventListener("scroll", updateCategoryScrollState, { passive: true });
+      window.addEventListener("resize", updateCategoryScrollState);
+
+      // 鼠标拖拽（触摸屏走原生滚动）
+      categoryNav.addEventListener("pointerdown", event => {
+        if (event.pointerType !== "mouse" || event.button !== 0) return;
+        dragging = true;
+        moved = false;
+        startX = event.clientX;
+        startLeft = categoryNav.scrollLeft;
+        categoryNav.classList.add("is-dragging");
+        categoryNav.setPointerCapture(event.pointerId);
+      });
+      categoryNav.addEventListener("pointermove", event => {
+        if (!dragging) return;
+        const delta = event.clientX - startX;
+        if (Math.abs(delta) > 4) moved = true;
+        if (!moved) return;
+        categoryNav.scrollLeft = startLeft - delta;
+      });
+      const endDrag = event => {
+        if (!dragging) return;
+        dragging = false;
+        categoryNav.classList.remove("is-dragging");
+        if (categoryNav.hasPointerCapture(event.pointerId)) categoryNav.releasePointerCapture(event.pointerId);
+        updateCategoryScrollState();
+      };
+      categoryNav.addEventListener("pointerup", endDrag);
+      categoryNav.addEventListener("pointercancel", endDrag);
+      // 拖动结束的那一下不要当成点击（否则会误切分类）
+      categoryNav.addEventListener("click", event => {
+        if (!moved) return;
+        moved = false;
+        event.preventDefault();
+        event.stopPropagation();
+      }, true);
+
+      // 鼠标竖向滚轮 → 横向滚动
+      categoryNav.addEventListener("wheel", event => {
+        if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
+        const max = categoryNav.scrollWidth - categoryNav.clientWidth;
+        if (max <= 2) return;
+        categoryNav.scrollLeft += event.deltaY;
+        event.preventDefault();
+      }, { passive: false });
+
+      // 键盘左右键
+      categoryNav.addEventListener("keydown", event => {
+        if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+        event.preventDefault();
+        categoryNav.scrollLeft += event.key === "ArrowRight" ? categoryNav.clientWidth * 0.6 : -categoryNav.clientWidth * 0.6;
+      });
+
+      updateCategoryScrollState();
+    }
+
     document.querySelectorAll("[data-category]").forEach(button => {
       button.addEventListener("click", () => {
         if (state.category === button.dataset.category) return;
@@ -2069,6 +2227,7 @@
         });
         button.setAttribute("aria-current", "page");
         renderProducts();
+        revealCategory(button);
         showToast(t("categoryToast", { name: t(button.dataset.labelKey), n: visibleProducts().length }));
       });
     });
