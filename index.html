@@ -100,12 +100,14 @@
     .machine-id strong { color: #fff; font-weight: 600; }
 
     .demo-control {
+      flex: 0 0 auto;
       gap: 0.5625rem;
       padding: 0.25rem 0.5rem 0.25rem 0.3125rem;
       border: 0.0625rem solid rgba(255,255,255,.28);
       border-radius: 62.4375rem;
       color: #fff;
       background: rgba(0,0,0,.12);
+      white-space: nowrap;
       cursor: pointer;
     }
 
@@ -142,8 +144,10 @@
     .demo-control[aria-checked="true"] .switch-thumb { transform: translateX(0.9375rem); }
 
     .home-button, .fault-button, .mode-button {
+      flex: 0 0 auto;
       display: flex;
       align-items: center;
+      white-space: nowrap;
       gap: 0.5rem;
       padding: 0.3125rem 0.875rem 0.3125rem 0.6875rem;
       border: 0.0625rem solid rgba(255,255,255,.34);
@@ -542,6 +546,18 @@
       font-size: clamp(1rem, 1.14vw, 1.3125rem);
       letter-spacing: .004em;
     }
+    /* 划线原价：挂在现价右侧，比现价小一号、灰色、加删除线，不抢主价 */
+    .product-price .price-was,
+    .custom-product-price .price-was,
+    .custom-total-value .price-was {
+      margin-left: 0.4375rem;
+      color: #7c8f9f;
+      font-size: clamp(0.75rem, .88vw, 1.0625rem);
+      font-weight: 650;
+      letter-spacing: 0;
+      text-decoration: line-through;
+      text-decoration-thickness: 0.1em;
+    }
     /* 加购按钮：统一圆形 + 品牌蓝描边，视觉更突出 */
     .add-button {
       display: inline-flex;
@@ -618,6 +634,10 @@
     /* 小屏（10 吋平板）上翻页行右侧会让出悬浮购物车按钮的位置，避免摘要被按钮压住 */
     @media (max-width: 1100px) {
       .pagination { padding-right: 4rem; }
+    }
+    /* 窄屏状态栏：新增的划線价开关占位后，隐藏次要的联系电话，避免文字换行/挤压 */
+    @media (max-width: 1200px) {
+      .status-bar .contact-item { display: none; }
     }
 
     .cart-panel {
@@ -1081,6 +1101,11 @@
           <span class="demo-label"><span data-i18n="adLabel">広告</span> <strong id="adState">ON</strong></span>
           <span class="switch-track" aria-hidden="true"><span class="switch-thumb"></span></span>
         </button>
+        <button class="demo-control strike-toggle" id="strikeToggle" type="button" role="switch" aria-checked="true" data-i18n-aria="strikeAria" aria-label="通常価格の表示を切り替える">
+          <span class="demo-badge">DEMO</span>
+          <span class="demo-label"><span data-i18n="strikeLabel">通常価格</span> <strong id="strikeState">ON</strong></span>
+          <span class="switch-track" aria-hidden="true"><span class="switch-thumb"></span></span>
+        </button>
         <time class="status-item" datetime="2026-11-04T23:40" data-i18n="date">11月4日 23:40</time>
         <svg width="18" height="16" viewBox="0 0 18 16" fill="currentColor" aria-label="電波状況"><rect x="1" y="11" width="3" height="4" rx="1"/><rect x="6" y="7" width="3" height="8" rx="1"/><rect x="11" y="3" width="3" height="12" rx="1"/></svg>
       </div>
@@ -1299,6 +1324,10 @@
         adLabel: "広告",
         adOn: "広告 ON：{n}商品を表示しています。",
         adOff: "広告 OFF：{n}商品を表示しています。",
+        strikeLabel: "通常価格",
+        strikeAria: "通常価格（二重価格）の表示を切り替える",
+        strikeOn: "通常価格を表示しています。",
+        strikeOff: "通常価格を非表示にしました。",
         date: "11月4日 23:40",
         help: "ヘルプ",
         helpToast: "ヘルプ：係員にお問い合わせください。",
@@ -1383,6 +1412,10 @@
         adLabel: "广告",
         adOn: "广告 开：显示 {n} 件商品。",
         adOff: "广告 关：显示 {n} 件商品。",
+        strikeLabel: "划线价",
+        strikeAria: "切换划线原价显示",
+        strikeOn: "已显示划线原价。",
+        strikeOff: "已隐藏划线原价。",
         date: "11月4日 23:40",
         help: "帮助",
         helpToast: "帮助：请联系现场工作人员。",
@@ -1467,6 +1500,10 @@
         adLabel: "Ads",
         adOn: "Ads ON: showing {n} items.",
         adOff: "Ads OFF: showing {n} items.",
+        strikeLabel: "List price",
+        strikeAria: "Toggle list price display",
+        strikeOn: "List prices shown.",
+        strikeOff: "List prices hidden.",
         date: "Nov 4, 23:40",
         help: "Help",
         helpToast: "Help: please contact our staff.",
@@ -1551,6 +1588,10 @@
         adLabel: "광고",
         adOn: "광고 켜짐: {n}개 상품 표시",
         adOff: "광고 꺼짐: {n}개 상품 표시",
+        strikeLabel: "정상가",
+        strikeAria: "정상가 표시 전환",
+        strikeOn: "정상가를 표시합니다.",
+        strikeOff: "정상가를 숨겼습니다.",
         date: "11월 4일 23:40",
         help: "도움말",
         helpToast: "도움말: 직원에게 문의해 주세요.",
@@ -1692,6 +1733,8 @@
     const previewParams = new URLSearchParams(window.location.search);
     const state = {
       adEnabled: previewParams.get("ad") !== "off",
+      // 临时开关（Demo）：划线原价默认开启，可用状态栏开关或 ?strike=off 关闭
+      strikeEnabled: previewParams.get("strike") !== "off",
       cartOpen: previewParams.get("cart") === "open",
       page: 0,
       cart: new Map([[1, 1], [3, 1], [4, 1]]),
@@ -1716,6 +1759,8 @@
     const pageNextButton = document.getElementById("pageNextButton");
     const adToggle = document.getElementById("adToggle");
     const adState = document.getElementById("adState");
+    const strikeToggle = document.getElementById("strikeToggle");
+    const strikeState = document.getElementById("strikeState");
     const visibleCount = document.getElementById("visibleCount");
     const cartPanel = document.getElementById("cartPanel");
     const openCartButton = document.getElementById("openCart");
@@ -1725,9 +1770,12 @@
     let toastTimer;
 
     const yen = value => `¥${value.toLocaleString("ja-JP")}`;
-    // 价格拆成「货币符号 + 数字」，符号小一号，数字更突出
+    // 划线原价 = 现价 + STRIKE_DELTA，仅用于展示，不参与购物车结算
+    const STRIKE_DELTA = 20;
+    // 价格拆成「货币符号 + 数字」，符号小一号，数字更突出；右侧挂一个小一号的划线原价
     const priceMarkup = value =>
-      `<span class="price-currency">¥</span><span class="price-amount">${value.toLocaleString("ja-JP")}</span>`;
+      `<span class="price-currency">¥</span><span class="price-amount">${value.toLocaleString("ja-JP")}</span>` +
+      (state.strikeEnabled ? `<s class="price-was">${yen(value + STRIKE_DELTA)}</s>` : "");
     const getProduct = id => products.find(product => product.id === Number(id));
 
     function showToast(message) {
@@ -1805,6 +1853,8 @@
 
       adToggle.setAttribute("aria-checked", String(state.adEnabled));
       adState.textContent = state.adEnabled ? "ON" : "OFF";
+      strikeToggle.setAttribute("aria-checked", String(state.strikeEnabled));
+      strikeState.textContent = state.strikeEnabled ? "ON" : "OFF";
 
       productTrack.innerHTML = Array.from({ length: pages }, (_, pageIndex) => {
         const slice = products.slice(pageIndex * perPage, pageIndex * perPage + perPage);
@@ -1940,7 +1990,7 @@
       image.src = product.image;
       image.alt = name;
       document.getElementById("customProductName").textContent = name;
-      document.getElementById("customProductPrice").textContent = yen(product.price);
+      document.getElementById("customProductPrice").innerHTML = priceMarkup(product.price);
       document.getElementById("customProductDescription").textContent = productDescription(product);
       document.getElementById("customQuantity").textContent = customDraft.quantity;
       document.getElementById("customTotal").textContent = yen(product.price * customDraft.quantity);
@@ -2032,6 +2082,14 @@
       renderProducts();
       const count = Math.min(products.length, pageSize());
       showToast(state.adEnabled ? t("adOn", { n: count }) : t("adOff", { n: count }));
+    });
+
+    // 临时开关（Demo）：切换划线原价，卡片与定制弹层同时生效
+    strikeToggle.addEventListener("click", () => {
+      state.strikeEnabled = !state.strikeEnabled;
+      renderProducts();
+      renderCustomization();
+      showToast(t(state.strikeEnabled ? "strikeOn" : "strikeOff"));
     });
 
     slideNext.addEventListener("click", () => goToPage(state.page + 1));

@@ -94,12 +94,14 @@
     .machine-id strong { color: #fff; font-weight: 600; }
 
     .demo-control {
+      flex: 0 0 auto;
       gap: 0.5625rem;
       padding: 0.25rem 0.5rem 0.25rem 0.3125rem;
       border: 0.0625rem solid rgba(255,255,255,.28);
       border-radius: 62.4375rem;
       color: #fff;
       background: rgba(0,0,0,.12);
+      white-space: nowrap;
       cursor: pointer;
     }
     .demo-badge {
@@ -135,8 +137,10 @@
 
     /* 临时 Demo：返回欢迎首页 */
     .home-button, .fault-button {
+      flex: 0 0 auto;
       display: flex;
       align-items: center;
+      white-space: nowrap;
       gap: 0.5rem;
       padding: 0.3125rem 0.875rem 0.3125rem 0.6875rem;
       border: 0.0625rem solid rgba(255,255,255,.34);
@@ -339,6 +343,10 @@
     @media (max-width: 1400px) {
       .pause-halo, .pause-ring { display: none; }
     }
+    /* 窄屏状态栏：新增划线价开关后隐藏次要的联系电话，避免文字换行 */
+    @media (max-width: 1200px) {
+      .status-bar .contact-item { display: none; }
+    }
     @media (max-height: 720px) {
       .fault-body { padding: 12px 32px 4px; }
       .fault-page { min-height: 600px; }
@@ -369,6 +377,11 @@
         <button class="demo-control" id="adToggle" type="button" role="switch" aria-checked="true" aria-label="左側広告を切り替える">
           <span class="demo-badge">DEMO</span>
           <span class="demo-label"><span data-i18n="adLabel">広告</span> <strong id="adState">ON</strong></span>
+          <span class="switch-track" aria-hidden="true"><span class="switch-thumb"></span></span>
+        </button>
+        <button class="demo-control" id="strikeToggle" type="button" role="switch" aria-checked="true" data-i18n-aria="strikeAria" aria-label="通常価格の表示を切り替える">
+          <span class="demo-badge">DEMO</span>
+          <span class="demo-label"><span data-i18n="strikeLabel">通常価格</span> <strong id="strikeState">ON</strong></span>
           <span class="switch-track" aria-hidden="true"><span class="switch-thumb"></span></span>
         </button>
         <time class="status-item" datetime="2026-11-04T23:40" data-i18n="date">11月4日 23:40</time>
@@ -425,6 +438,8 @@
         fault: "故障",
         faultAria: "显示故障页面（Demo）",
         adLabel: "广告",
+        strikeLabel: "划线价",
+        strikeAria: "切换划线原价显示",
         date: "11月4日 23:40",
         title: "暂时无法提供服务",
         message: "非常抱歉，设备目前正在维护中。<br>请稍后再来或联系工作人员。",
@@ -442,6 +457,8 @@
         fault: "故障",
         faultAria: "故障画面を表示（Demo）",
         adLabel: "広告",
+        strikeLabel: "通常価格",
+        strikeAria: "通常価格（二重価格）の表示を切り替える",
         date: "11月4日 23:40",
         title: "ただいまサービスを停止しています",
         message: "誠に申し訳ございません。<br>現在メンテナンス中のため、ご利用いただけません。<br>しばらくしてから再度お試しいただくか、係員までお問い合わせください。",
@@ -459,6 +476,8 @@
         fault: "Fault",
         faultAria: "Show out-of-service screen (Demo)",
         adLabel: "Ads",
+        strikeLabel: "List price",
+        strikeAria: "Toggle list price display",
         date: "Nov 4, 23:40",
         title: "Service temporarily unavailable",
         message: "We are sorry — this machine is currently under maintenance.<br>Please come back later or contact our staff.",
@@ -476,6 +495,8 @@
         fault: "고장",
         faultAria: "고장 화면 표시 (Demo)",
         adLabel: "광고",
+        strikeLabel: "정상가",
+        strikeAria: "정상가 표시 전환",
         date: "11월 4일 23:40",
         title: "현재 서비스를 이용할 수 없습니다",
         message: "죄송합니다. 현재 장비 점검 중입니다.<br>잠시 후 다시 이용하시거나 직원에게 문의해 주세요.",
@@ -522,6 +543,14 @@
       const next = adToggle.getAttribute("aria-checked") !== "true";
       adToggle.setAttribute("aria-checked", String(next));
       adState.textContent = next ? "ON" : "OFF";
+    });
+    // Demo 划线价开关：本页没有商品价格，仅保留与商品页一致的视觉
+    const strikeToggle = document.getElementById("strikeToggle");
+    const strikeState = document.getElementById("strikeState");
+    strikeToggle.addEventListener("click", () => {
+      const next = strikeToggle.getAttribute("aria-checked") !== "true";
+      strikeToggle.setAttribute("aria-checked", String(next));
+      strikeState.textContent = next ? "ON" : "OFF";
     });
     document.querySelector(".fault-page").setAttribute("aria-label", dictionary.docTitle);
 
