@@ -558,6 +558,17 @@
       font-size: clamp(1rem, 1.14vw, 1.3125rem);
       letter-spacing: .004em;
     }
+    /* 划线原价：挂在现价右侧，比现价小一号、灰色、加删除线，不抢主价 */
+    .product-price .price-was {
+      margin-left: 0.4375rem;
+      color: #889baa;
+      font-size: clamp(0.75rem, .88vw, 1.0625rem);
+      font-weight: 650;
+      letter-spacing: 0;
+      text-decoration: line-through;
+      text-decoration-thickness: 0.08em;
+      opacity: .95;
+    }
     /* 加购按钮：统一圆形 + 品牌蓝描边，视觉更突出 */
     .add-button {
       display: inline-flex;
@@ -1563,9 +1574,12 @@
     let toastTimer;
 
     const yen = value => `¥${value.toLocaleString("ja-JP")}`;
-    // 价格拆成「货币符号 + 数字」，符号小一号，数字更突出
+    // 划线原价 = 现价 + STRIKE_DELTA，仅用于展示，不参与购物车结算
+    const STRIKE_DELTA = 20;
+    // 价格拆成「货币符号 + 数字」，符号小一号，数字更突出；右侧挂一个小一号的划线原价
     const priceMarkup = value =>
-      `<span class="price-currency">¥</span><span class="price-amount">${value.toLocaleString("ja-JP")}</span>`;
+      `<span class="price-currency">¥</span><span class="price-amount">${value.toLocaleString("ja-JP")}</span>` +
+      `<s class="price-was">${yen(value + STRIKE_DELTA)}</s>`;
     const getProduct = id => products.find(product => product.id === Number(id));
 
     function showToast(message) {
