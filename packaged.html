@@ -249,7 +249,7 @@
     .category-button.active:active { transform: translateY(0.0625rem); background: var(--accent-dark); }
     .category-button .chevron { width: 0.875rem; height: 0.875rem; margin-left: 0.3125rem; }
     .language-button { flex: 0 0 auto; padding: 0 1.3125rem; }
-    .language-picker { position: relative; display: flex; flex: 0 0 auto; }
+    .language-picker { position: relative; display: flex; flex: 0 0 auto; margin-left: auto; }
     .language-picker .caret { transition: transform .18s ease; }
     .language-picker.open .caret { transform: rotate(180deg); }
     .language-menu {
@@ -374,8 +374,8 @@
     }
 
     .product-page {
-      --cols: 5;
-      --rows: 3;
+      --cols: 4;
+      --rows: 2;
       display: grid;
       flex: 0 0 100%;
       grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
@@ -390,7 +390,7 @@
     }
     .workspace.ad-off .ad-sidebar { display: none; }
     .workspace.ad-off .product-stage { padding: 1.25rem 1.625rem 0; }
-    .workspace.ad-off .product-card { grid-template-rows: 63% 37%; }
+    .workspace.ad-off .product-card { grid-template-rows: 70% 30%; }
     /* 多页时左右留出箭头通道，避免箭头压住最后一列商品的「＋」 */
     .product-stage.has-pages { padding-right: 4.625rem; padding-left: 4.625rem; }
     .workspace.ad-off .product-stage.has-pages { padding: 1.25rem 4.625rem 0; }
@@ -426,7 +426,7 @@
     .product-card {
       position: relative;
       display: grid;
-      grid-template-rows: 63% 37%;
+      grid-template-rows: 70% 30%;
       width: 100%;
       height: 100%;
       overflow: hidden;
@@ -1575,9 +1575,9 @@
       toastTimer = window.setTimeout(() => toast.classList.remove("show"), 2200);
     }
 
-    // 预包装：广告开启 5 列 × 3 行 = 15 个/页；关闭广告后 6 列 × 3 行 = 18 个/页
+    // 预包装：广告开启 4 列 × 2 行 = 8 个/页；关闭广告后 5 列 × 2 行 = 10 个/页
     function pageSize() {
-      return state.adEnabled ? 15 : 18;
+      return state.adEnabled ? 8 : 10;
     }
 
     function visibleProducts() {
@@ -1653,9 +1653,9 @@
       productTrack.innerHTML = Array.from({ length: pages }, (_, pageIndex) => {
         const slice = list.slice(pageIndex * perPage, pageIndex * perPage + perPage);
         // 列数按每页容量决定（而非本页实际件数），保证末页卡片与前面页同尺寸
-        const cols = perPage >= 18 ? 6 : 5;
-        // 固定 3 行，末页不足 15 件时卡片也不会被拉高
-        const rows = 3;
+        const cols = perPage >= 10 ? 5 : 4;
+        // 固定 2 行，末页不足一页时卡片也不会被拉高
+        const rows = 2;
         return `
         <div class="product-page" style="--cols:${cols};--rows:${rows}">
           ${slice.map((product, index) => productCardMarkup(product, index)).join("")}
