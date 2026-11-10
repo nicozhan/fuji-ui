@@ -14,6 +14,9 @@
       --line: #dfeaf0;
       --green: #168565;
       --surface: rgba(255,255,255,.92);
+      --amber: #b8791a;
+      --amber-soft: #fffaf0;
+      --amber-line: #e7c086;
     }
     /* ===== 视口等比缩放基准（与 index.html 一致）=====
        设计稿 1920×1080，1rem = 16 设计像素。 */
@@ -185,6 +188,7 @@
       background: transparent;
       filter: drop-shadow(0 1.125rem 1.375rem rgba(24,65,89,.22));
       animation: product-float 4s ease-in-out infinite;
+      transition: transform .45s ease;
     }
     .steam { position: absolute; z-index: 3; top: 1.75rem; left: 50%; width: 5.625rem; height: 4.6875rem; color: rgba(8,119,201,.42); transform: translateX(-50%); }
     .steam path { stroke-dasharray: 80; animation: steam 2.8s ease-in-out infinite; }
@@ -261,6 +265,53 @@
     @keyframes steam { 0% { opacity: 0; stroke-dashoffset: 80; transform: translateY(0.5rem); } 40% { opacity: 1; } 100% { opacity: 0; stroke-dashoffset: 0; transform: translateY(-0.5rem); } }
     @keyframes complete-in { from { opacity: 0; transform: translateY(1rem) scale(.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
 
+    /* ===== 待取走：机器暂停，等取货口传感器确认 ===== */
+    .page-title.is-pickup { color: var(--amber); animation: title-blink 1.15s ease-in-out infinite; }
+    .page-subtitle.is-pickup { color: #a97b32; }
+    @keyframes title-blink { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+
+    .hero-stage.is-pickup .hero-image { transform: scale(.82) translateY(-2.25rem); animation: none; }
+    .hero-stage.is-pickup .steam { display: none; }
+    .hero-stage.is-pickup .halo.inner { animation-play-state: paused; opacity: .45; }
+    /* 暂停时收起「制作中」齿轮，避免与取货提示条抢位；注意力交给提示条 */
+    .hero-stage.is-pickup .making-indicator { opacity: 0; visibility: hidden; transform: scale(.7); }
+    .making-indicator { transition: opacity .3s ease, transform .3s ease, background .3s ease; }
+
+    .pickup-cue {
+      position: absolute;
+      z-index: 6;
+      bottom: -0.5rem;
+      left: 50%;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.875rem 1.75rem;
+      border: 0.125rem solid var(--amber-line);
+      border-radius: 62.4375rem;
+      color: #9a6208;
+      background: #fffdf7;
+      font-size: 1.375rem;
+      font-weight: 780;
+      letter-spacing: .01em;
+      white-space: nowrap;
+      transform: translateX(-50%);
+      animation: cue-pulse 1.35s ease-in-out infinite;
+    }
+    .pickup-cue svg { width: 1.5rem; height: 1.5rem; }
+    @keyframes cue-pulse {
+      0%, 100% { box-shadow: 0 0.75rem 2rem rgba(184,118,15,.16), 0 0 0 0 rgba(196,127,18,.34); }
+      50% { box-shadow: 0 1rem 2.5rem rgba(184,118,15,.26), 0 0 0 1rem rgba(196,127,18,0); }
+    }
+
+    .cup-card.ready { border-color: var(--amber-line); background: #fffcf4; animation: card-glow 1.35s ease-in-out infinite; }
+    .cup-card.ready .cup-status, .cup-card.ready .cup-percent { color: #9a6208; }
+    .cup-card.ready .progress-fill { background: linear-gradient(90deg, #e8b453, #c07d12); }
+    @keyframes card-glow {
+      0%, 100% { box-shadow: inset 0 0 0 0.0625rem rgba(184,118,15,.06); }
+      50% { box-shadow: inset 0 0 0 0.0625rem rgba(184,118,15,.22), 0 0.5rem 1.25rem rgba(184,118,15,.12); }
+    }
+    .status-dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; background: #c07d12; animation: title-blink 1.15s ease-in-out infinite; }
+
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation: none !important; transition: none !important; }
     }
@@ -271,9 +322,9 @@
     <section class="demo-bar" id="demoBar" aria-label="制作过程 Demo">
       <div class="demo-title"><span class="demo-badge">DEMO</span><span data-i18n="demoTitle">制作过程页面</span></div>
       <div class="demo-buttons" role="group" aria-label="选择制作状态">
-        <button class="demo-button active" type="button" data-demo-state="first" aria-pressed="true" data-i18n="demoFirst">制作第一杯</button>
-        <button class="demo-button" type="button" data-demo-state="second" aria-pressed="false" data-i18n="demoSecond">制作第二杯</button>
-        <button class="demo-button" type="button" data-demo-state="complete" aria-pressed="false" data-i18n="demoComplete">制作完成（请取杯）</button>
+        <button class="demo-button active" type="button" data-demo-action="start" aria-pressed="true" data-i18n="demoStart">开始制作</button>
+        <button class="demo-button" type="button" data-demo-action="taken" id="demoTakenButton" aria-pressed="false" data-i18n="demoTaken">模拟取走</button>
+        <button class="demo-button" type="button" data-demo-action="complete" aria-pressed="false" data-i18n="demoComplete">跳到完成</button>
       </div>
       <button class="demo-home" id="demoHomeButton" type="button" aria-label="返回首页（Demo）">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 10.6 12 3.6l8.5 7"/><path d="M5.6 9.9V20h12.8V9.9"/></svg>
@@ -295,12 +346,16 @@
 
       <section class="hero" id="makingHero" aria-label="当前制作商品">
         <span class="ambient one"></span><span class="ambient two"></span><span class="ambient three"></span>
-        <div class="hero-stage">
+        <div class="hero-stage" id="heroStage">
           <span class="halo outer"></span><span class="halo middle"></span>
           <span class="halo inner"><span class="orbit-dot"></span></span>
           <svg class="steam" viewBox="0 0 90 75" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M24 65c-14-16 15-22 0-42"/><path d="M45 65c-14-16 15-22 0-42"/><path d="M66 65c-14-16 15-22 0-42"/></svg>
           <img class="hero-image" id="heroImage" src="product-cutout-27/331-02.webp" alt="当前商品">
           <span class="making-indicator" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><g class="gear"><path d="m24 5 3 5 6-1 1 6 6 2-2 6 4 5-5 4 1 6-6 1-3 5-6-3-6 3-3-5-6-1 1-6-5-4 4-5-2-6 6-2 1-6 6 1 3-5Z"/><circle cx="24" cy="24" r="7"/></g></svg></span>
+          <div class="pickup-cue" id="pickupCue" hidden>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v13"/><path d="m6 11 6 6 6-6"/></svg>
+            <span id="pickupCueText">请取走第 1 杯</span>
+          </div>
         </div>
       </section>
 
@@ -330,37 +385,59 @@
   <script>
     const COMPLETE_RETURN_SECONDS = 60;
     const MAX_CUPS = 3;
+    const CUP = { WAITING: "waiting", MAKING: "making", READY: "ready", DONE: "done" };
     const params = new URLSearchParams(window.location.search);
     const I18N = {
       zh: {
-        htmlLang: "zh-CN", title: "饮品制作", demoTitle: "制作过程页面", demoFirst: "制作第一杯", demoSecond: "制作第二杯", demoComplete: "制作完成（请取杯）",
-        making: "饮品正在制作中", makingFor: "正在为您制作第 {current} / {total} 杯", pickup: "请拿走您的饮品", complete: "您的饮品已全部制作完成，感谢光临！",
-        orderProgress: "订单制作进度", cups: "共 {n} 杯", done: "已完成", working: "制作中", waiting: "等待制作", next: "下一杯：{name}", seconds: "{n} 秒", returnHint: "后自动返回首页", homeNow: "立即回到首页", home: "首页", homeAria: "返回首页（Demo）",
+        htmlLang: "zh-CN", title: "饮品制作", demoTitle: "制作过程页面",
+        demoStart: "开始制作", demoTaken: "模拟取走", demoComplete: "跳到完成",
+        making: "饮品正在制作中", makingFor: "正在为您制作第 {current} / {total} 杯",
+        readyTitle: "请取走第 {cup} 杯", readyHint: "取走后将立即制作下一杯", readyHintLast: "取走后本次订单完成",
+        pickup: "请拿走您的饮品", complete: "您的饮品已全部制作完成，感谢光临！",
+        orderProgress: "订单制作进度", cups: "共 {n} 杯", done: "已取走", working: "制作中", readyTag: "待取走",
+        waiting: "等待制作", waitingPrev: "请先取走上一杯", next: "下一杯：{name}",
+        seconds: "{n} 秒", returnHint: "后自动返回首页", homeNow: "立即回到首页", home: "首页", homeAria: "返回首页（Demo）",
         size: { small: "小杯", regular: "中杯", medium: "中杯", large: "大杯" }, temperature: { hot: "热饮", iced: "冷饮" },
         sweetness: { none: "无糖", light: "微糖", half: "半糖", less: "少糖", standard: "标准糖" }, milk: { milk: "牛奶", lowfat: "低脂奶", oat: "燕麦奶", soy: "豆奶" }
       },
       ja: {
-        htmlLang: "ja", title: "ドリンク製造", demoTitle: "製造プロセス DEMO", demoFirst: "1杯目を製造", demoSecond: "2杯目を製造", demoComplete: "製造完了（お受け取り）",
-        making: "ドリンクを製造しています", makingFor: "{total}杯中 {current}杯目を製造しています", pickup: "ドリンクをお受け取りください", complete: "すべてのドリンクが完成しました。ありがとうございました。",
-        orderProgress: "注文の製造状況", cups: "合計 {n} 杯", done: "完成", working: "製造中", waiting: "待機中", next: "次：{name}", seconds: "{n} 秒", returnHint: "後にホームへ戻ります", homeNow: "ホームへ戻る", home: "ホーム", homeAria: "ホームに戻る（Demo）",
+        htmlLang: "ja", title: "ドリンク製造", demoTitle: "製造プロセス DEMO",
+        demoStart: "製造開始", demoTaken: "受け取り完了", demoComplete: "完了へ",
+        making: "ドリンクを製造しています", makingFor: "{total}杯中 {current}杯目を製造しています",
+        readyTitle: "「{cup}杯目」をお受け取りください", readyHint: "お取り上げ後、すぐに次の1杯を製造します", readyHintLast: "お取り上げでご注文は完了です",
+        pickup: "ドリンクをお受け取りください", complete: "すべてのドリンクが完成しました。ありがとうございました。",
+        orderProgress: "注文の製造状況", cups: "合計 {n} 杯", done: "受取済み", working: "製造中", readyTag: "お受け取り待ち",
+        waiting: "待機中", waitingPrev: "前の1杯をお取りください", next: "次：{name}",
+        seconds: "{n} 秒", returnHint: "後にホームへ戻ります", homeNow: "ホームへ戻る", home: "ホーム", homeAria: "ホームに戻る（Demo）",
         size: { small: "S", regular: "M", medium: "M", large: "L" }, temperature: { hot: "ホット", iced: "アイス" },
         sweetness: { none: "無糖", light: "微糖", half: "半糖", less: "少なめ", standard: "標準" }, milk: { milk: "ミルク", lowfat: "低脂肪乳", oat: "オーツミルク", soy: "豆乳" }
       },
       en: {
-        htmlLang: "en", title: "Drink Preparation", demoTitle: "Preparation Demo", demoFirst: "Making cup 1", demoSecond: "Making cup 2", demoComplete: "Complete (pickup)",
-        making: "Your drink is being prepared", makingFor: "Preparing cup {current} of {total}", pickup: "Please collect your drinks", complete: "All your drinks are ready. Thank you!",
-        orderProgress: "ORDER PROGRESS", cups: "{n} cups", done: "Ready", working: "Preparing", waiting: "Waiting", next: "Next: {name}", seconds: "{n} sec", returnHint: "until automatic return home", homeNow: "Back to home", home: "Home", homeAria: "Back to home (Demo)",
+        htmlLang: "en", title: "Drink Preparation", demoTitle: "Preparation Demo",
+        demoStart: "Start", demoTaken: "Cup taken", demoComplete: "Skip to finish",
+        making: "Your drink is being prepared", makingFor: "Preparing cup {current} of {total}",
+        readyTitle: "Please take cup {cup}", readyHint: "The next cup starts right after you take it", readyHintLast: "Taking it completes your order",
+        pickup: "Please collect your drinks", complete: "All your drinks are ready. Thank you!",
+        orderProgress: "ORDER PROGRESS", cups: "{n} cups", done: "Taken", working: "Preparing", readyTag: "Ready",
+        waiting: "Waiting", waitingPrev: "Take the previous cup first", next: "Next: {name}",
+        seconds: "{n} sec", returnHint: "until automatic return home", homeNow: "Back to home", home: "Home", homeAria: "Back to home (Demo)",
         size: { small: "Small", regular: "Medium", medium: "Medium", large: "Large" }, temperature: { hot: "Hot", iced: "Iced" },
         sweetness: { none: "No sugar", light: "Light", half: "Half", less: "Less", standard: "Standard" }, milk: { milk: "Milk", lowfat: "Low-fat", oat: "Oat milk", soy: "Soy milk" }
       },
       ko: {
-        htmlLang: "ko", title: "음료 제조", demoTitle: "제조 과정 DEMO", demoFirst: "첫 번째 잔 제조", demoSecond: "두 번째 잔 제조", demoComplete: "제조 완료（수령）",
-        making: "음료를 제조하고 있습니다", makingFor: "총 {total}잔 중 {current}번째 잔을 제조 중입니다", pickup: "음료를 가져가 주세요", complete: "모든 음료가 완성되었습니다. 감사합니다!",
-        orderProgress: "주문 제조 현황", cups: "총 {n}잔", done: "완료", working: "제조 중", waiting: "대기 중", next: "다음: {name}", seconds: "{n}초", returnHint: "후 홈으로 자동 이동", homeNow: "홈으로 바로가기", home: "홈", homeAria: "홈으로 이동 (Demo)",
+        htmlLang: "ko", title: "음료 제조", demoTitle: "제조 과정 DEMO",
+        demoStart: "제조 시작", demoTaken: "수령 완료", demoComplete: "완료로 이동",
+        making: "음료를 제조하고 있습니다", makingFor: "총 {total}잔 중 {current}번째 잔을 제조 중입니다",
+        readyTitle: "{cup}번째 잔을 가져가 주세요", readyHint: "가져가시면 바로 다음 잔을 제조합니다", readyHintLast: "가져가시면 주문이 완료됩니다",
+        pickup: "음료를 가져가 주세요", complete: "모든 음료가 완성되었습니다. 감사합니다!",
+        orderProgress: "주문 제조 현황", cups: "총 {n}잔", done: "수령 완료", working: "제조 중", readyTag: "수령 대기",
+        waiting: "대기 중", waitingPrev: "이전 잔을 먼저 가져가 주세요", next: "다음: {name}",
+        seconds: "{n}초", returnHint: "후 홈으로 자동 이동", homeNow: "홈으로 바로가기", home: "홈", homeAria: "홈으로 이동 (Demo)",
         size: { small: "S", regular: "M", medium: "M", large: "L" }, temperature: { hot: "핫", iced: "아이스" },
         sweetness: { none: "무설탕", light: "약간", half: "반", less: "적게", standard: "표준" }, milk: { milk: "우유", lowfat: "저지방", oat: "오트밀크", soy: "두유" }
       }
     };
+
     const PRODUCT_NAMES = {
       1: { zh: "冰美式", ja: "アイスアメリカーノ", en: "Iced Americano", ko: "아이스 아메리카노" },
       2: { zh: "焦糖玛奇朵", ja: "キャラメルマキアート", en: "Caramel Macchiato", ko: "카라멜 마키아토" },
@@ -397,11 +474,13 @@
         { productId: 3, name: "冰拿铁", price: 350, quantity: 1, image: "product-cutout-27/331-03.webp", variantData: { temperature: "iced", size: "regular" } }
       ]
     };
+
     let language = "zh";
     let cups = [];
-    let viewState = "first";
-    let displayCup = 0;
+    let cupStates = [];
     let progressValues = [];
+    let isDrinkOrder = true;
+    let pagePhase = "making";
     let countdownDeadline = 0;
     let countdownTimer = null;
     let productionTimer = null;
@@ -429,7 +508,6 @@
     }
     function productName(item) {
       const names = PRODUCT_NAMES[Number(item.productId)];
-      // 预包装订单没有定制参数，直接使用下单时的商品名，避免被套用成饮品名
       if (!item.variantData && item.name) return item.name;
       return names && names[language] ? names[language] : (item.name || "Drink");
     }
@@ -452,11 +530,13 @@
     function checkIcon() {
       return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>';
     }
-    function stateForCup(index) {
-      if (viewState === "complete") return "done";
-      if (index < displayCup) return "done";
-      if (index === displayCup) return "making";
-      return "waiting";
+    function activeIndex() { return cupStates.indexOf(CUP.MAKING); }
+    function readyIndex() { return cupStates.indexOf(CUP.READY); }
+    function allCupsDone() { return cupStates.length > 0 && cupStates.every(state => state === CUP.DONE); }
+    // 是否正处于「等待取走」：饮品按单杯判定，预包装（无定制参数）整单一次取走
+    function awaitingPickup() {
+      if (pagePhase === "complete") return false;
+      return isDrinkOrder ? readyIndex() >= 0 : allCupsDone();
     }
     function renderCompletionProducts() {
       const container = document.getElementById("completionProducts");
@@ -469,42 +549,87 @@
     }
     function renderOrderTrack() {
       const track = document.getElementById("orderTrack");
+      const pickup = awaitingPickup();
       track.className = `order-track count-${cups.length}`;
       track.innerHTML = cups.map((item, index) => {
-        const status = stateForCup(index);
-        const percent = status === "done" ? 100 : status === "making" ? Math.round(progressValues[index]) : 0;
-        const nextNote = status === "making" && cups[index + 1] ? `<p class="next-cup-note">${t("next", { name: productName(cups[index + 1]) })}</p>` : "";
+        let state = cupStates[index] || CUP.WAITING;
+        // 预包装整单取走：全部做好但还没取走时，卡片以「待取走」呈现
+        if (!isDrinkOrder && pickup && state === CUP.DONE) state = CUP.READY;
+        const percent = state === CUP.MAKING ? Math.round(progressValues[index] || 0)
+                      : state === CUP.WAITING ? 0 : 100;
+        const prevBlocked = index > 0 && cupStates[index - 1] !== CUP.DONE;
+        const label = state === CUP.MAKING ? t("working")
+                    : state === CUP.READY ? t("readyTag")
+                    : state === CUP.DONE ? t("done")
+                    : (prevBlocked && pickup ? t("waitingPrev") : t("waiting"));
+        const icon = state === CUP.DONE ? checkIcon()
+                   : state === CUP.READY ? '<span class="status-dot" aria-hidden="true"></span>'
+                   : "";
+        const nextNote = state === CUP.MAKING && cups[index + 1] ? `<p class="next-cup-note">${t("next", { name: productName(cups[index + 1]) })}</p>` : "";
         return `
-          <article class="cup-card ${status}" data-cup="${index + 1}">
+          <article class="cup-card ${state}" data-cup="${index + 1}">
             <img class="cup-image" src="${item.image}" alt="${productName(item)}">
             <div class="cup-info"><h2 class="cup-name">${productName(item)}</h2><p class="cup-variant">${variantLabel(item)}</p>${nextNote}</div>
-            <span class="cup-status">${status === "done" ? checkIcon() : ""}${t(status === "making" ? "working" : status)}</span>
+            <span class="cup-status">${icon}${label}</span>
             <div class="cup-progress"><div class="progress-line"><span class="progress-rail"><span class="progress-fill" style="width:${percent}%"></span></span><span class="cup-percent">${percent}%</span></div></div>
           </article>`;
       }).join("");
     }
     function render() {
-      const complete = viewState === "complete";
+      const complete = pagePhase === "complete";
+      const ready = readyIndex();
+      const making = activeIndex();
+      const pickup = awaitingPickup();
+      const titleEl = document.getElementById("pageTitle");
+      const subtitleEl = document.getElementById("pageSubtitle");
+
       document.getElementById("makingHero").hidden = complete;
       document.getElementById("completeHero").hidden = !complete;
       document.getElementById("returnCountdown").hidden = !complete;
-      document.getElementById("pageTitle").textContent = complete ? t("pickup") : t("making");
-      document.getElementById("pageSubtitle").textContent = complete ? t("complete") : t("makingFor", { current: displayCup + 1, total: cups.length });
-      document.getElementById("eyebrow").textContent = complete ? "READY FOR PICKUP" : "FRESHLY MADE FOR YOU";
+
+      if (complete) {
+        titleEl.textContent = t("pickup");
+        subtitleEl.textContent = t("complete");
+      } else if (pickup) {
+        titleEl.textContent = isDrinkOrder ? t("readyTitle", { cup: ready + 1 }) : t("pickup");
+        subtitleEl.textContent = isDrinkOrder && ready + 1 < cups.length ? t("readyHint") : t("readyHintLast");
+      } else {
+        titleEl.textContent = t("making");
+        subtitleEl.textContent = t("makingFor", { current: Math.max(0, making) + 1, total: cups.length });
+      }
+      titleEl.classList.toggle("is-pickup", pickup);
+      subtitleEl.classList.toggle("is-pickup", pickup);
+      document.getElementById("eyebrow").textContent = complete ? "READY FOR PICKUP" : pickup ? "PICK UP NOW" : "FRESHLY MADE FOR YOU";
+
+      // 取货提示：齿轮停转、蒸汽收起、商品上浮让位，下方悬浮闪动提示条
+      const stage = document.getElementById("heroStage");
+      const cue = document.getElementById("pickupCue");
+      stage.classList.toggle("is-pickup", pickup);
+      cue.hidden = !pickup;
+      if (pickup) {
+        document.getElementById("pickupCueText").textContent =
+          isDrinkOrder ? t("readyTitle", { cup: ready + 1 }) : t("pickup");
+      }
       if (!complete) {
-        const item = cups[displayCup];
+        const focus = pickup && ready >= 0 ? ready : Math.max(0, making);
+        const item = cups[Math.min(focus, cups.length - 1)];
         const image = document.getElementById("heroImage");
         image.src = item.image;
         image.alt = productName(item);
       }
-      document.querySelectorAll("[data-demo-state]").forEach(button => {
-        const active = button.dataset.demoState === viewState;
+
+      const takenButton = document.getElementById("demoTakenButton");
+      if (takenButton) takenButton.disabled = !pickup;
+      document.querySelectorAll("[data-demo-action]").forEach(button => {
+        const action = button.dataset.demoAction;
+        const active = (action === "taken" && pickup) || (action === "complete" && complete);
         button.classList.toggle("active", active);
         button.setAttribute("aria-pressed", String(active));
       });
+
       renderOrderTrack();
       if (complete) renderCompletionProducts();
-      document.title = `${complete ? t("pickup") : t("title")} - Fuji Electric`;
+      document.title = `${complete || pickup ? t("pickup") : t("title")} - Fuji Electric`;
     }
     function stopCountdown() {
       if (countdownTimer !== null) window.clearInterval(countdownTimer);
@@ -512,6 +637,7 @@
     }
     function goHome() {
       stopCountdown();
+      stopProduction();
       try {
         localStorage.removeItem("fujiOrder");
         sessionStorage.removeItem("fujiPaymentStatus");
@@ -530,64 +656,116 @@
       tickCountdown();
       countdownTimer = window.setInterval(tickCountdown, 250);
     }
-    function setPreparationState(nextState, options) {
-      if (!["first", "second", "complete"].includes(nextState)) return false;
-      if (nextState === "second" && cups.length < 2) return false;
-      const settings = options || {};
-      viewState = nextState;
-      if (nextState === "first") {
-        displayCup = 0;
-        progressValues[0] = settings.progress !== undefined ? settings.progress : 68;
-      } else if (nextState === "second") {
-        displayCup = 1;
-        progressValues[0] = 100;
-        progressValues[1] = settings.progress !== undefined ? settings.progress : 72;
-      } else {
-        displayCup = Math.max(0, cups.length - 1);
-        progressValues = progressValues.map(() => 100);
-        stopProduction();
-        startReturnCountdown(settings.resetCountdown !== false);
-      }
-      if (nextState !== "complete") stopCountdown();
-      render();
-      try { sessionStorage.setItem("fujiPreparationState", nextState); } catch (error) { console.warn(error); }
-      return true;
-    }
     function stopProduction() {
       autoProduction = false;
       if (productionTimer !== null) window.clearInterval(productionTimer);
       productionTimer = null;
     }
+    function startProductionTimer() {
+      if (productionTimer !== null) window.clearInterval(productionTimer);
+      autoProduction = true;
+      productionTimer = window.setInterval(tickProduction, 120);
+    }
     function tickProduction() {
-      if (!autoProduction || viewState === "complete") return;
-      progressValues[displayCup] = Math.min(100, progressValues[displayCup] + 1);
-      if (progressValues[displayCup] >= 100) {
-        if (displayCup + 1 < cups.length) {
-          displayCup += 1;
-          viewState = displayCup === 0 ? "first" : "second";
-          progressValues[displayCup] = Math.max(0, progressValues[displayCup]);
+      if (!autoProduction || pagePhase === "complete") return;
+      const index = activeIndex();
+      if (index < 0) { stopProduction(); return; }
+      progressValues[index] = Math.min(100, progressValues[index] + 1);
+      if (progressValues[index] >= 100) {
+        if (isDrinkOrder) {
+          // 关键：这一杯做好就停机，等取走信号，绝不自动进入下一杯
+          cupStates[index] = CUP.READY;
+          stopProduction();
         } else {
-          setPreparationState("complete", { resetCountdown: true });
-          return;
+          // 预包装：连续出完，最后整单一次取走
+          cupStates[index] = CUP.DONE;
+          const next = cupStates.indexOf(CUP.WAITING);
+          if (next >= 0) {
+            cupStates[next] = CUP.MAKING;
+            progressValues[next] = 0;
+          } else {
+            stopProduction();
+          }
         }
       }
       render();
     }
+    function finishOrder() {
+      stopProduction();
+      setPreparationState("complete", { resetCountdown: true });
+    }
+    // 取货口传感器回调：index 为杯序号（0 基），省略则取当前待取走的那一杯
+    function notifyCupTaken(index) {
+      if (pagePhase === "complete") return false;
+      if (isDrinkOrder) {
+        const target = Number.isInteger(index) ? index : readyIndex();
+        if (target < 0 || target >= cups.length || cupStates[target] !== CUP.READY) return false;
+        cupStates[target] = CUP.DONE;
+        const next = cupStates.indexOf(CUP.WAITING);
+        if (next >= 0) {
+          // 检测到拿走后立即开始下一杯，不做额外等待
+          cupStates[next] = CUP.MAKING;
+          progressValues[next] = 0;
+          startProductionTimer();
+        } else {
+          finishOrder();
+        }
+      } else if (allCupsDone()) {
+        finishOrder();
+      } else {
+        return false;
+      }
+      render();
+      return true;
+    }
     function startProduction() {
       stopProduction();
       stopCountdown();
-      autoProduction = true;
-      displayCup = 0;
-      viewState = "first";
+      pagePhase = "making";
+      cupStates = cups.map((_, index) => index === 0 ? CUP.MAKING : CUP.WAITING);
       progressValues = cups.map(() => 0);
       render();
-      productionTimer = window.setInterval(tickProduction, 120);
+      startProductionTimer();
+    }
+    function setPreparationState(nextState, options) {
+      const settings = options || {};
+      if (nextState === "complete") {
+        pagePhase = "complete";
+        cupStates = cups.map(() => CUP.DONE);
+        progressValues = cups.map(() => 100);
+        stopProduction();
+        startReturnCountdown(settings.resetCountdown !== false);
+      } else if (["first", "second", "ready"].includes(nextState)) {
+        if (nextState === "second" && cups.length < 2) return false;
+        pagePhase = "making";
+        stopProduction();
+        stopCountdown();
+        cupStates = cups.map(() => CUP.WAITING);
+        progressValues = cups.map(() => 0);
+        if (nextState === "first") {
+          cupStates[0] = CUP.MAKING;
+          progressValues[0] = settings.progress !== undefined ? settings.progress : 68;
+        } else if (nextState === "second") {
+          cupStates[0] = CUP.DONE;
+          progressValues[0] = 100;
+          cupStates[1] = CUP.MAKING;
+          progressValues[1] = settings.progress !== undefined ? settings.progress : 72;
+        } else {
+          cupStates[0] = CUP.READY;
+          progressValues[0] = 100;
+        }
+      } else {
+        return false;
+      }
+      render();
+      try { sessionStorage.setItem("fujiPreparationState", nextState); } catch (error) { console.warn(error); }
+      return true;
     }
     function setCupProgress(cupNumber, percent) {
       const index = Number(cupNumber) - 1;
       if (index < 0 || index >= cups.length || !Number.isFinite(Number(percent))) return false;
       progressValues[index] = Math.max(0, Math.min(100, Number(percent)));
-      if (index === displayCup && viewState !== "complete") renderOrderTrack();
+      if (pagePhase !== "complete") renderOrderTrack();
       return true;
     }
     function configurePreparation(config) {
@@ -600,15 +778,18 @@
     document.documentElement.lang = I18N[language].htmlLang;
     document.querySelectorAll("[data-i18n]").forEach(element => { element.textContent = t(element.dataset.i18n); });
     cups = expandCups(order.items);
+    isDrinkOrder = cups.every(item => !!item.variantData);
+    cupStates = cups.map(() => CUP.WAITING);
     progressValues = cups.map(() => 0);
     document.getElementById("orderReference").textContent = `ORDER · ${order.orderId || "FUJI"}`;
     document.getElementById("orderCupCount").textContent = t("cups", { n: cups.length });
-    document.querySelector('[data-demo-state="second"]').disabled = cups.length < 2;
     document.getElementById("demoBar").hidden = params.get("demo") === "off";
-    document.querySelectorAll("[data-demo-state]").forEach(button => {
+    document.querySelectorAll("[data-demo-action]").forEach(button => {
       button.addEventListener("click", () => {
-        stopProduction();
-        setPreparationState(button.dataset.demoState);
+        const action = button.dataset.demoAction;
+        if (action === "start") startProduction();
+        else if (action === "taken") notifyCupTaken();
+        else if (action === "complete") { stopProduction(); setPreparationState("complete"); }
       });
     });
     document.getElementById("returnHomeNow").addEventListener("click", goHome);
@@ -617,22 +798,26 @@
       stopProduction();
       goHome();
     });
+    // 切到后台只暂停计时器，不关闭自动制作标记，回到前台继续跑
     document.addEventListener("visibilitychange", () => {
       if (document.hidden) {
         if (productionTimer !== null) window.clearInterval(productionTimer);
         productionTimer = null;
-      } else if (autoProduction && productionTimer === null) productionTimer = window.setInterval(tickProduction, 120);
+      } else if (autoProduction && productionTimer === null && activeIndex() >= 0) {
+        startProductionTimer();
+      }
     });
 
     window.setPreparationState = setPreparationState;
     window.setCupProgress = setCupProgress;
     window.startProduction = startProduction;
     window.configurePreparation = configurePreparation;
+    window.notifyCupTaken = notifyCupTaken;
 
     const requestedState = params.get("state");
-    if (["first", "second", "complete"].includes(requestedState)) setPreparationState(requestedState);
-    else if (params.get("auto") === "1") startProduction();
-    else setPreparationState("first");
+    if (["first", "second", "ready", "complete"].includes(requestedState)) setPreparationState(requestedState);
+    else startProduction();
+
   </script>
 </body>
 </html>
