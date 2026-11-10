@@ -25,8 +25,10 @@
       --header-h: 6.5rem;
       --pager-h: 4rem;
       --grid-gap: 0.75rem;
-      /* 左右区域比例（初始值 35:65）：只改这一个数字，广告区 / 商品区会按比例重排 */
-      --ad-ratio: 35%;
+      /* 广告海报原始比例 848×1855（assets/ad-poster-*.jpg）；广告栏按此比例贴合，不再留左右底衬 */
+      --ad-poster-w: 848;
+      --ad-poster-h: 1855;
+      --ad-max-w: 62.5rem; /* 1000 设计像素，超大屏封顶 */
     }
 
     /* ===== 视口等比缩放基准 =====
@@ -294,8 +296,10 @@
 
     .ad-sidebar {
       position: relative;
-      /* 左右比例 35 : 65 —— 广告区吃 35%，商品区用剩余空间自适应 */
-      flex: 0 0 var(--ad-ratio);
+      /* 宽度 = 可用高度 × 海报比例：海报 contain 后正好铺满，左右不再留底衬；超出 1000 设计像素则封顶 */
+      flex: 0 0 auto;
+      aspect-ratio: var(--ad-poster-w) / var(--ad-poster-h);
+      max-width: var(--ad-max-w);
       min-width: 0;
       overflow: hidden;
       /* 图片按 contain 显示后会留出左右（或上下）留白，用中性底衬住海报 */
@@ -1067,7 +1071,7 @@
         </div>
       </div>
 
-      <aside class="cart-panel" id="cartPanel" aria-label="ショッピングカート">
+      <aside class="cart-panel closed" id="cartPanel" aria-label="ショッピングカート">
         <div class="cart-header">
           <h2 class="cart-title">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 4h2l2.2 11.2a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 2-1.6L20 8H6M10 21h.01M17 21h.01"/></svg>
@@ -1928,6 +1932,29 @@
     document.addEventListener("keydown", event => {
       if (event.key === "Escape") setLanguageMenuOpen(false);
     });
+
+    // 广告栏宽度 = 可用高度 × 海报比例（848×1855），并封顶 1000 设计像素。
+    // CSS 里用 aspect-ratio 实现；这里再按实际像素写一次，规避个别浏览器在 flex 中解析不了
+    // aspect-ratio 导致广告栏宽度塌成 0 的风险。
+    function fitAdSidebar() {
+      const sidebar = document.getElementById("adSidebar");
+      if (!sidebar) return;
+      const workspace = sidebar.parentElement;
+      const height = workspace ? workspace.clientHeight : 0;
+      if (!height) return;
+      const styles = getComputedStyle(document.documentElement);
+      const posterW = parseFloat(styles.getPropertyValue("--ad-poster-w")) || 848;
+      const posterH = parseFloat(styles.getPropertyValue("--ad-poster-h")) || 1855;
+      const maxRem = parseFloat(styles.getPropertyValue("--ad-max-w")) || 62.5;
+      const rootFont = parseFloat(styles.fontSize) || 16;
+      const width = Math.min(Math.round(height * posterW / posterH), Math.round(maxRem * rootFont));
+      sidebar.style.width = `${width}px`;
+      sidebar.style.flexBasis = `${width}px`;
+    }
+
+    fitAdSidebar();
+    window.addEventListener("resize", fitAdSidebar);
+    window.addEventListener("orientationchange", fitAdSidebar);
 
     applyLanguage(currentLanguage, { persist: false });
     setCartOpen(state.cartOpen);
