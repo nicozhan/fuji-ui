@@ -353,6 +353,77 @@
       box-shadow: 0 0.4375rem 1.375rem rgba(33,73,101,.055);
     }
     .qr-media img { display: block; width: 100%; height: 100%; object-fit: contain; }
+    .qr-media img[hidden] { display: none; }
+
+    /* ── 新增状态「多码选择」：左卡三码竖排，点选后右侧放大 ── */
+    .qr-media { position: relative; }
+    .channel-picker {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      gap: clamp(0.625rem, 1.5vh, 1.25rem);
+      padding: clamp(0.75rem, 1.8vh, 1.5rem);
+    }
+    .channel-picker[hidden] { display: none; }
+    .channel-item {
+      display: flex;
+      flex: 1 1 0;
+      align-items: center;
+      gap: clamp(0.75rem, 1.2vw, 1.25rem);
+      min-height: 0;
+      padding: clamp(0.5rem, 1.1vh, 0.9375rem) clamp(0.75rem, 1.1vw, 1.25rem);
+      border: 0.0625rem solid #e3ebf0;
+      border-radius: clamp(0.875rem, 1.2vw, 1.25rem);
+      color: var(--text);
+      background: #fff;
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: border-color .15s ease, background .15s ease, box-shadow .15s ease;
+    }
+    .channel-item:active { transform: scale(.995); }
+    .channel-thumb {
+      display: flex;
+      flex: 0 0 auto;
+      align-items: center;
+      justify-content: center;
+      width: clamp(3.25rem, min(5.2vw, 11vh), 7rem);
+      aspect-ratio: 1 / 1;
+      padding: 0.375rem;
+      border: 0.0625rem solid #e8eff4;
+      border-radius: 0.75rem;
+      background: #fff;
+    }
+    .channel-qr { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
+    .channel-qr img, .channel-qr canvas { display: block; width: 100% !important; height: 100% !important; }
+    .channel-meta { display: flex; flex: 1 1 auto; flex-direction: column; gap: 0.1875rem; min-width: 0; }
+    .channel-name { font-size: clamp(1rem, 1.15vw, 1.375rem); font-weight: 750; line-height: 1.25; white-space: nowrap; }
+    .channel-sub { color: var(--text-2); font-size: clamp(0.75rem, .78vw, 0.9375rem); font-weight: 600; letter-spacing: .07em; text-transform: uppercase; white-space: nowrap; }
+    .channel-check {
+      display: flex;
+      flex: 0 0 auto;
+      align-items: center;
+      justify-content: center;
+      width: clamp(1.375rem, 1.6vw, 1.875rem);
+      height: clamp(1.375rem, 1.6vw, 1.875rem);
+      border-radius: 50%;
+      color: #fff;
+      background: var(--ch, #b9c8d3);
+      opacity: 0;
+      transition: opacity .15s ease;
+    }
+    .channel-check svg { width: 62%; height: 62%; }
+    .channel-item.is-selected .channel-check { opacity: 1; }
+
+    .channel-item.is-alipay { --ch: #1677ff; }
+    .channel-item.is-wechat { --ch: #07c160; }
+    .channel-item.is-wechatqr { --ch: #0b8f66; }
+    .channel-item.is-selected { border-color: var(--ch); box-shadow: inset 0 0 0 0.0625rem var(--ch); }
+    .channel-item.is-alipay.is-selected { background: #f2f7ff; }
+    .channel-item.is-wechat.is-selected { background: #f1fbf6; }
+    .channel-item.is-wechatqr.is-selected { background: #eefaf4; }
     .qr-panel {
       position: relative;
       display: flex;
@@ -649,6 +720,7 @@
           <div class="demo-states" id="qrDemo" aria-label="Demo 扫码支付状态">
             <span class="demo-label">DEMO</span>
             <button class="demo-state-opt active" type="button" data-qr-demo="waiting" aria-pressed="true">请扫码</button>
+            <button class="demo-state-opt" type="button" data-qr-demo="channels" aria-pressed="false">多码选择</button>
             <button class="demo-state-opt" type="button" data-qr-demo="paid" aria-pressed="false">支付成功</button>
             <button class="demo-state-opt" type="button" data-qr-demo="failed" aria-pressed="false">支付失败</button>
           </div>
@@ -753,6 +825,40 @@
     let qrTimer = null;
     let qrRedirectTimer = null;
 
+    // 扫码态：waiting（原状态，左图 + 单码）/ channels（新增，左三码可选）
+    const QR_CODE_STATES = ["waiting", "channels"];
+    let lastCodeState = "waiting";
+    let qrOrderId = "";
+    let qrChannelId = "alipay";
+
+    // 新增状态的三个渠道；数组顺序即左侧排列顺序
+    const QR_CHANNELS = [
+      {
+        id: "alipay",
+        name: "支付宝",
+        sub: "AliPay",
+        color: "#0f6fe0",
+        hint: "请打开支付宝「扫一扫」扫描二维码",
+        payload: orderId => `https://qr.alipay.com/fuji-${orderId}`
+      },
+      {
+        id: "wechat",
+        name: "微信支付",
+        sub: "WeChat Pay",
+        color: "#0a9c4f",
+        hint: "请打开微信「扫一扫」扫描二维码",
+        payload: orderId => `weixin://wxpay/bizpayurl?pr=${orderId}`
+      },
+      {
+        id: "wechatqr",
+        name: "微信扫码",
+        sub: "WeChat QR",
+        color: "#0b8f66",
+        hint: "请使用微信扫描二维码，在微信内完成支付",
+        payload: orderId => `https://pay.example.com/fuji/wxscan?order=${encodeURIComponent(orderId)}`
+      }
+    ];
+
     const defaultOrder = {
       items: [
         { name: "カフェラテ", price: 340, quantity: 1, image: "product-cutout-27/331-08.webp" },
@@ -808,28 +914,91 @@
       }
     }
 
-    function buildInlineQrCode() {
-      const host = document.getElementById("inlineQrCode");
+    function paintQR(host, payload, size, level) {
       if (!host) return;
       host.replaceChildren();
       if (typeof window.QRCode !== "function") {
         host.textContent = "二维码加载失败";
         return;
       }
-      const orderId = `FUJI-${Date.now()}`;
-      const payload = `https://pay.example.com/fuji/checkout?order=${encodeURIComponent(orderId)}`;
+      const correctLevel = window.QRCode.CorrectLevel[level] || window.QRCode.CorrectLevel.M;
       new window.QRCode(host, {
         text: payload,
-        width: 262,
-        height: 262,
+        width: size,
+        height: size,
         colorDark: "#102d43",
         colorLight: "#ffffff",
-        correctLevel: window.QRCode.CorrectLevel.M
+        correctLevel: correctLevel
       });
     }
 
+    function newQrOrderId() {
+      return `FUJI-${Date.now()}`;
+    }
+
+    // 原状态：单一收款码
+    function buildInlineQrCode() {
+      const host = document.getElementById("inlineQrCode");
+      if (!host) return;
+      qrOrderId = newQrOrderId();
+      paintQR(host, `https://pay.example.com/fuji/checkout?order=${encodeURIComponent(qrOrderId)}`, 262, "M");
+    }
+
+    // 新增状态：左卡三张小码，同一订单号按各渠道生成，图案互不相同
+    function renderChannelThumbs(orderId) {
+      document.querySelectorAll("[data-channel-qr]").forEach(target => {
+        const channel = QR_CHANNELS.find(item => item.id === target.dataset.channelQr);
+        if (!channel) return;
+        paintQR(target, channel.payload(orderId), 120, "L");
+      });
+    }
+
+    // 选中渠道：左侧高亮 + 右侧大码与文案同步切换（订单号与倒计时都不重置）
+    function selectQrChannel(id) {
+      const channel = QR_CHANNELS.find(item => item.id === id) || QR_CHANNELS[0];
+      qrChannelId = channel.id;
+
+      document.querySelectorAll("[data-channel]").forEach(button => {
+        const active = button.dataset.channel === channel.id;
+        button.classList.toggle("is-selected", active);
+        button.setAttribute("aria-pressed", String(active));
+      });
+
+      const caption = document.getElementById("inlineQrCaption");
+      const hint = document.getElementById("inlineQrHint");
+      const host = document.getElementById("inlineQrCode");
+      if (caption) {
+        caption.textContent = channel.sub.toUpperCase();
+        caption.style.color = channel.color;
+      }
+      if (hint) hint.textContent = channel.hint;
+      if (host) host.setAttribute("aria-label", `${channel.name}支付二维码`);
+      paintQR(host, channel.payload(qrOrderId), 262, "M");
+    }
+
+    function setChannelMode(on) {
+      const picker = document.getElementById("qrChannelPicker");
+      const image = document.getElementById("qrMediaImage");
+      const media = document.getElementById("qrMedia");
+      if (picker) picker.hidden = !on;
+      if (image) image.hidden = on;
+      if (media) media.setAttribute("aria-label", on ? "选择支付方式" : "支付方式图片");
+
+      const caption = document.getElementById("inlineQrCaption");
+      const hint = document.getElementById("inlineQrHint");
+      const host = document.getElementById("inlineQrCode");
+      if (!on) {
+        if (caption) {
+          caption.textContent = "QR CODE";
+          caption.style.color = "";
+        }
+        if (hint) hint.textContent = "请使用手机扫描二维码";
+        if (host) host.setAttribute("aria-label", "订单支付二维码");
+      }
+    }
+
     function tickInlineQr() {
-      if (qrState !== "waiting") return;
+      if (!QR_CODE_STATES.includes(qrState)) return;
       const remaining = Math.max(0, Math.ceil((qrDeadline - Date.now()) / 1000));
       const node = document.getElementById("inlineCountdown");
       if (node) node.textContent = String(remaining);
@@ -845,10 +1014,19 @@
       const overlay = document.getElementById("qrOverlay");
       if (!overlay) return;
 
-      if (state === "waiting") {
+      if (QR_CODE_STATES.includes(state)) {
+        lastCodeState = state;
         overlay.hidden = true;
         overlay.innerHTML = "";
-        buildInlineQrCode();
+        setChannelMode(state === "channels");
+        if (state === "channels") {
+          // 三张小码与右侧大码共用一个订单号，切渠道只换渠道不换订单
+          qrOrderId = newQrOrderId();
+          renderChannelThumbs(qrOrderId);
+          selectQrChannel(qrChannelId);
+        } else {
+          buildInlineQrCode();
+        }
         qrDeadline = Date.now() + QR_TIMEOUT_SECONDS * 1000;
         const node = document.getElementById("inlineCountdown");
         if (node) node.textContent = String(QR_TIMEOUT_SECONDS);
@@ -884,7 +1062,7 @@
         document.title = `${expired ? "二维码已过期" : "支付失败"} - Fuji Electric`;
         try { sessionStorage.setItem("fujiPaymentStatus", "failed"); } catch (error) { console.warn(error); }
         const retry = overlay.querySelector("#qrRetry");
-        if (retry) retry.addEventListener("click", () => setInlineQrState("waiting"));
+        if (retry) retry.addEventListener("click", () => setInlineQrState(lastCodeState));
       }
 
       document.querySelectorAll("[data-qr-demo]").forEach(button => {
@@ -897,23 +1075,36 @@
     function renderInlineQR() {
       inlineQrActive = true;
       paymentGrid.className = "payment-grid qr-mode";
+      const channelItems = QR_CHANNELS.map(channel => {
+        const selected = channel.id === qrChannelId;
+        return `
+          <button class="channel-item is-${channel.id}${selected ? " is-selected" : ""}" type="button" data-channel="${channel.id}" aria-pressed="${selected}">
+            <span class="channel-thumb"><span class="channel-qr" data-channel-qr="${channel.id}"></span></span>
+            <span class="channel-meta">
+              <span class="channel-name">${channel.name}</span>
+              <span class="channel-sub">${channel.sub}</span>
+            </span>
+            <span class="channel-check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7"/></svg></span>
+          </button>`;
+      }).join("");
       paymentGrid.innerHTML = `
-        <section class="qr-media" aria-label="支付方式图片">
-          <img src="${paymentDisplay.image}" alt="支持的支付方式：微信支付、支付宝、银联支付、云闪付">
+        <section class="qr-media" id="qrMedia" aria-label="支付方式图片">
+          <img id="qrMediaImage" src="${paymentDisplay.image}" alt="支持的支付方式：微信支付、支付宝、银联支付、云闪付">
+          <div class="channel-picker" id="qrChannelPicker" role="group" aria-label="选择支付方式" hidden>${channelItems}</div>
         </section>
         <section class="qr-panel" id="qrPanel" aria-label="扫码支付">
           <h2 class="qr-title">请扫码支付</h2>
-          <p class="qr-code-caption">QR CODE</p>
+          <p class="qr-code-caption" id="inlineQrCaption">QR CODE</p>
           <div class="qr-frame">
             <div class="qr-code" id="inlineQrCode" role="img" aria-label="订单支付二维码"></div>
           </div>
-          <p class="qr-hint">请使用手机扫描二维码</p>
+          <p class="qr-hint" id="inlineQrHint">请使用手机扫描二维码</p>
           <p class="qr-timer">剩余时间 <strong id="inlineCountdown">${QR_TIMEOUT_SECONDS}</strong> 秒</p>
           <div class="qr-overlay" id="qrOverlay" hidden></div>
         </section>
       `;
       qrDemoGroup.classList.add("visible");
-      setInlineQrState("waiting");
+      setInlineQrState(lastCodeState);
     }
 
     function releaseInlineQR() {
@@ -986,6 +1177,12 @@
     });
 
     paymentGrid.addEventListener("click", event => {
+      // 新增状态：左卡三码，点选即换右侧大码
+      const channelButton = event.target.closest("[data-channel]");
+      if (channelButton) {
+        if (QR_CODE_STATES.includes(qrState)) selectQrChannel(channelButton.dataset.channel);
+        return;
+      }
       const button = event.target.closest("[data-pay]");
       if (!button) return;
       const method = paymentMethods[button.dataset.pay];
