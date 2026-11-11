@@ -478,6 +478,80 @@
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation: none !important; transition: none !important; }
     }
+    /* ===== 调试浮窗：点左侧 LOGO 唤出，默认不显示（上线前整块移除） ===== */
+    .debug-trigger { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    .debug-trigger:focus-visible { outline: 0.125rem solid rgba(7,91,158,.5); outline-offset: 0.25rem; border-radius: 0.5rem; }
+
+    .debug-dock { position: fixed; inset: 0; z-index: 200; display: none; }
+    .debug-dock.is-open { display: block; }
+    .debug-scrim { position: absolute; inset: 0; background: rgba(6,28,45,.24); }
+    .debug-panel {
+      position: absolute;
+      width: min(30rem, calc(100vw - 2rem));
+      max-height: calc(100vh - 6rem);
+      overflow: auto;
+      padding: 0.875rem 1rem 1rem;
+      border: 0.0625rem solid rgba(255,255,255,.18);
+      border-radius: 1.125rem;
+      color: #fff;
+      background: linear-gradient(158deg, #0b4f80 0%, #08395c 100%);
+      box-shadow: 0 1.5rem 3.5rem rgba(4,26,42,.42);
+      animation: debug-dock-in .16s ease-out;
+    }
+    @keyframes debug-dock-in { from { opacity: 0; transform: translateY(-0.375rem); } }
+
+    .debug-head { display: flex; align-items: center; gap: 0.5rem; padding-bottom: 0.6875rem; border-bottom: 0.0625rem solid rgba(255,255,255,.16); }
+    .debug-badge { padding: 0.125rem 0.4375rem; border-radius: 0.25rem; color: #08395c; background: #fff; font-size: 0.625rem; font-weight: 800; letter-spacing: .1em; }
+    .debug-head-title { font-size: 0.8125rem; font-weight: 700; letter-spacing: .02em; }
+    .debug-head-hint { margin-left: auto; color: rgba(255,255,255,.56); font-size: 0.6875rem; }
+    .debug-close {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.75rem;
+      height: 1.75rem;
+      margin-left: 0.375rem;
+      padding: 0;
+      border: 0;
+      border-radius: 50%;
+      color: #fff;
+      background: rgba(255,255,255,.14);
+      font: inherit;
+      font-size: 0.8125rem;
+      line-height: 1;
+      cursor: pointer;
+    }
+    .debug-close:hover { background: rgba(255,255,255,.28); }
+
+    .debug-group { padding-top: 0.6875rem; }
+    .debug-group + .debug-group { margin-top: 0.6875rem; border-top: 0.0625rem solid rgba(255,255,255,.12); }
+    .debug-label { margin: 0 0 0.4375rem; color: rgba(255,255,255,.62); font-size: 0.6875rem; font-weight: 700; letter-spacing: .08em; }
+    .debug-row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.375rem; }
+    .debug-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3125rem;
+      padding: 0.375rem 0.75rem;
+      border: 0.0625rem solid rgba(255,255,255,.26);
+      border-radius: 62.4375rem;
+      color: #fff;
+      background: rgba(255,255,255,.08);
+      font: inherit;
+      font-size: 0.75rem;
+      font-weight: 650;
+      letter-spacing: .01em;
+      white-space: nowrap;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background .15s ease, border-color .15s ease, color .15s ease;
+    }
+    .debug-chip:hover { background: rgba(255,255,255,.2); }
+    .debug-chip[aria-current="page"], .debug-chip[aria-pressed="true"] { border-color: #fff; color: #08395c; background: #fff; }
+    .debug-chip i { font-size: 0.625rem; font-style: normal; opacity: .66; }
+    .debug-note { margin: 0.4375rem 0 0; color: rgba(255,255,255,.48); font-size: 0.625rem; line-height: 1.5; }
+    /* 搬进浮窗的旧控件：原本为深色状态栏设计，这里保持原样即可；带 visible 门控的组在浮窗内始终显示 */
+    .debug-panel .demo-controls, .debug-panel .demo-states { display: flex; }
+
   </style>
 </head>
 <body>
@@ -491,26 +565,13 @@
         <div>联系方式：800-1234-5678</div>
       </div>
       <div class="status-right">
-        <div class="demo-methods" aria-label="Demo 支付方式数量">
-          <span class="demo-label">DEMO</span>
-          <span class="demo-title">支付方式</span>
-          <button class="demo-count" type="button" data-method-count="1" aria-pressed="false">1</button>
-          <button class="demo-count active" type="button" data-method-count="2" aria-pressed="true">2</button>
-          <button class="demo-count" type="button" data-method-count="3" aria-pressed="false">3</button>
-        </div>
-        <div class="demo-states" id="qrDemo" aria-label="Demo 扫码支付状态">
-          <span class="demo-label">DEMO</span>
-          <button class="demo-state-opt active" type="button" data-qr-demo="waiting" aria-pressed="true">请扫码</button>
-          <button class="demo-state-opt" type="button" data-qr-demo="paid" aria-pressed="false">支付成功</button>
-          <button class="demo-state-opt" type="button" data-qr-demo="failed" aria-pressed="false">支付失败</button>
-        </div>
         <time datetime="2026-11-04T23:42">11月4日 23:42</time>
         <svg width="18" height="16" viewBox="0 0 18 16" fill="currentColor" aria-label="网络状态"><rect x="1" y="11" width="3" height="4" rx="1"/><rect x="6" y="7" width="3" height="8" rx="1"/><rect x="11" y="3" width="3" height="12" rx="1"/></svg>
       </div>
     </section>
 
     <header class="main-header">
-      <div class="brand" aria-label="Fuji Electric">
+      <div class="brand debug-trigger" id="debugTrigger" role="button" tabindex="0" aria-expanded="false" aria-haspopup="dialog" aria-label="Fuji Electric">
         <span class="brand-mark">FE</span>
         <span>Fuji Electric</span>
       </div>
@@ -544,6 +605,66 @@
       <section class="payment-grid count-2" id="paymentGrid" aria-label="支付方式"></section>
     </section>
   </main>
+
+  <!-- 调试浮窗：点左侧 LOGO 唤出；默认隐藏，上线前整块移除 -->
+  <div class="debug-dock" id="debugDock">
+    <div class="debug-scrim" data-debug-close></div>
+    <div class="debug-panel" id="debugPanel" role="dialog" aria-label="调试面板">
+      <div class="debug-head">
+        <span class="debug-badge">DEBUG</span>
+        <span class="debug-head-title">测试入口</span>
+        <span class="debug-head-hint">上线前移除</span>
+        <button class="debug-close" type="button" data-debug-close aria-label="关闭">✕</button>
+      </div>
+
+      <section class="debug-group">
+        <p class="debug-label">屏幕尺寸</p>
+        <div class="debug-row">
+          <button class="debug-chip" type="button" data-size-preset="s10">10″ <i>5×2</i></button>
+          <button class="debug-chip" type="button" data-size-preset="m21">21″ <i>5×3</i></button>
+          <button class="debug-chip" type="button" data-size-preset="l27">27″ <i>6×3</i></button>
+          <button class="debug-chip" type="button" data-size-preset="auto">自动</button>
+          <a class="debug-chip" href="setup.html?return=payment.html">自定义…</a>
+        </div>
+      </section>
+
+      <section class="debug-group">
+        <p class="debug-label">支付方式数量</p>
+        <div class="debug-row">
+          <div class="demo-methods" aria-label="Demo 支付方式数量">
+            <span class="demo-label">DEMO</span>
+            <span class="demo-title">支付方式</span>
+            <button class="demo-count" type="button" data-method-count="1" aria-pressed="false">1</button>
+            <button class="demo-count active" type="button" data-method-count="2" aria-pressed="true">2</button>
+            <button class="demo-count" type="button" data-method-count="3" aria-pressed="false">3</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="debug-group">
+        <p class="debug-label">扫码支付状态</p>
+        <div class="debug-row">
+          <div class="demo-states" id="qrDemo" aria-label="Demo 扫码支付状态">
+            <span class="demo-label">DEMO</span>
+            <button class="demo-state-opt active" type="button" data-qr-demo="waiting" aria-pressed="true">请扫码</button>
+            <button class="demo-state-opt" type="button" data-qr-demo="paid" aria-pressed="false">支付成功</button>
+            <button class="demo-state-opt" type="button" data-qr-demo="failed" aria-pressed="false">支付失败</button>
+          </div>
+        </div>
+        <p class="debug-note">仅在「仅扫码支付」模式下生效。</p>
+      </section>
+
+      <section class="debug-group">
+        <p class="debug-label">页面</p>
+        <div class="debug-row">
+          <button class="debug-chip" type="button" data-debug-nav="welcome.html">首页</button>
+          <button class="debug-chip" type="button" data-debug-nav="index.html">饮品</button>
+          <button class="debug-chip" type="button" data-debug-nav="packaged.html">包装商品</button>
+          <button class="debug-chip" type="button" data-debug-nav="out-of-service.html">故障</button>
+        </div>
+      </section>
+    </div>
+  </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
@@ -880,6 +1001,68 @@
     const requestedCount = Math.min(3, Math.max(1, Number(new URLSearchParams(window.location.search).get("methods")) || 1));
     renderOrder();
     configurePaymentMethods(methodOrder.slice(0, requestedCount));
+  </script>
+  <script>
+    // ===== 调试浮窗：点左侧 LOGO 唤出（默认不显示，上线前整块移除）=====
+    (function initDebugDock() {
+      const trigger = document.getElementById("debugTrigger");
+      const dock = document.getElementById("debugDock");
+      const panel = document.getElementById("debugPanel");
+      if (!trigger || !dock || !panel) return;
+
+      function place() {
+        const rect = trigger.getBoundingClientRect();
+        const left = Math.max(16, Math.min(rect.left, window.innerWidth - panel.offsetWidth - 16));
+        const top = Math.max(16, Math.min(rect.bottom + 12, window.innerHeight - 220));
+        panel.style.left = `${left}px`;
+        panel.style.top = `${top}px`;
+        panel.style.maxHeight = `${Math.max(240, window.innerHeight - top - 20)}px`;
+      }
+      function open() {
+        dock.classList.add("is-open");
+        trigger.setAttribute("aria-expanded", "true");
+        place();
+      }
+      function close() {
+        dock.classList.remove("is-open");
+        trigger.setAttribute("aria-expanded", "false");
+      }
+
+      trigger.addEventListener("click", event => {
+        event.stopPropagation();
+        if (dock.classList.contains("is-open")) close(); else open();
+      });
+      trigger.addEventListener("keydown", event => {
+        if (event.key === "Enter" || event.key === " ") { event.preventDefault(); open(); }
+      });
+      dock.addEventListener("click", event => {
+        if (event.target.closest("[data-debug-close]")) close();
+      });
+      document.addEventListener("keydown", event => { if (event.key === "Escape") close(); });
+      window.addEventListener("resize", () => { if (dock.classList.contains("is-open")) place(); });
+
+      // 屏幕尺寸：直接写入本机配置再重载，不用离开当前页
+      const device = window.FUJI_DEVICE || { mode: "auto", layout: "" };
+      const REF = { s10: [1024, 768], m21: [1920, 1080], l27: [2560, 1440] };
+      dock.querySelectorAll("[data-size-preset]").forEach(button => {
+        const preset = button.dataset.sizePreset;
+        const active = preset === "auto"
+          ? device.mode === "auto"
+          : device.mode === "preset" && device.layout === preset;
+        button.setAttribute("aria-pressed", String(active));
+        button.addEventListener("click", () => {
+          const payload = preset === "auto"
+            ? { mode: "auto", preset: null, layout: null, w: 0, h: 0 }
+            : { mode: "preset", preset, layout: preset, w: REF[preset][0], h: REF[preset][1] };
+          try { localStorage.setItem("fujiDevice", JSON.stringify(payload)); } catch (error) { console.warn(error); }
+          window.location.reload();
+        });
+      });
+
+      dock.querySelectorAll("[data-debug-nav]").forEach(button => {
+        button.addEventListener("click", () => { window.location.href = button.dataset.debugNav; });
+      });
+    })();
   </script>
 </body>
 </html>

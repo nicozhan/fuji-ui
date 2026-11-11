@@ -187,76 +187,104 @@
     .language-flag { font-size: 1.5rem; line-height: 1; }
     .language-name { font-size: 0.875rem; font-weight: 600; line-height: 1.2; white-space: nowrap; }
 
-    /* 屏幕尺寸入口（部署调试用，上线前与 DEMO 开关一并移除） */
-    .setup-button {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      min-height: 4.875rem;
-      padding: 0.5rem 1.0625rem 0.5rem 0.75rem;
-      border: 0.0625rem solid rgba(255, 255, 255, .82);
-      border-radius: 0.8125rem;
-      color: var(--text);
-      background: rgba(255, 255, 255, .72);
-      box-shadow: 0 0.3125rem 1rem rgba(28, 62, 82, .08);
-      backdrop-filter: blur(0.5rem);
-      -webkit-backdrop-filter: blur(0.5rem);
-      text-align: left;
-      font-family: inherit;
+    /* 左上品牌标热区：调试浮窗的隐藏入口（透明覆盖层，视觉上无变化；上线前随浮窗一并移除） */
+    .welcome-logo-hit {
+      position: absolute;
+      z-index: 3;
+      top: 0;
+      left: 0;
+      width: 17%;
+      height: 10%;
+      padding: 0;
+      border: 0;
+      background: transparent;
       cursor: pointer;
-      transition: background .18s ease, border-color .18s ease, box-shadow .18s ease;
-    }
-    .setup-button:hover { border-color: rgba(7, 91, 158, .48); background: rgba(255, 255, 255, .92); }
-    .setup-button:active { box-shadow: 0 0.1875rem 0.625rem rgba(28, 62, 82, .12); }
-    .setup-icon {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      flex: 0 0 auto;
-      width: 2.375rem;
-      height: 2.375rem;
-      border-radius: 0.625rem;
-      color: var(--fuji-blue);
-      background: rgba(7, 91, 158, .1);
-    }
-    .setup-icon svg { width: 1.375rem; height: 1.375rem; }
-    .setup-text { display: flex; flex-direction: column; gap: 0.1875rem; }
-    .setup-caption {
-      color: #5b7285;
-      font-size: 0.75rem;
-      font-weight: 650;
-      letter-spacing: .02em;
-      line-height: 1.1;
-      white-space: nowrap;
-    }
-    .setup-value {
-      display: flex;
-      align-items: baseline;
-      gap: 0.375rem;
-      color: var(--text);
-      font-size: 1.0625rem;
-      font-weight: 750;
-      letter-spacing: -.01em;
-      line-height: 1.1;
-      white-space: nowrap;
-    }
-    .setup-value b { color: var(--fuji-blue); font-weight: 800; }
-    .setup-value i { color: #7d8fa0; font-size: 0.6875rem; font-style: normal; font-weight: 650; }
-    .setup-chevron {
-      flex: 0 0 auto;
-      width: 0.875rem;
-      height: 0.875rem;
-      margin-left: 0.125rem;
-      color: #7d8fa0;
+      -webkit-tap-highlight-color: transparent;
     }
 
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { transition: none !important; }
     }
+    /* ===== 调试浮窗：点左侧 LOGO 唤出，默认不显示（上线前整块移除） ===== */
+    .debug-trigger { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    .debug-trigger:focus-visible { outline: 0.125rem solid rgba(7,91,158,.5); outline-offset: 0.25rem; border-radius: 0.5rem; }
+
+    .debug-dock { position: fixed; inset: 0; z-index: 200; display: none; }
+    .debug-dock.is-open { display: block; }
+    .debug-scrim { position: absolute; inset: 0; background: rgba(6,28,45,.24); }
+    .debug-panel {
+      position: absolute;
+      width: min(30rem, calc(100vw - 2rem));
+      max-height: calc(100vh - 6rem);
+      overflow: auto;
+      padding: 0.875rem 1rem 1rem;
+      border: 0.0625rem solid rgba(255,255,255,.18);
+      border-radius: 1.125rem;
+      color: #fff;
+      background: linear-gradient(158deg, #0b4f80 0%, #08395c 100%);
+      box-shadow: 0 1.5rem 3.5rem rgba(4,26,42,.42);
+      animation: debug-dock-in .16s ease-out;
+    }
+    @keyframes debug-dock-in { from { opacity: 0; transform: translateY(-0.375rem); } }
+
+    .debug-head { display: flex; align-items: center; gap: 0.5rem; padding-bottom: 0.6875rem; border-bottom: 0.0625rem solid rgba(255,255,255,.16); }
+    .debug-badge { padding: 0.125rem 0.4375rem; border-radius: 0.25rem; color: #08395c; background: #fff; font-size: 0.625rem; font-weight: 800; letter-spacing: .1em; }
+    .debug-head-title { font-size: 0.8125rem; font-weight: 700; letter-spacing: .02em; }
+    .debug-head-hint { margin-left: auto; color: rgba(255,255,255,.56); font-size: 0.6875rem; }
+    .debug-close {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.75rem;
+      height: 1.75rem;
+      margin-left: 0.375rem;
+      padding: 0;
+      border: 0;
+      border-radius: 50%;
+      color: #fff;
+      background: rgba(255,255,255,.14);
+      font: inherit;
+      font-size: 0.8125rem;
+      line-height: 1;
+      cursor: pointer;
+    }
+    .debug-close:hover { background: rgba(255,255,255,.28); }
+
+    .debug-group { padding-top: 0.6875rem; }
+    .debug-group + .debug-group { margin-top: 0.6875rem; border-top: 0.0625rem solid rgba(255,255,255,.12); }
+    .debug-label { margin: 0 0 0.4375rem; color: rgba(255,255,255,.62); font-size: 0.6875rem; font-weight: 700; letter-spacing: .08em; }
+    .debug-row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.375rem; }
+    .debug-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3125rem;
+      padding: 0.375rem 0.75rem;
+      border: 0.0625rem solid rgba(255,255,255,.26);
+      border-radius: 62.4375rem;
+      color: #fff;
+      background: rgba(255,255,255,.08);
+      font: inherit;
+      font-size: 0.75rem;
+      font-weight: 650;
+      letter-spacing: .01em;
+      white-space: nowrap;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background .15s ease, border-color .15s ease, color .15s ease;
+    }
+    .debug-chip:hover { background: rgba(255,255,255,.2); }
+    .debug-chip[aria-current="page"], .debug-chip[aria-pressed="true"] { border-color: #fff; color: #08395c; background: #fff; }
+    .debug-chip i { font-size: 0.625rem; font-style: normal; opacity: .66; }
+    .debug-note { margin: 0.4375rem 0 0; color: rgba(255,255,255,.48); font-size: 0.625rem; line-height: 1.5; }
+    /* 搬进浮窗的旧控件：原本为深色状态栏设计，这里保持原样即可；带 visible 门控的组在浮窗内始终显示 */
+    .debug-panel .demo-controls, .debug-panel .demo-states { display: flex; }
+
   </style>
 </head>
 <body>
   <main class="welcome-screen">
+    <button class="welcome-logo-hit debug-trigger" id="debugTrigger" type="button" aria-expanded="false" aria-haspopup="dialog" aria-label="Fuji Electric"></button>
+
     <div class="welcome-carousel" aria-hidden="true">
       <div class="welcome-track" id="welcomeTrack">
         <img class="welcome-background" src="assets/welcome-slide-1.jpg" alt="" width="1672" height="941" fetchpriority="high">
@@ -293,18 +321,42 @@
         </button>
       </div>
 
-      <button class="setup-button" id="setupButton" type="button" title="屏幕尺寸设置：重新选择 10″ / 21″ / 27″ 或自定义分辨率（Demo）">
-        <span class="setup-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.8" y="4.2" width="18.4" height="12.4" rx="1.8"/><path d="M9.2 20.2h5.6M12 16.6v3.6"/></svg>
-        </span>
-        <span class="setup-text">
-          <span class="setup-caption">屏幕尺寸</span>
-          <span class="setup-value"><b id="deviceBadge">—</b><i>切换</i></span>
-        </span>
-        <svg class="setup-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
-      </button>
     </div>
   </main>
+
+  <!-- 调试浮窗：点左上 LOGO 唤出；默认隐藏，上线前整块移除 -->
+  <div class="debug-dock" id="debugDock">
+    <div class="debug-scrim" data-debug-close></div>
+    <div class="debug-panel" id="debugPanel" role="dialog" aria-label="调试面板">
+      <div class="debug-head">
+        <span class="debug-badge">DEBUG</span>
+        <span class="debug-head-title">测试入口</span>
+        <span class="debug-head-hint">上线前移除</span>
+        <button class="debug-close" type="button" data-debug-close aria-label="关闭">✕</button>
+      </div>
+
+      <section class="debug-group">
+        <p class="debug-label">屏幕尺寸</p>
+        <div class="debug-row">
+          <button class="debug-chip" type="button" data-size-preset="s10">10″ <i>5×2</i></button>
+          <button class="debug-chip" type="button" data-size-preset="m21">21″ <i>5×3</i></button>
+          <button class="debug-chip" type="button" data-size-preset="l27">27″ <i>6×3</i></button>
+          <button class="debug-chip" type="button" data-size-preset="auto">自动</button>
+          <a class="debug-chip" href="setup.html?return=welcome.html">自定义…</a>
+        </div>
+      </section>
+
+      <section class="debug-group">
+        <p class="debug-label">页面</p>
+        <div class="debug-row">
+          <button class="debug-chip" type="button" data-debug-nav="welcome.html" aria-current="page">首页</button>
+          <button class="debug-chip" type="button" data-debug-nav="index.html">饮品</button>
+          <button class="debug-chip" type="button" data-debug-nav="packaged.html">包装商品</button>
+          <button class="debug-chip" type="button" data-debug-nav="out-of-service.html">故障</button>
+        </div>
+      </section>
+    </div>
+  </div>
 
   <script>
     (function initWelcomeCarousel() {
@@ -412,25 +464,65 @@
   </script>
 
   <script>
-    // 设备设置入口：显示当前生效的档位，点击回到设置页重新选择
-    (function initDeviceEntry() {
-      const button = document.getElementById("setupButton");
-      const badge = document.getElementById("deviceBadge");
-      const device = window.FUJI_DEVICE || { mode: "auto", layout: "s10" };
-      const labels = { s10: "10″", m21: "21″", l27: "27″" };
+    // ===== 调试浮窗：点左侧 LOGO 唤出（默认不显示，上线前整块移除）=====
+    (function initDebugDock() {
+      const trigger = document.getElementById("debugTrigger");
+      const dock = document.getElementById("debugDock");
+      const panel = document.getElementById("debugPanel");
+      if (!trigger || !dock || !panel) return;
 
-      if (badge) {
-        const prefix = device.mode === "auto" ? "自动 " : device.mode === "custom" ? "自定 " : "";
-        badge.textContent = prefix + (labels[device.layout] || "10″");
+      function place() {
+        const rect = trigger.getBoundingClientRect();
+        const left = Math.max(16, Math.min(rect.left, window.innerWidth - panel.offsetWidth - 16));
+        const top = Math.max(16, Math.min(rect.bottom + 12, window.innerHeight - 220));
+        panel.style.left = `${left}px`;
+        panel.style.top = `${top}px`;
+        panel.style.maxHeight = `${Math.max(240, window.innerHeight - top - 20)}px`;
+      }
+      function open() {
+        dock.classList.add("is-open");
+        trigger.setAttribute("aria-expanded", "true");
+        place();
+      }
+      function close() {
+        dock.classList.remove("is-open");
+        trigger.setAttribute("aria-expanded", "false");
       }
 
-      if (button) {
-        button.addEventListener("click", event => {
-          // 欢迎页整屏点击会进入商品页，这里必须阻断冒泡
-          event.stopPropagation();
-          window.location.href = "setup.html?return=welcome.html";
+      trigger.addEventListener("click", event => {
+        event.stopPropagation();
+        if (dock.classList.contains("is-open")) close(); else open();
+      });
+      trigger.addEventListener("keydown", event => {
+        if (event.key === "Enter" || event.key === " ") { event.preventDefault(); open(); }
+      });
+      dock.addEventListener("click", event => {
+        if (event.target.closest("[data-debug-close]")) close();
+      });
+      document.addEventListener("keydown", event => { if (event.key === "Escape") close(); });
+      window.addEventListener("resize", () => { if (dock.classList.contains("is-open")) place(); });
+
+      // 屏幕尺寸：直接写入本机配置再重载，不用离开当前页
+      const device = window.FUJI_DEVICE || { mode: "auto", layout: "" };
+      const REF = { s10: [1024, 768], m21: [1920, 1080], l27: [2560, 1440] };
+      dock.querySelectorAll("[data-size-preset]").forEach(button => {
+        const preset = button.dataset.sizePreset;
+        const active = preset === "auto"
+          ? device.mode === "auto"
+          : device.mode === "preset" && device.layout === preset;
+        button.setAttribute("aria-pressed", String(active));
+        button.addEventListener("click", () => {
+          const payload = preset === "auto"
+            ? { mode: "auto", preset: null, layout: null, w: 0, h: 0 }
+            : { mode: "preset", preset, layout: preset, w: REF[preset][0], h: REF[preset][1] };
+          try { localStorage.setItem("fujiDevice", JSON.stringify(payload)); } catch (error) { console.warn(error); }
+          window.location.reload();
         });
-      }
+      });
+
+      dock.querySelectorAll("[data-debug-nav]").forEach(button => {
+        button.addEventListener("click", () => { window.location.href = button.dataset.debugNav; });
+      });
     })();
   </script>
 </body>
