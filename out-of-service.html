@@ -125,11 +125,11 @@
       justify-content: space-between;
       gap: 1.5rem;
       padding: 0 1.75rem;
-      color: #fff;
-      background: var(--blue-dark);
+      border-bottom: 0.0625rem solid #dae5ee;
+      color: #4a6478;
+      background: #e9eff5;
       font-size: 0.8125rem;
       letter-spacing: .01em;
-      box-shadow: 0 0.375rem 1.25rem rgba(7,91,158,.14);
     }
     .status-left, .status-right, .status-item, .demo-control {
       display: flex;
@@ -138,8 +138,9 @@
     .status-left, .status-right { gap: 1.75rem; }
     .status-item { gap: 0.5rem; white-space: nowrap; }
     .status-item svg { width: 1rem; height: 1rem; }
-    .machine-id { color: #cfe8f8; }
-    .machine-id strong { color: #fff; font-weight: 600; }
+    .status-right svg { color: #8ea6b6; }
+    .machine-id { color: #6d8598; }
+    .machine-id strong { color: #35566e; font-weight: 500; }
 
     .demo-control {
       flex: 0 0 auto;
@@ -480,7 +481,7 @@
       align-items: center;
       padding: 0;
       border: 0;
-      color: #fff;
+      color: #a3b8c6;
       background: none;
       font: inherit;
       font-size: 1.375rem;
@@ -491,7 +492,7 @@
       cursor: pointer;
     }
     .status-logo span { transform: skew(-8deg); }
-    .status-logo:focus-visible { outline: 0.125rem solid rgba(255,255,255,.6); outline-offset: 0.25rem; border-radius: 0.25rem; }
+    .status-logo:focus-visible { outline: 0.125rem solid rgba(7,91,158,.3); outline-offset: 0.25rem; border-radius: 0.25rem; }
 
   </style>
 </head>
