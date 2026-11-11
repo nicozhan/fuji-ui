@@ -595,8 +595,8 @@
       transition: transform .25s ease;
     }
     .product-card:hover .product-media img { transform: translateY(-2%) scale(1.02); }
-    /* Hot / Iced：左上角固定位置、统一尺寸，颜色 + 图标双通道辨识 */
-    .temperature-tag {
+    /* 业务标签：左上角固定位置，颜色 + 图标双通道辨识 */
+    .product-tag {
       position: absolute;
       z-index: 2;
       top: 0.75rem;
@@ -606,19 +606,22 @@
       justify-content: center;
       gap: 0.3125rem;
       box-sizing: border-box;
-      min-width: 5.125rem;
       height: 1.875rem;
-      padding: 0 0.625rem;
+      padding: 0 0.6875rem;
       border-radius: 62.4375rem;
       color: #fff;
       font-size: clamp(0.625rem, .68vw, 0.8125rem);
       font-weight: 700;
       line-height: 1;
+      white-space: nowrap;
       box-shadow: 0 0.25rem 0.625rem rgba(0,0,0,.14), inset 0 0.0625rem 0 rgba(255,255,255,.28);
     }
-    .temperature-tag svg { width: 0.875rem; height: 0.875rem; flex: 0 0 0.875rem; }
-    .temperature-tag.is-hot { background: linear-gradient(135deg, #ffa154, #ea6a18); }
-    .temperature-tag.is-iced { background: linear-gradient(135deg, #57b7ef, #147cc7); }
+    .product-tag svg { width: 0.875rem; height: 0.875rem; flex: 0 0 0.875rem; }
+    .product-tag.is-best { background: linear-gradient(135deg, #e2761f, #b9480a); }
+    .product-tag.is-bogo { background: linear-gradient(135deg, #dd3f46, #a81a22); }
+    .product-tag.is-limited { background: linear-gradient(135deg, #b98a2e, #8a5c06); }
+    .product-tag.is-new { background: linear-gradient(135deg, #2f9e64, #0f6f40); }
+    .product-tag.is-top { background: linear-gradient(135deg, #8a71d8, #5730b0); }
 
     /* 信息区：左「名称 / 价格」两行，右圆形加购按钮 */
     .product-info {
@@ -1605,6 +1608,7 @@
           quantity: "数量", total: "合計", submit: "注文に追加"
         },
         temperature: { hot: "ホット", iced: "アイス" },
+        tags: { best: "冬の売れ筋", bogo: "2点目半額", limited: "当店限定", new: "新発売", top: "人気 No.1" },
         size: { small: "スモール", medium: "レギュラー", large: "ラージ", regular: "レギュラー" },
         sweetness: { none: "無糖", light: "微糖", half: "半糖", less: "甘さ控えめ", standard: "標準" },
         milk: { milk: "ミルク", lowfat: "低脂肪乳", oat: "オーツミルク", soy: "豆乳" },
@@ -1693,6 +1697,7 @@
           quantity: "数量", total: "合计", submit: "加入订单"
         },
         temperature: { hot: "热饮", iced: "冷饮" },
+        tags: { best: "冬日畅销", bogo: "第二件半价", limited: "本店限量", new: "新品上市", top: "人气 No.1" },
         size: { small: "小杯", medium: "中杯", large: "大杯", regular: "标准杯" },
         sweetness: { none: "无糖", light: "微糖", half: "半糖", less: "少糖", standard: "标准糖" },
         milk: { milk: "牛奶", lowfat: "低脂奶", oat: "燕麦奶", soy: "豆奶" },
@@ -1781,6 +1786,7 @@
           quantity: "Quantity", total: "Total", submit: "Add to order"
         },
         temperature: { hot: "Hot", iced: "Iced" },
+        tags: { best: "Winter favorite", bogo: "2nd 50% off", limited: "Store limited", new: "New arrival", top: "No.1 seller" },
         size: { small: "Small", medium: "Medium", large: "Large", regular: "Regular" },
         sweetness: { none: "No sugar", light: "Light", half: "Half", less: "Less", standard: "Standard" },
         milk: { milk: "Milk", lowfat: "Low-fat", oat: "Oat", soy: "Soy" },
@@ -1869,6 +1875,7 @@
           quantity: "수량", total: "합계", submit: "주문에 추가"
         },
         temperature: { hot: "핫", iced: "아이스" },
+        tags: { best: "겨울 베스트", bogo: "두 번째 반값", limited: "매장 한정", new: "신제품", top: "인기 1위" },
         size: { small: "스몰", medium: "미디엄", large: "라지", regular: "레귤러" },
         sweetness: { none: "무당", light: "약간", half: "반", less: "적게", standard: "표준" },
         milk: { milk: "우유", lowfat: "저지방", oat: "오트", soy: "두유" },
@@ -1906,33 +1913,33 @@
 
     const MAX_ORDER_ITEMS = 3;
     const products = [
-      { id: 1, price: 320, image: "product-cutout-27/331-01.webp", temperature: "iced" },
+      { id: 1, price: 320, image: "product-cutout-27/331-01.webp", temperature: "iced", tag: "top" },
       { id: 2, price: 380, image: "product-cutout-27/331-02.webp", temperature: "iced" },
-      { id: 3, price: 350, image: "product-cutout-27/331-03.webp", temperature: "iced" },
+      { id: 3, price: 350, image: "product-cutout-27/331-03.webp", temperature: "iced", tag: "bogo" },
       { id: 4, price: 400, image: "product-cutout-27/331-04.webp", temperature: "iced" },
-      { id: 5, price: 280, image: "product-cutout-27/331-05.webp", temperature: "hot" },
+      { id: 5, price: 280, image: "product-cutout-27/331-05.webp", temperature: "hot", tag: "best" },
       { id: 6, price: 360, image: "product-cutout-27/331-06.webp", temperature: "iced" },
-      { id: 7, price: 420, image: "product-cutout-27/331-07.webp", temperature: "iced" },
+      { id: 7, price: 420, image: "product-cutout-27/331-07.webp", temperature: "iced", tag: "limited" },
       { id: 8, price: 340, image: "product-cutout-27/331-08.webp", temperature: "hot" },
       { id: 9, price: 360, image: "product-cutout-27/331-09.webp", temperature: "hot" },
       { id: 10, price: 300, image: "product-cutout-27/332-01.webp", temperature: "iced" },
       { id: 11, price: 400, image: "product-cutout-27/332-02.webp", temperature: "iced" },
-      { id: 12, price: 340, image: "product-cutout-27/332-03.webp", temperature: "hot" },
-      { id: 13, price: 380, image: "product-cutout-27/332-04.webp", temperature: "hot" },
+      { id: 12, price: 340, image: "product-cutout-27/332-03.webp", temperature: "hot", tag: "best" },
+      { id: 13, price: 380, image: "product-cutout-27/332-04.webp", temperature: "hot", tag: "top" },
       { id: 14, price: 320, image: "product-cutout-27/332-05.webp", temperature: "iced" },
       { id: 15, price: 390, image: "product-cutout-27/332-06.webp", temperature: "iced" },
-      { id: 16, price: 370, image: "product-cutout-27/332-07.webp", temperature: "iced" },
+      { id: 16, price: 370, image: "product-cutout-27/332-07.webp", temperature: "iced", tag: "new" },
       { id: 17, price: 330, image: "product-cutout-27/332-08.webp", temperature: "iced" },
-      { id: 18, price: 420, image: "product-cutout-27/332-09.webp", temperature: "hot" },
+      { id: 18, price: 420, image: "product-cutout-27/332-09.webp", temperature: "hot", tag: "bogo" },
       { id: 19, price: 380, image: "product-cutout-27/333-01.webp", temperature: "hot" },
-      { id: 20, price: 430, image: "product-cutout-27/333-02.webp", temperature: "iced" },
+      { id: 20, price: 430, image: "product-cutout-27/333-02.webp", temperature: "iced", tag: "limited" },
       { id: 21, price: 390, image: "product-cutout-27/333-03.webp", temperature: "iced" },
-      { id: 22, price: 350, image: "product-cutout-27/333-04.webp", temperature: "hot" },
+      { id: 22, price: 350, image: "product-cutout-27/333-04.webp", temperature: "hot", tag: "best" },
       { id: 23, price: 360, image: "product-cutout-27/333-05.webp", temperature: "iced" },
-      { id: 24, price: 420, image: "product-cutout-27/333-06.webp", temperature: "iced" },
+      { id: 24, price: 420, image: "product-cutout-27/333-06.webp", temperature: "iced", tag: "top" },
       { id: 25, price: 390, image: "product-cutout-27/333-07.webp", temperature: "iced" },
       { id: 26, price: 410, image: "product-cutout-27/333-08.webp", temperature: "iced" },
-      { id: 27, price: 400, image: "product-cutout-27/333-09.webp", temperature: "iced" }
+      { id: 27, price: 400, image: "product-cutout-27/333-09.webp", temperature: "iced", tag: "limited" }
     ];
 
     const SUPPORTED_LANGUAGES = ["ja", "zh", "en", "ko"];
@@ -1985,8 +1992,14 @@
       plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
       trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M7 7l1 14h8l1-14M10 11v6M14 11v6"/></svg>',
       flame: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 22c4 0 7-2.8 7-6.6 0-3.5-2.3-5.8-4.2-7.8-.5 2-1.7 3-3 3.9.5-3.5-1.1-6.5-3.4-9.8-.4 3.4-2 5.2-3.6 7.1C3.3 11 5 14.1 5 15.4 5 19.2 8 22 12 22z"/></svg>',
-      snow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v20M3.5 7l17 10M3.5 17l17-10M9 4.5 12 7l3-2.5M9 19.5 12 17l3 2.5"/></svg>'
+      snow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v20M3.5 7l17 10M3.5 17l17-10M9 4.5 12 7l3-2.5M9 19.5 12 17l3 2.5"/></svg>',
+      percent: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M19 5 5 19"/><circle cx="7.5" cy="7.5" r="2.5"/><circle cx="16.5" cy="16.5" r="2.5"/></svg>',
+      crown: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M3 8.5 7.2 12 12 5.5 16.8 12 21 8.5l-1.7 9.5H4.7L3 8.5Z"/></svg>',
+      star: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 2.3 6.2 6.2 2.3-6.2 2.3L12 20l-2.3-6.2L3.5 11.5l6.2-2.3L12 3Z"/></svg>',
+      trophy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4h8v4.6a4 4 0 0 1-8 0V4Z"/><path d="M8 5.6H5.5v1a3 3 0 0 0 3 3M16 5.6h2.5v1a3 3 0 0 1-3 3M12 12.6V17M9 20h6"/></svg>'
     };
+
+    const tagIcon = { best: "flame", bogo: "percent", limited: "crown", new: "star", top: "trophy" };
 
     const workspace = document.getElementById("workspace");
     const productStage = document.getElementById("productStage");
@@ -2040,7 +2053,7 @@
         <article class="product-card" data-product-id="${product.id}" style="animation-delay:${index * 25}ms">
           <button class="product-media" type="button" data-customize="${product.id}" aria-label="${t("customizeAria", { name })}">
             <img src="${product.image}" alt="${name}" width="700" height="700">
-            <span class="temperature-tag is-${product.temperature}">${product.temperature === "hot" ? icons.flame : icons.snow}${t(`temperature.${product.temperature}`)}</span>
+            ${product.tag ? `<span class="product-tag is-${product.tag}">${icons[tagIcon[product.tag]]}${t(`tags.${product.tag}`)}</span>` : ""}
           </button>
           <div class="product-info">
             <div class="product-copy">
