@@ -277,6 +277,78 @@
       object-fit: contain;
       background: #fff;
     }
+    .backend-image[hidden] { display: none; }
+
+    /* ===== 新增状态「多码选择」：左卡三码可选，右卡放大所选码 ===== */
+    .media-card { position: relative; }
+    .channel-picker {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      gap: clamp(0.5rem, 1.3vh, 0.9375rem);
+      padding: clamp(0.625rem, 1.6vh, 1.125rem);
+    }
+    .channel-picker[hidden] { display: none; }
+
+    .channel-item {
+      display: flex;
+      flex: 1 1 0;
+      align-items: center;
+      gap: clamp(0.625rem, 1.1vw, 1rem);
+      min-height: 0;
+      padding: clamp(0.375rem, 1vh, 0.75rem) clamp(0.5rem, 1vw, 0.875rem);
+      border: 0.0625rem solid #e3ebf0;
+      border-radius: clamp(0.75rem, 1.1vw, 1rem);
+      color: var(--text);
+      background: #fff;
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: border-color .15s ease, background .15s ease, box-shadow .15s ease;
+    }
+    .channel-item:active { transform: scale(.995); }
+    .channel-thumb {
+      display: flex;
+      flex: 0 0 auto;
+      align-items: center;
+      justify-content: center;
+      width: clamp(3.25rem, min(4.6vw, 9vh), 5.5rem);
+      aspect-ratio: 1 / 1;
+      padding: 0.375rem;
+      border: 0.0625rem solid #e8eff4;
+      border-radius: 0.625rem;
+      background: #fff;
+    }
+    .channel-qr { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
+    .channel-qr img, .channel-qr canvas { display: block; width: 100% !important; height: 100% !important; }
+    .channel-meta { display: flex; flex: 1 1 auto; flex-direction: column; gap: 0.125rem; min-width: 0; }
+    .channel-name { font-size: clamp(0.9375rem, 1.05vw, 1.1875rem); font-weight: 750; line-height: 1.25; white-space: nowrap; }
+    .channel-sub { color: var(--text-2); font-size: clamp(0.6875rem, .72vw, 0.8125rem); font-weight: 600; letter-spacing: .07em; text-transform: uppercase; white-space: nowrap; }
+    .channel-check {
+      display: flex;
+      flex: 0 0 auto;
+      align-items: center;
+      justify-content: center;
+      width: clamp(1.25rem, 1.5vw, 1.625rem);
+      height: clamp(1.25rem, 1.5vw, 1.625rem);
+      border-radius: 50%;
+      color: #fff;
+      background: var(--ch, #b9c8d3);
+      opacity: 0;
+      transition: opacity .15s ease;
+    }
+    .channel-check svg { width: 62%; height: 62%; }
+    .channel-item.is-selected .channel-check { opacity: 1; }
+
+    .channel-item.is-alipay { --ch: #1677ff; }
+    .channel-item.is-wechat { --ch: #07c160; }
+    .channel-item.is-wechatqr { --ch: #0b8f66; }
+    .channel-item.is-selected { border-color: var(--ch); box-shadow: inset 0 0 0 0.0625rem var(--ch); }
+    .channel-item.is-alipay.is-selected { background: #f2f7ff; }
+    .channel-item.is-wechat.is-selected { background: #f1fbf6; }
+    .channel-item.is-wechatqr.is-selected { background: #eefaf4; }
 
     .qr-card { padding: 0; text-align: center; }
     .payment-state-panel {
@@ -453,6 +525,11 @@
       .countdown { padding-top: 0.5rem; font-size: 0.875rem; }
       .countdown strong { font-size: 1.5rem; }
       .qr-frame { margin: 0.5rem auto; padding: 0.5rem; border-radius: 0.75rem; }
+      .channel-picker { gap: 0.4375rem; padding: 0.4375rem; }
+      .channel-item { padding: 0.25rem 0.5rem; border-radius: 0.625rem; }
+      .channel-thumb { padding: 0.1875rem; border-radius: 0.4375rem; }
+      .channel-name { font-size: 0.9375rem; }
+      .channel-sub { font-size: 0.625rem; }
       .state-icon { width: min(9.125rem, 20vh); height: min(9.125rem, 20vh); margin-bottom: 1rem; }
       .state-icon svg { width: 58%; height: 58%; }
       .result-panel .state-title { font-size: 1.75rem; margin-bottom: 0.625rem; }
@@ -598,8 +675,35 @@
       </div>
 
       <div class="payment-content">
-        <section class="media-card" aria-label="后台配置图片">
+        <section class="media-card" id="mediaCard" aria-label="后台配置图片">
           <img class="backend-image" id="backendImage" src="assets/payment-methods.jpg" alt="支持的支付方式：微信支付、支付宝、银联支付、云闪付">
+          <!-- 新增状态「多码选择」时显示：三个码竖排，点选后右侧放大 -->
+          <div class="channel-picker" id="channelPicker" role="group" aria-label="选择支付方式" hidden>
+            <button class="channel-item is-alipay is-selected" type="button" data-channel="alipay" aria-pressed="true">
+              <span class="channel-thumb"><span class="channel-qr" data-channel-qr="alipay"></span></span>
+              <span class="channel-meta">
+                <span class="channel-name">支付宝</span>
+                <span class="channel-sub">AliPay</span>
+              </span>
+              <span class="channel-check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7"/></svg></span>
+            </button>
+            <button class="channel-item is-wechat" type="button" data-channel="wechat" aria-pressed="false">
+              <span class="channel-thumb"><span class="channel-qr" data-channel-qr="wechat"></span></span>
+              <span class="channel-meta">
+                <span class="channel-name">微信支付</span>
+                <span class="channel-sub">WeChat Pay</span>
+              </span>
+              <span class="channel-check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7"/></svg></span>
+            </button>
+            <button class="channel-item is-wechatqr" type="button" data-channel="wechatqr" aria-pressed="false">
+              <span class="channel-thumb"><span class="channel-qr" data-channel-qr="wechatqr"></span></span>
+              <span class="channel-meta">
+                <span class="channel-name">微信扫码</span>
+                <span class="channel-sub">WeChat QR</span>
+              </span>
+              <span class="channel-check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7"/></svg></span>
+            </button>
+          </div>
         </section>
 
         <section class="qr-card" id="paymentStatusCard" aria-label="支付状态">
@@ -610,7 +714,17 @@
               <div class="qr-code" id="qrCode" role="img" aria-label="订单支付二维码"></div>
             </div>
             <p class="state-hint">请使用手机扫描二维码</p>
-            <div class="countdown" aria-live="polite">剩余时间 <strong id="countdown">90</strong> 秒</div>
+            <div class="countdown" aria-live="polite">剩余时间 <strong id="countdown" data-countdown>90</strong> 秒</div>
+          </div>
+
+          <div class="payment-state-panel" data-state-panel="channels" hidden>
+            <h2 class="state-title">请扫码支付</h2>
+            <p class="qr-code-caption" id="channelCaption">ALIPAY</p>
+            <div class="qr-frame">
+              <div class="qr-code" id="qrCodeChannel" role="img" aria-label="支付宝支付二维码"></div>
+            </div>
+            <p class="state-hint" id="channelHint">请打开支付宝「扫一扫」扫描二维码</p>
+            <div class="countdown" aria-live="polite">剩余时间 <strong data-countdown>90</strong> 秒</div>
           </div>
 
           <div class="payment-state-panel result-panel" data-state-panel="paid" hidden>
@@ -666,6 +780,7 @@
           <div class="demo-controls" id="demoControls" aria-label="Demo 支付状态">
             <span class="demo-label">DEMO</span>
             <button class="demo-state active" type="button" data-demo-state="waiting" aria-pressed="true">请扫码</button>
+            <button class="demo-state" type="button" data-demo-state="channels" aria-pressed="false">多码选择</button>
             <button class="demo-state" type="button" data-demo-state="paid" aria-pressed="false">支付成功</button>
             <button class="demo-state" type="button" data-demo-state="failed" aria-pressed="false">支付失败</button>
           </div>
@@ -703,9 +818,46 @@
     const PAYMENT_TIMEOUT_SECONDS = 90;
     const demoMode = new URLSearchParams(window.location.search).get("demo") !== "off";
     const qrCodeElement = document.getElementById("qrCode");
-    const countdownElement = document.getElementById("countdown");
+    const qrChannelElement = document.getElementById("qrCodeChannel");
+    const channelCaption = document.getElementById("channelCaption");
+    const channelHint = document.getElementById("channelHint");
+    const channelPicker = document.getElementById("channelPicker");
+    const backendImage = document.getElementById("backendImage");
+    const mediaCard = document.getElementById("mediaCard");
     const homeModal = document.getElementById("homeModal");
     const toast = document.getElementById("toast");
+
+    // 支付状态：waiting / channels（新增，左卡三码可选）/ paid / failed
+    const PAY_STATES = ["waiting", "channels", "paid", "failed"];
+    const CODE_STATES = ["waiting", "channels"];
+
+    // 新增状态的三个渠道；顺序即左侧排列顺序（支付宝在上）
+    const PAY_CHANNELS = [
+      {
+        id: "alipay",
+        name: "支付宝",
+        sub: "AliPay",
+        color: "#0f6fe0",
+        hint: "请打开支付宝「扫一扫」扫描二维码",
+        payload: orderId => `https://qr.alipay.com/fuji-${orderId}`
+      },
+      {
+        id: "wechat",
+        name: "微信支付",
+        sub: "WeChat Pay",
+        color: "#0a9c4f",
+        hint: "请打开微信「扫一扫」扫描二维码",
+        payload: orderId => `weixin://wxpay/bizpayurl?pr=${orderId}`
+      },
+      {
+        id: "wechatqr",
+        name: "微信扫码",
+        sub: "WeChat QR",
+        color: "#0b8f66",
+        hint: "请使用微信扫描二维码，在微信内完成支付",
+        payload: orderId => `https://pay.example.com/fuji/wxscan?order=${encodeURIComponent(orderId)}`
+      }
+    ];
     const defaultOrder = {
       items: [
         { name: "カフェラテ", price: 340, quantity: 1, image: "product-cutout-27/331-08.webp" },
@@ -719,6 +871,8 @@
     };
     let paymentState = "waiting";
     let paymentSession = 0;
+    let activeOrderId = "";
+    let selectedChannel = PAY_CHANNELS[0].id;
     let deadline = 0;
     let countdownTimer = null;
     let preparationRedirectTimer = null;
@@ -764,24 +918,63 @@
       homeModal.setAttribute("aria-hidden", String(!open));
     }
 
-    function createPaymentCode() {
-      paymentSession += 1;
-      const orderId = `FUJI-${Date.now()}-${paymentSession}`;
-      const separator = paymentConfig.paymentUrl.includes("?") ? "&" : "?";
-      const payload = `${paymentConfig.paymentUrl}${separator}order=${encodeURIComponent(orderId)}`;
-      qrCodeElement.replaceChildren();
+    function paintQR(target, payload, size, level) {
+      if (!target) return;
+      target.replaceChildren();
       if (typeof window.QRCode !== "function") {
-        qrCodeElement.textContent = "二维码加载失败，请重新支付";
+        target.textContent = "二维码加载失败，请重新支付";
         return;
       }
-      new window.QRCode(qrCodeElement, {
+      const correctLevel = window.QRCode.CorrectLevel[level] || window.QRCode.CorrectLevel.M;
+      new window.QRCode(target, {
         text: payload,
-        width: 248,
-        height: 248,
+        width: size,
+        height: size,
         colorDark: "#102d43",
         colorLight: "#ffffff",
-        correctLevel: window.QRCode.CorrectLevel.M
+        correctLevel: correctLevel
       });
+    }
+
+    function newOrderId() {
+      paymentSession += 1;
+      return `FUJI-${Date.now()}-${paymentSession}`;
+    }
+
+    function createPaymentCode() {
+      activeOrderId = newOrderId();
+      const separator = paymentConfig.paymentUrl.includes("?") ? "&" : "?";
+      const payload = `${paymentConfig.paymentUrl}${separator}order=${encodeURIComponent(activeOrderId)}`;
+      paintQR(qrCodeElement, payload, 248, "M");
+    }
+
+    // 左卡三张小码：用同一订单号，按各自渠道生成，保证三个码互不相同
+    function renderChannelThumbs(orderId) {
+      document.querySelectorAll("[data-channel-qr]").forEach(target => {
+        const channel = PAY_CHANNELS.find(item => item.id === target.dataset.channelQr);
+        if (!channel) return;
+        paintQR(target, channel.payload(orderId), 120, "L");
+      });
+    }
+
+    // 选中渠道：左侧高亮 + 右侧大码与文案同步切换（订单号不变，只换渠道）
+    function selectChannel(id) {
+      const channel = PAY_CHANNELS.find(item => item.id === id) || PAY_CHANNELS[0];
+      selectedChannel = channel.id;
+
+      document.querySelectorAll("[data-channel]").forEach(button => {
+        const active = button.dataset.channel === channel.id;
+        button.classList.toggle("is-selected", active);
+        button.setAttribute("aria-pressed", String(active));
+      });
+
+      if (channelCaption) {
+        channelCaption.textContent = channel.sub.toUpperCase();
+        channelCaption.style.color = channel.color;
+      }
+      if (channelHint) channelHint.textContent = channel.hint;
+      if (qrChannelElement) qrChannelElement.setAttribute("aria-label", `${channel.name}支付二维码`);
+      paintQR(qrChannelElement, channel.payload(activeOrderId), 248, "M");
     }
 
     function stopCountdown() {
@@ -808,15 +1001,21 @@
       }
     }
 
+    function paintCountdown(value) {
+      document.querySelectorAll("[data-countdown]").forEach(element => {
+        element.textContent = String(value);
+      });
+    }
+
     function tickCountdown() {
-      if (paymentState !== "waiting") return;
+      if (!CODE_STATES.includes(paymentState)) return;
       const remaining = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
-      countdownElement.textContent = String(remaining);
+      paintCountdown(remaining);
       if (remaining === 0) setPaymentState("failed");
     }
 
     function setPaymentState(nextState) {
-      if (!["waiting", "paid", "failed"].includes(nextState)) return false;
+      if (!PAY_STATES.includes(nextState)) return false;
       stopCountdown();
       if (preparationRedirectTimer !== null) window.clearTimeout(preparationRedirectTimer);
       preparationRedirectTimer = null;
@@ -833,10 +1032,18 @@
         button.classList.toggle("active", active);
         button.setAttribute("aria-pressed", String(active));
       });
+
+      // 只在「多码选择」状态把左卡换成三码选择器，其余状态保持原样
+      const showChannels = nextState === "channels";
+      if (channelPicker) channelPicker.hidden = !showChannels;
+      if (backendImage) backendImage.hidden = showChannels;
+      if (mediaCard) mediaCard.setAttribute("aria-label", showChannels ? "选择支付方式" : "后台配置图片");
+
       updateProgress(nextState);
 
       const titles = {
         waiting: "请扫码支付 - Fuji Electric",
+        channels: "请选择支付方式 - Fuji Electric",
         paid: "支付成功 - Fuji Electric",
         failed: "支付失败 - Fuji Electric"
       };
@@ -845,7 +1052,15 @@
       if (nextState === "waiting") {
         createPaymentCode();
         deadline = Date.now() + PAYMENT_TIMEOUT_SECONDS * 1000;
-        countdownElement.textContent = String(PAYMENT_TIMEOUT_SECONDS);
+        paintCountdown(PAYMENT_TIMEOUT_SECONDS);
+        countdownTimer = window.setInterval(tickCountdown, 250);
+      } else if (nextState === "channels") {
+        // 三个小码与大码共用同一个订单号，切渠道不改订单
+        activeOrderId = newOrderId();
+        renderChannelThumbs(activeOrderId);
+        selectChannel(selectedChannel);
+        deadline = Date.now() + PAYMENT_TIMEOUT_SECONDS * 1000;
+        paintCountdown(PAYMENT_TIMEOUT_SECONDS);
         countdownTimer = window.setInterval(tickCountdown, 250);
       } else if (nextState === "paid") {
         try { sessionStorage.setItem("fujiPaymentStatus", "paid"); } catch (error) { console.warn(error); }
@@ -863,7 +1078,7 @@
     // 真实支付网关接入入口；Demo 按钮可直接切换相同状态，不依赖接口。
     function handlePaymentResult(result) {
       const status = typeof result === "string" ? result : result && result.status;
-      if (paymentState !== "waiting") return false;
+      if (!CODE_STATES.includes(paymentState)) return false;
       if (["paid", "success", "succeeded"].includes(status)) return setPaymentState("paid");
       if (["failed", "failure", "expired"].includes(status)) return setPaymentState("failed");
       return false;
@@ -886,7 +1101,7 @@
       if (config && typeof config.paymentUrl === "string" && config.paymentUrl) {
         paymentConfig.paymentUrl = config.paymentUrl;
       }
-      if (paymentState === "waiting") setPaymentState("waiting");
+      if (CODE_STATES.includes(paymentState)) setPaymentState(paymentState);
     }
 
     window.handlePaymentResult = handlePaymentResult;
@@ -896,6 +1111,10 @@
     document.getElementById("demoControls").classList.toggle("visible", demoMode);
     document.querySelectorAll("[data-demo-state]").forEach(button => {
       button.addEventListener("click", () => setPaymentState(button.dataset.demoState));
+    });
+    // 左卡三码：点选即换右侧大码，倒计时与订单号都不重置
+    document.querySelectorAll("[data-channel]").forEach(button => {
+      button.addEventListener("click", () => selectChannel(button.dataset.channel));
     });
     document.getElementById("homeButton").addEventListener("click", () => {
       if (paymentState === "paid") {
