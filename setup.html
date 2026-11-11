@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>设备设置 · Device setup</title>
+  <style>
+    :root {
+      --surface: #ffffff;
+      --border: #e4ebf0;
+      --text: #102d43;
+      --text-2: #6c7e8c;
+      --accent: #0877c9;
+      --accent-dark: #075b9e;
+      --accent-weak: #e8f4fd;
+      --radius: 1.125rem;
+    }
+
+    /* ===== 视口等比缩放基准（与其余页面一致）=====
+       设计稿 1920×1080，1rem = 16 设计像素。 */
+    html { font-size: min(100vw / 120, 100vh / 67.5); }
+    html { font-size: min(100vw / 120, 100dvh / 67.5); }
+    @media (orientation: landscape) {
+      html { font-size: max(12px, min(100vw / 120, 100vh / 67.5)); }
+      html { font-size: max(12px, min(100vw / 120, 100dvh / 67.5)); }
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-height: 100vh;
+      min-height: 100dvh;
+      margin: 0;
+      padding: 1.75rem;
+      color: var(--text);
+      background:
+        radial-gradient(120% 90% at 12% 0%, #eaf5ff 0%, rgba(234,245,255,0) 58%),
+        linear-gradient(180deg, #f6fafd 0%, #eef4f9 100%);
+      font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, -apple-system, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .panel {
+      width: min(64rem, 100%);
+      max-height: calc(100dvh - 3.5rem);
+      overflow-y: auto;
+      padding: 2rem 2.25rem 1.5rem;
+      border: 0.0625rem solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: 0 1rem 2.75rem rgba(28, 62, 82, .09);
+    }
+    .panel::-webkit-scrollbar { width: 0.375rem; }
+    .panel::-webkit-scrollbar-thumb { border-radius: 0.25rem; background: #cfdde8; }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin: 0 0 0.625rem;
+      padding: 0.25rem 0.625rem;
+      border-radius: 0.375rem;
+      color: var(--accent-dark);
+      background: var(--accent-weak);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+    }
+    h1 {
+      margin: 0;
+      font-size: 1.875rem;
+      font-weight: 750;
+      letter-spacing: -.01em;
+    }
+    .sub {
+      margin: 0.5rem 0 0;
+      color: var(--text-2);
+      font-size: 0.9375rem;
+      line-height: 1.62;
+    }
+
+    /* ===== 检测信息 ===== */
+    .detect {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.0625rem;
+      margin: 1.375rem 0 1.5rem;
+      overflow: hidden;
+      border: 0.0625rem solid var(--border);
+      border-radius: 0.75rem;
+      background: var(--border);
+    }
+    .detect-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3125rem;
+      padding: 0.75rem 1rem;
+      background: #f8fbfd;
+    }
+    .detect-item span { color: var(--text-2); font-size: 0.75rem; font-weight: 600; }
+    .detect-item strong { font-size: 1.0625rem; font-weight: 700; letter-spacing: -.01em; }
+    .detect-item strong em { color: var(--accent); font-style: normal; }
+
+    /* ===== 档位卡片 ===== */
+    .options {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.875rem;
+    }
+    .option {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      padding: 1.125rem 1.25rem 1rem;
+      border: 0.125rem solid var(--border);
+      border-radius: 0.875rem;
+      color: var(--text);
+      background: #fbfdfe;
+      text-align: left;
+      font: inherit;
+      cursor: pointer;
+      transition: border-color .16s ease, background .16s ease, transform .14s ease;
+    }
+    .option:hover { border-color: #b9d9ed; background: #fff; }
+    .option:active { transform: scale(.995); }
+    .option[aria-pressed="true"] {
+      border-color: var(--accent);
+      background: #f4faff;
+      box-shadow: 0 0.375rem 1.125rem rgba(8, 119, 201, .12);
+    }
+    .option-diag {
+      display: flex;
+      align-items: baseline;
+      gap: 0.375rem;
+      font-size: 1.75rem;
+      font-weight: 800;
+      letter-spacing: -.02em;
+      line-height: 1.1;
+    }
+    .option-diag small { color: var(--text-2); font-size: 0.75rem; font-weight: 600; }
+    .option-grid { margin-top: 0.1875rem; color: var(--accent-dark); font-size: 1.0625rem; font-weight: 700; }
+    .option-meta { color: var(--text-2); font-size: 0.8125rem; line-height: 1.5; }
+    .option-flag {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.875rem;
+      padding: 0.1875rem 0.4375rem;
+      border-radius: 0.3125rem;
+      color: #fff;
+      background: var(--accent);
+      font-size: 0.6875rem;
+      font-weight: 700;
+      letter-spacing: .02em;
+      opacity: 0;
+      transition: opacity .16s ease;
+    }
+    .option[data-suggested="true"] .option-flag { opacity: 1; }
+
+    /* ===== 自定义分辨率 ===== */
+    .custom {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.625rem 0.875rem;
+      margin-top: 1.125rem;
+      padding: 0.9375rem 1.125rem;
+      border: 0.0625rem dashed #cfdde8;
+      border-radius: 0.75rem;
+      background: #fafcfd;
+    }
+    .custom[data-active="true"] { border-style: solid; border-color: var(--accent); background: #f4faff; }
+    .custom-label { font-size: 0.875rem; font-weight: 700; }
+    .field {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4375rem;
+      font-size: 0.875rem;
+      color: var(--text-2);
+    }
+    .field input {
+      width: 5.5rem;
+      padding: 0.4375rem 0.625rem;
+      border: 0.0625rem solid var(--border);
+      border-radius: 0.5rem;
+      color: var(--text);
+      background: #fff;
+      font: inherit;
+      font-size: 0.9375rem;
+      font-weight: 650;
+      text-align: center;
+    }
+    .field input:focus { outline: 0.125rem solid var(--accent); outline-offset: 0.0625rem; border-color: var(--accent); }
+    .custom-hint { flex: 1 1 14rem; min-width: 0; color: var(--text-2); font-size: 0.75rem; line-height: 1.5; }
+
+    /* ===== 底部操作 ===== */
+    .footer {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+      padding-top: 1.25rem;
+      border-top: 0.0625rem solid var(--border);
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      min-height: 3.125rem;
+      padding: 0 1.75rem;
+      border: 0.0625rem solid transparent;
+      border-radius: 0.75rem;
+      font: inherit;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .16s ease, border-color .16s ease, color .16s ease;
+    }
+    .btn-primary { color: #fff; background: var(--accent); }
+    .btn-primary:hover { background: var(--accent-dark); }
+    .btn-ghost { border-color: var(--border); color: var(--text); background: #fff; }
+    .btn-ghost:hover { border-color: #b9d9ed; background: #f7fbfd; }
+    .btn svg { width: 1.125rem; height: 1.125rem; }
+    .footer-link {
+      margin-left: auto;
+      color: var(--text-2);
+      font-size: 0.875rem;
+      text-decoration: none;
+    }
+    .footer-link:hover { color: var(--accent); text-decoration: underline; }
+
+    .note {
+      margin: 1rem 0 0;
+      color: #93a4b1;
+      font-size: 0.75rem;
+      line-height: 1.6;
+    }
+
+    /* 小屏（10 吋）：收紧留白，档位卡片改为单列，避免内容被挤出 */
+    @media (max-width: 900px), (max-height: 700px) {
+      .panel { padding: 1.375rem 1.5rem 1.125rem; }
+      h1 { font-size: 1.5rem; }
+      .sub { font-size: 0.875rem; }
+      .detect { margin: 1rem 0 1.125rem; }
+      .options { gap: 0.625rem; }
+      .option { padding: 0.875rem 0.9375rem; }
+      .option-diag { font-size: 1.375rem; }
+      .option-grid { font-size: 0.9375rem; }
+      .btn { min-height: 2.75rem; font-size: 0.9375rem; }
+    }
+    @media (max-width: 720px) {
+      .detect { grid-template-columns: 1fr; }
+      .options { grid-template-columns: 1fr; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="panel">
+    <p class="eyebrow">DEVICE SETUP · 部署调试</p>
+    <h1>选择这台机器的屏幕尺寸</h1>
+    <p class="sub">
+      页面会按所选档位加载商品排版与缩放基准。设置保存在本机浏览器中，随时可以从欢迎页右下角回到这里重新选择。
+    </p>
+
+    <div class="detect">
+      <div class="detect-item">
+        <span>检测到的屏幕</span>
+        <strong id="detectScreen">—</strong>
+      </div>
+      <div class="detect-item">
+        <span>可用视口</span>
+        <strong id="detectViewport">—</strong>
+      </div>
+      <div class="detect-item">
+        <span>建议档位</span>
+        <strong id="detectSuggest">—</strong>
+      </div>
+    </div>
+
+    <div class="options" role="group" aria-label="屏幕尺寸档位">
+      <button class="option" type="button" data-preset="s10" aria-pressed="false">
+        <span class="option-flag">建议</span>
+        <span class="option-diag">10″ <small>横屏</small></span>
+        <span class="option-grid">5 × 2 · 每页 10 件</span>
+        <span class="option-meta">平板 / 小屏一体机<br>参考 1024×768 · 1280×800</span>
+      </button>
+      <button class="option" type="button" data-preset="m21" aria-pressed="false">
+        <span class="option-flag">建议</span>
+        <span class="option-diag">21″ <small>横屏</small></span>
+        <span class="option-grid">5 × 3 · 每页 15 件</span>
+        <span class="option-meta">标准竖柜 / 中屏<br>参考 1920×1080</span>
+      </button>
+      <button class="option" type="button" data-preset="l27" aria-pressed="false">
+        <span class="option-flag">建议</span>
+        <span class="option-diag">27″ <small>横屏</small></span>
+        <span class="option-grid">6 × 3 · 每页 18 件</span>
+        <span class="option-meta">大屏壁挂 / 超大机柜<br>参考 2560×1440</span>
+      </button>
+    </div>
+
+    <div class="custom" id="customRow" data-active="false">
+      <span class="custom-label">自定义分辨率</span>
+      <label class="field">宽 <input id="customW" type="number" inputmode="numeric" min="480" max="7680" step="1" placeholder="1920"></label>
+      <label class="field">高 <input id="customH" type="number" inputmode="numeric" min="320" max="4320" step="1" placeholder="1080"></label>
+      <span class="custom-hint">用于非标准屏。填写后按该分辨率的设计基准缩放（且不会超过真实屏允许的尺寸）。</span>
+    </div>
+
+    <div class="footer">
+      <button class="btn btn-primary" id="saveButton" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 12h15M14 7l5 5-5 5"/></svg>
+        保存并进入
+      </button>
+      <button class="btn btn-ghost" id="autoButton" type="button">恢复自动检测</button>
+      <a class="footer-link" href="welcome.html">返回欢迎页</a>
+    </div>
+
+    <p class="note">
+      自动检测按视口宽度判定：&lt; 1280 → 10″，1280 – 2199 → 21″，≥ 2200 → 27″。此页与欢迎页的设置入口属部署调试功能，上线前应与 DEMO 开关一并移除。
+    </p>
+  </main>
+
+  <script>
+    const STORAGE_KEY = "fujiDevice";
+
+    // 档位 → 预包装页使用的排版键
+    const PRESET_LAYOUT = { s10: "s10", m21: "m21", l27: "l27" };
+    const DIAG_LABEL = { s10: "10″", m21: "21″", l27: "27″" };
+
+    const optionButtons = Array.from(document.querySelectorAll("[data-preset]"));
+    const customRow = document.getElementById("customRow");
+    const customW = document.getElementById("customW");
+    const customH = document.getElementById("customH");
+    const detectScreen = document.getElementById("detectScreen");
+    const detectViewport = document.getElementById("detectViewport");
+    const detectSuggest = document.getElementById("detectSuggest");
+
+    // 与各页面 head 中的推断逻辑保持一致
+    function layoutForWidth(width) {
+      if (width >= 2200) return "l27";
+      if (width >= 1280) return "m21";
+      return "s10";
+    }
+
+    function readDevice() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        return parsed && typeof parsed === "object" ? parsed : null;
+      } catch (error) {
+        console.warn("设备配置读取失败。", error);
+        return null;
+      }
+    }
+
+    function writeDevice(device) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(device));
+        return true;
+      } catch (error) {
+        console.warn("设备配置保存失败。", error);
+        return false;
+      }
+    }
+
+    // 选择状态：preset（强制档位） | custom（自定义基准） | auto（按视口推断）
+    let selection = { mode: "auto", preset: null };
+
+    function paint() {
+      optionButtons.forEach(button => {
+        const active = selection.mode === "preset" && button.dataset.preset === selection.preset;
+        button.setAttribute("aria-pressed", String(active));
+      });
+      customRow.dataset.active = String(selection.mode === "custom");
+    }
+
+    function selectPreset(preset) {
+      selection = { mode: "preset", preset };
+      paint();
+    }
+
+    function selectCustom() {
+      selection = { mode: "custom", preset: null };
+      paint();
+    }
+
+    function syncSuggestFlag(suggested) {
+      optionButtons.forEach(button => {
+        button.dataset.suggested = String(button.dataset.preset === suggested);
+      });
+    }
+
+    function refreshDetect() {
+      const sw = window.screen ? window.screen.width : 0;
+      const sh = window.screen ? window.screen.height : 0;
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const suggested = layoutForWidth(vw);
+
+      detectScreen.textContent = `${sw} × ${sh}`;
+      detectViewport.textContent = `${vw} × ${vh}`;
+      detectSuggest.innerHTML = `<em>${DIAG_LABEL[suggested]}</em>`;
+      syncSuggestFlag(suggested);
+      return suggested;
+    }
+
+    // 初始化：回填已保存的配置
+    (function restore() {
+      const saved = readDevice();
+      const suggested = refreshDetect();
+
+      if (saved && saved.mode === "preset" && PRESET_LAYOUT[saved.preset]) {
+        selection = { mode: "preset", preset: saved.preset };
+      } else if (saved && saved.mode === "custom" && saved.w > 0 && saved.h > 0) {
+        selection = { mode: "custom", preset: null };
+        customW.value = saved.w;
+        customH.value = saved.h;
+      } else {
+        selection = { mode: "auto", preset: null };
+        customW.value = suggested === "s10" ? 1024 : suggested === "m21" ? 1920 : 2560;
+        customH.value = suggested === "s10" ? 768 : suggested === "m21" ? 1080 : 1440;
+      }
+      paint();
+    })();
+
+    optionButtons.forEach(button => {
+      button.addEventListener("click", () => selectPreset(button.dataset.preset));
+    });
+
+    [customW, customH].forEach(input => {
+      input.addEventListener("input", () => {
+        if (input.value.trim() === "") return;
+        selectCustom();
+      });
+      input.addEventListener("focus", () => {
+        if (input.value.trim() !== "") selectCustom();
+      });
+    });
+
+    document.getElementById("saveButton").addEventListener("click", () => {
+      let payload;
+      if (selection.mode === "custom") {
+        const w = Math.round(Number(customW.value));
+        const h = Math.round(Number(customH.value));
+        if (!(w >= 480 && h >= 320)) {
+          customW.focus();
+          customRow.dataset.active = "true";
+          return;
+        }
+        payload = { mode: "custom", preset: null, layout: layoutForWidth(w), w, h };
+      } else if (selection.mode === "preset") {
+        const preset = selection.preset;
+        const ref = preset === "s10" ? [1024, 768] : preset === "m21" ? [1920, 1080] : [2560, 1440];
+        payload = { mode: "preset", preset, layout: PRESET_LAYOUT[preset], w: ref[0], h: ref[1] };
+      } else {
+        payload = { mode: "auto", preset: null, layout: null, w: 0, h: 0 };
+      }
+      writeDevice(payload);
+      window.location.href = "welcome.html";
+    });
+
+    document.getElementById("autoButton").addEventListener("click", () => {
+      writeDevice({ mode: "auto", preset: null, layout: null, w: 0, h: 0 });
+      selection = { mode: "auto", preset: null };
+      paint();
+      window.location.href = "welcome.html";
+    });
+
+    window.addEventListener("resize", () => { refreshDetect(); });
+  </script>
+</body>
+</html>

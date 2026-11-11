@@ -3,6 +3,54 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- 设备配置引导：读取 setup.html 保存的档位，决定排版标记与根字号基准 -->
+  <script>
+    (function () {
+      var KEY = "fujiDevice";
+      var root = document.documentElement;
+      var device = null;
+      try {
+        var raw = localStorage.getItem(KEY);
+        if (raw) device = JSON.parse(raw);
+      } catch (error) {
+        console.warn("设备配置读取失败。", error);
+      }
+
+      // 与 setup.html 中的推断逻辑保持一致
+      function layoutForWidth(width) {
+        if (width >= 2200) return "l27";
+        if (width >= 1280) return "m21";
+        return "s10";
+      }
+
+      var mode = device && device.mode ? device.mode : "auto";
+      var layout = null;
+      var base = null;
+
+      if (mode === "preset" && device.layout) {
+        layout = device.layout;
+      } else if (mode === "custom" && device.w > 0 && device.h > 0) {
+        layout = layoutForWidth(device.w);
+        base = Math.min(device.w / 120, device.h / 67.5);
+      } else {
+        mode = "auto";
+        layout = layoutForWidth(window.innerWidth);
+      }
+
+      root.dataset.deviceMode = mode;
+      root.dataset.deviceLayout = layout;
+      window.FUJI_DEVICE = { mode: mode, layout: layout };
+
+      // 自定义分辨率：把根字号钳到该基准对应的设计字号，且不超过真实视口允许的尺寸
+      if (base && base > 0) {
+        var style = document.createElement("style");
+        style.textContent =
+          'html[data-device-mode="custom"]{font-size:max(12px,min(' +
+          base.toFixed(3) + 'px,100vw / 120,100vh / 67.5));}';
+        document.head.appendChild(style);
+      }
+    })();
+  </script>
   <title>Fuji Packaged Goods Vending UI</title>
   <style>
     :root {
@@ -1760,7 +1808,11 @@
       l27: { cols: 6, rows: 3, diag: 27 }   // 27 吋横屏：6 × 3 = 18
     };
     const LAYOUT_ALIASES = { "10": "s10", "21": "m21", "27": "l27", s10: "s10", m21: "m21", l27: "l27" };
-    const initialLayout = LAYOUT_ALIASES[previewParams.get("layout")] || "s10";
+    const LAYOUT_REFERENCE = { s10: [1024, 768], m21: [1920, 1080], l27: [2560, 1440] };
+    // 优先级：URL 参数（调试直达） > 设备设置页保存的档位 / 视口推断 > 兜底 10 吋
+    const initialLayout = LAYOUT_ALIASES[previewParams.get("layout")]
+      || (window.FUJI_DEVICE && window.FUJI_DEVICE.layout)
+      || "s10";
 
     const state = {
       category: "all",
@@ -2025,6 +2077,26 @@
       showToast(state.adEnabled ? t("adOn", { n: count }) : t("adOff", { n: count }));
     });
 
+    // 记住本机档位：在商品页切换档位后写回设备配置，下次打开仍是这一档
+    function persistLayout(layout) {
+      try {
+        const raw = localStorage.getItem("fujiDevice");
+        const device = raw ? (JSON.parse(raw) || {}) : {};
+        const ref = LAYOUT_REFERENCE[layout] || LAYOUT_REFERENCE.s10;
+        device.mode = "preset";
+        device.preset = layout;
+        device.layout = layout;
+        device.w = ref[0];
+        device.h = ref[1];
+        localStorage.setItem("fujiDevice", JSON.stringify(device));
+        window.FUJI_DEVICE = { mode: "preset", layout };
+        document.documentElement.dataset.deviceMode = "preset";
+        document.documentElement.dataset.deviceLayout = layout;
+      } catch (error) {
+        console.warn("档位偏好无法保存。", error);
+      }
+    }
+
     // 排版档位切换：重置到第一页，并提示当前档位（屏幕尺寸 / 网格 / 每页数量）
     layoutSwitch.addEventListener("click", event => {
       const button = event.target.closest("[data-layout]");
@@ -2032,6 +2104,7 @@
       state.layout = button.dataset.layout;
       state.page = 0;
       renderProducts();
+      persistLayout(state.layout);
       const layout = LAYOUTS[state.layout];
       showToast(t("layoutToast", { diag: layout.diag, cols: layout.cols, rows: layout.rows, n: pageSize() }));
     });

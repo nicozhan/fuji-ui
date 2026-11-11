@@ -3,6 +3,54 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- 设备配置引导：读取 setup.html 保存的档位，决定排版标记与根字号基准 -->
+  <script>
+    (function () {
+      var KEY = "fujiDevice";
+      var root = document.documentElement;
+      var device = null;
+      try {
+        var raw = localStorage.getItem(KEY);
+        if (raw) device = JSON.parse(raw);
+      } catch (error) {
+        console.warn("设备配置读取失败。", error);
+      }
+
+      // 与 setup.html 中的推断逻辑保持一致
+      function layoutForWidth(width) {
+        if (width >= 2200) return "l27";
+        if (width >= 1280) return "m21";
+        return "s10";
+      }
+
+      var mode = device && device.mode ? device.mode : "auto";
+      var layout = null;
+      var base = null;
+
+      if (mode === "preset" && device.layout) {
+        layout = device.layout;
+      } else if (mode === "custom" && device.w > 0 && device.h > 0) {
+        layout = layoutForWidth(device.w);
+        base = Math.min(device.w / 120, device.h / 67.5);
+      } else {
+        mode = "auto";
+        layout = layoutForWidth(window.innerWidth);
+      }
+
+      root.dataset.deviceMode = mode;
+      root.dataset.deviceLayout = layout;
+      window.FUJI_DEVICE = { mode: mode, layout: layout };
+
+      // 自定义分辨率：把根字号钳到该基准对应的设计字号，且不超过真实视口允许的尺寸
+      if (base && base > 0) {
+        var style = document.createElement("style");
+        style.textContent =
+          'html[data-device-mode="custom"]{font-size:max(12px,min(' +
+          base.toFixed(3) + 'px,100vw / 120,100vh / 67.5));}';
+        document.head.appendChild(style);
+      }
+    })();
+  </script>
   <title>请选择支付方式 - Fuji Electric</title>
   <style>
     :root {

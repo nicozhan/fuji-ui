@@ -3,6 +3,54 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- 设备配置引导：读取 setup.html 保存的档位，决定排版标记与根字号基准 -->
+  <script>
+    (function () {
+      var KEY = "fujiDevice";
+      var root = document.documentElement;
+      var device = null;
+      try {
+        var raw = localStorage.getItem(KEY);
+        if (raw) device = JSON.parse(raw);
+      } catch (error) {
+        console.warn("设备配置读取失败。", error);
+      }
+
+      // 与 setup.html 中的推断逻辑保持一致
+      function layoutForWidth(width) {
+        if (width >= 2200) return "l27";
+        if (width >= 1280) return "m21";
+        return "s10";
+      }
+
+      var mode = device && device.mode ? device.mode : "auto";
+      var layout = null;
+      var base = null;
+
+      if (mode === "preset" && device.layout) {
+        layout = device.layout;
+      } else if (mode === "custom" && device.w > 0 && device.h > 0) {
+        layout = layoutForWidth(device.w);
+        base = Math.min(device.w / 120, device.h / 67.5);
+      } else {
+        mode = "auto";
+        layout = layoutForWidth(window.innerWidth);
+      }
+
+      root.dataset.deviceMode = mode;
+      root.dataset.deviceLayout = layout;
+      window.FUJI_DEVICE = { mode: mode, layout: layout };
+
+      // 自定义分辨率：把根字号钳到该基准对应的设计字号，且不超过真实视口允许的尺寸
+      if (base && base > 0) {
+        var style = document.createElement("style");
+        style.textContent =
+          'html[data-device-mode="custom"]{font-size:max(12px,min(' +
+          base.toFixed(3) + 'px,100vw / 120,100vh / 67.5));}';
+        document.head.appendChild(style);
+      }
+    })();
+  </script>
   <title>Welcome</title>
   <style>
     :root {
@@ -133,6 +181,43 @@
     .language-flag { font-size: 1.5rem; line-height: 1; }
     .language-name { font-size: 0.875rem; font-weight: 600; line-height: 1.2; white-space: nowrap; }
 
+    /* 设备设置入口（部署调试用，上线前与 DEMO 开关一并移除） */
+    .setup-control {
+      position: absolute;
+      right: 1.75rem;
+      bottom: 1.5rem;
+      z-index: 3;
+    }
+    .setup-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.875rem;
+      border: 0.0625rem solid rgba(255, 255, 255, .78);
+      border-radius: 0.625rem;
+      color: #17384e;
+      background: rgba(255, 255, 255, .72);
+      box-shadow: 0 0.25rem 0.875rem rgba(28, 62, 82, .12);
+      backdrop-filter: blur(0.5rem);
+      -webkit-backdrop-filter: blur(0.5rem);
+      font-family: inherit;
+      font-size: 0.8125rem;
+      font-weight: 650;
+      letter-spacing: .01em;
+      cursor: pointer;
+      transition: background .16s ease, border-color .16s ease;
+    }
+    .setup-button:hover { border-color: rgba(7, 91, 158, .48); background: rgba(255, 255, 255, .92); }
+    .setup-button svg { width: 0.9375rem; height: 0.9375rem; }
+    .setup-button b {
+      padding: 0.0625rem 0.3125rem;
+      border-radius: 0.25rem;
+      color: #fff;
+      background: rgba(7, 91, 158, .82);
+      font-size: 0.6875rem;
+      font-weight: 700;
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { transition: none !important; }
     }
@@ -172,6 +257,17 @@
       <button class="language-button" type="button" data-language="ko" aria-pressed="false">
         <span class="language-flag" aria-hidden="true">🇰🇷</span>
         <span class="language-name">한국어</span>
+      </button>
+    </div>
+
+    <div class="setup-control">
+      <button class="setup-button" id="setupButton" type="button" title="设备设置：切换屏幕尺寸档位">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
+          <circle cx="12" cy="12" r="3.2"></circle>
+          <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.05A1.7 1.7 0 0 0 9 19.4a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.05A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.05A1.7 1.7 0 0 0 15 4.6a1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9v.05a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.05a1.7 1.7 0 0 0-1.55 1z"></path>
+        </svg>
+        设备设置
+        <b id="deviceBadge">—</b>
       </button>
     </div>
   </main>
@@ -279,6 +375,29 @@
       console.warn("使用默认语言。", error);
     }
     selectLanguage(initialLanguage);
+  </script>
+
+  <script>
+    // 设备设置入口：显示当前生效的档位，点击回到设置页重新选择
+    (function initDeviceEntry() {
+      const button = document.getElementById("setupButton");
+      const badge = document.getElementById("deviceBadge");
+      const device = window.FUJI_DEVICE || { mode: "auto", layout: "s10" };
+      const labels = { s10: "10″", m21: "21″", l27: "27″" };
+
+      if (badge) {
+        const prefix = device.mode === "auto" ? "自动 " : device.mode === "custom" ? "自定义 " : "";
+        badge.textContent = prefix + (labels[device.layout] || "10″");
+      }
+
+      if (button) {
+        button.addEventListener("click", event => {
+          // 欢迎页整屏点击会进入商品页，这里必须阻断冒泡
+          event.stopPropagation();
+          window.location.href = "setup.html";
+        });
+      }
+    })();
   </script>
 </body>
 </html>
