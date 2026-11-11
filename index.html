@@ -770,7 +770,10 @@
       bottom: 0;
       display: flex;
       flex-direction: column;
-      width: clamp(24.375rem, 34.8vw, 41.75rem);
+      /* 小屏放宽侧栏，给放大后的图片和「价格 + 删除」一行留出余量；大屏维持原宽 */
+      width: clamp(24.375rem, 40vw, 41.75rem);
+      /* 条目缩略图：随视口高度放大，同时受侧栏宽度约束，保证 3 件商品不用滚动 */
+      --cart-thumb: max(4.5rem, min(15.5vh, 7.8vw));
       overflow: hidden;
       border-left: 0.0625rem solid rgba(7,91,158,.1);
       border-radius: 1.375rem 0 0 1.375rem;
@@ -780,6 +783,10 @@
       transition: transform .28s ease;
     }
     .cart-panel.closed { pointer-events: none; transform: translateX(calc(100% + 1.875rem)); }
+    /* 10 吋屏：侧栏再放宽一档，给放大后的字号与「价格 + 删除」一行留余量 */
+    @media (max-width: 1100px) {
+      .cart-panel { width: 42vw; }
+    }
     .cart-header {
       display: flex;
       flex: 0 0 6.25rem;
@@ -849,19 +856,15 @@
     .cart-item.is-new { animation: cart-item-pop 1.6s ease-out both; }
     .cart-item {
       display: grid;
-      grid-template-columns: clamp(5.25rem, 5.9vw, 7.125rem) minmax(0, 1fr) auto;
+      grid-template-columns: var(--cart-thumb) minmax(0, 1fr) auto;
       align-items: center;
-      gap: 1rem 1.375rem;
-      padding: 1.5rem 2.375rem;
+      gap: 0.75rem clamp(0.75rem, 1.4vw, 1.5rem);
+      padding: clamp(0.4375rem, 1.5vh, 1.375rem) clamp(0.875rem, 2.4vw, 2.375rem);
       border-bottom: 0.0625rem solid #edf1f4;
     }
-    /* 小屏（10 吋）购物车：左右留白与栏间距收紧，抵消放大后的价格/删除按钮占地，商品名不被省略 */
-    @media (max-width: 1100px) {
-      .cart-item { gap: 0.875rem 1rem; padding: 1.125rem 1.375rem; }
-    }
     .cart-thumb {
-      width: 100%;
-      height: clamp(5.25rem, 5.9vw, 7.125rem);
+      width: var(--cart-thumb);
+      height: var(--cart-thumb);
       aspect-ratio: 1 / 1;
       object-fit: contain;
       border-radius: 0;
@@ -874,33 +877,63 @@
       align-items: center;
       gap: 0.625rem;
       margin: 0 0 0.5625rem;
-      font-size: 1.1875rem;
+      font-size: 1.375rem;
       font-weight: 750;
       line-height: 1.25;
     }
-    .cart-item-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    /* 名称最多两行：放大字号后长名字折行而不是被省略号截掉 */
+    .cart-item-title {
+      display: -webkit-box;
+      min-width: 0;
+      overflow: hidden;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      overflow-wrap: anywhere;
+      /* 日文禁则：避免「ー」等字符被甩到行首 */
+      line-break: strict;
+    }
     .cart-item-qty {
       flex: none;
-      padding: 0.1875rem 0.625rem;
+      padding: 0.125rem 0.5rem;
       border-radius: 62.4375rem;
       color: var(--accent-dark);
       background: #eaf2fa;
-      font-size: 0.8125rem;
+      font-size: 0.875rem;
       font-weight: 800;
+      line-height: 1.3;
       white-space: nowrap;
     }
-    /* 购物车条目：第二行分类、价格、删除按钮统一放大一档，触摸屏上更好读也更好点 */
-    .cart-item-variant { margin: 0; color: var(--text-2); font-size: 1rem; line-height: 1.45; }
-    .cart-item-tail { display: flex; flex-direction: column; align-items: flex-end; gap: 0.75rem; }
-    .cart-item-price { font-size: 1.375rem; font-weight: 750; letter-spacing: -.01em; white-space: nowrap; }
-    .remove-item {
-      width: 2.75rem;
-      height: 2.75rem;
-      border-radius: 0.75rem;
-      color: #4c6172;
+    /* 购物车条目：名称、分类、价格、删除按钮统一放大，触摸屏上更好读也更好点 */
+    .cart-item-variant {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
+      margin: 0;
+      color: var(--text-2);
+      font-size: 1.0625rem;
+      line-height: 1.45;
     }
-    .remove-item:hover { color: var(--accent); background: #f0f6fa; }
-    .remove-item svg { width: 1.5rem; height: 1.5rem; }
+    /* 价格与删除按钮改为一行：价格在左、删除键贴最右，删除热区从 2.75rem 放大到 3.5rem */
+    .cart-item-tail {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: clamp(0.5rem, 1vw, 1.125rem);
+    }
+    .cart-item-price { font-size: 1.625rem; font-weight: 750; letter-spacing: -.01em; white-space: nowrap; }
+    .remove-item {
+      width: 3.5rem;
+      height: 3.5rem;
+      border-radius: 0.875rem;
+      color: #4c6172;
+      /* 淡底让放大后的删除热区看得出来，不再只是一个悬空的图标 */
+      background: #f2f6f9;
+      transition: background .16s ease, color .16s ease;
+    }
+    .remove-item:hover { color: var(--accent); background: #e3edf6; }
+    .remove-item:active { background: #d7e5f1; }
+    .remove-item svg { width: 1.75rem; height: 1.75rem; }
     .empty-cart { padding: 4.375rem 1.875rem; color: var(--text-2); text-align: center; }
 
     .cart-footer {
@@ -930,7 +963,7 @@
     .checkout-button:hover { background: var(--accent-dark); }
     .checkout-button svg { width: 1.3125rem; height: 1.3125rem; }
 
-    /* 10 吋平板：视口高度吃紧时压缩面板留白与条目高度，保证 3 件商品完整可见 */
+    /* 10 吋平板：视口高度吃紧时压缩面板头部/底部留白，把空间让给 3 个商品条目 */
     @media (max-height: 780px) {
       .cart-header { flex-basis: 4.5rem; padding: 0 1.5rem; }
       .cart-title { font-size: 1.375rem; gap: 0.5rem; }
@@ -938,20 +971,26 @@
       .cart-count { min-width: 1.5rem; height: 1.5rem; font-size: 0.8125rem; }
       .close-cart { width: 2.125rem; height: 2.125rem; }
       .close-cart svg { width: 1.375rem; height: 1.375rem; }
-      .cart-item {
-        grid-template-columns: 4.5rem minmax(0, 1fr) auto;
-        gap: 0.625rem 0.875rem;
-        padding: 0.625rem 1.375rem;
-      }
-      .cart-thumb { height: 4.5rem; }
-      .cart-item-name { margin-bottom: 0.25rem; }
-      .cart-item-tail { gap: 0.375rem; }
-      .remove-item { width: 2.375rem; height: 2.375rem; }
-      .remove-item svg { width: 1.25rem; height: 1.25rem; }
+      .cart-item-name { margin-bottom: 0.375rem; }
       .cart-footer { padding: 0.875rem 1.375rem 1.125rem; }
       .cart-total-row { margin-bottom: 0.75rem; }
       .cart-total { font-size: 1.875rem; }
       .checkout-button { min-height: 3.25rem; }
+    }
+    /* 极矮视口（1024×600 一类 10 吋屏）：再收一档头部与底部，保证放大后的 3 行仍在首屏内 */
+    @media (max-height: 620px) {
+      /* 极矮屏收窄缩略图上限，3 行才不会顶出可视区 */
+      .cart-panel { --cart-thumb: max(4rem, min(14vh, 7vw)); }
+      .cart-header { flex-basis: 3.25rem; padding: 0 1.25rem; }
+      .cart-title { font-size: 1.25rem; }
+      .cart-title > svg { width: 1.25rem; height: 1.25rem; }
+      .close-cart { width: 1.875rem; height: 1.875rem; }
+      .close-cart svg { width: 1.25rem; height: 1.25rem; }
+      .cart-footer { padding: 0.75rem 1.25rem 0.875rem; }
+      .cart-total-row { margin-bottom: 0.5rem; }
+      .cart-total { font-size: 1.625rem; }
+      .cart-total-label { font-size: 1.0625rem; }
+      .checkout-button { min-height: 3rem; font-size: 1rem; }
     }
 
 
@@ -2115,12 +2154,14 @@
         const name = productName(product);
         const variant = state.cartVariants.get(product.id) || { temperature: product.temperature, size: "regular" };
         const highlight = highlightId === product.id ? " is-new" : "";
+        // 数量为 1 时不显示「× 1」徽标，把宽度让给放大后的商品名
+        const qtyBadge = quantity > 1 ? `<span class="cart-item-qty">× ${quantity}</span>` : "";
         return `
         <article class="cart-item${highlight}">
           <img class="cart-thumb" src="${product.image}" alt="${name}" width="210" height="210">
           <div class="cart-item-main">
-            <h3 class="cart-item-name"><span class="cart-item-title" title="${name}">${name}</span><span class="cart-item-qty">× ${quantity}</span></h3>
-            <p class="cart-item-variant">${variantLabel(variant)}</p>
+            <h3 class="cart-item-name"><span class="cart-item-title" title="${name}">${name}</span></h3>
+            <p class="cart-item-variant">${variantLabel(variant)}${qtyBadge}</p>
           </div>
           <div class="cart-item-tail">
             <span class="cart-item-price">${yen(product.price * quantity)}</span>
