@@ -223,6 +223,42 @@
     .fault-button:hover { background: rgba(224,145,47,.3); border-color: rgba(255,196,120,.78); }
     .fault-button:active { background: rgba(224,145,47,.4); }
 
+    /* 屏幕尺寸快速入口（Demo）：虚线边框提示这是测试入口，随时可回到设置页重选 */
+    .device-button {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 0.4375rem;
+      padding: 0.25rem 0.5rem 0.25rem 0.4375rem;
+      border: 0.0625rem dashed rgba(255,255,255,.5);
+      border-radius: 62.4375rem;
+      color: #fff;
+      background: rgba(255,255,255,.08);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: .02em;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: background .18s ease, border-color .18s ease;
+    }
+    .device-button svg { width: 0.9375rem; height: 0.9375rem; }
+    .device-button b {
+      padding: 0.0625rem 0.3125rem;
+      border-radius: 62.4375rem;
+      color: var(--accent-deep);
+      background: rgba(255,255,255,.92);
+      font-size: 0.6875rem;
+      font-weight: 800;
+      letter-spacing: .01em;
+      font-variant-numeric: tabular-nums;
+    }
+    .device-button:hover { border-color: rgba(255,255,255,.82); background: rgba(255,255,255,.2); }
+    .device-button:active { background: rgba(255,255,255,.3); }
+    @media (max-width: 1240px) {
+      /* 窄屏只留图标与档位，避免状态栏挤压换行 */
+      .device-button .device-label { display: none; }
+    }
+
     .main-header {
       z-index: 25;
       display: flex;
@@ -1185,6 +1221,11 @@
         </div>
       </div>
       <div class="status-right">
+        <button class="device-button" id="deviceSetupButton" type="button" data-i18n-aria="deviceSizeAria" data-i18n-title="deviceSizeAria" aria-label="屏幕尺寸设置" title="屏幕尺寸设置（Demo）">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.8" y="4.2" width="18.4" height="12.4" rx="1.8"/><path d="M9.2 20.2h5.6M12 16.6v3.6"/></svg>
+          <span class="device-label" data-i18n="deviceSize">尺寸</span>
+          <b id="deviceTier">21″</b>
+        </button>
         <button class="home-button" id="demoHomeButton" type="button" data-i18n-aria="homeAria" data-i18n-title="homeAria" aria-label="ホームに戻る" title="ホームに戻る（Demo）">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 10.6 12 3.6l8.5 7"/><path d="M5.6 9.9V20h12.8V9.9"/></svg>
           <span data-i18n="home">Home</span>
@@ -1416,6 +1457,8 @@
         homeAria: "ホームに戻る",
         fault: "故障",
         faultAria: "故障画面を表示（Demo）",
+        deviceSize: "サイズ",
+        deviceSizeAria: "画面サイズ設定を開く（Demo）",
         rotateTitle: "横画面でご利用ください",
         rotateText: "この画面は横向き専用です。端末を回転してご利用ください。",
         adLabel: "広告",
@@ -1502,6 +1545,8 @@
         homeAria: "返回首页",
         fault: "故障",
         faultAria: "显示故障页面（Demo）",
+        deviceSize: "尺寸",
+        deviceSizeAria: "打开屏幕尺寸设置（Demo）",
         rotateTitle: "请横屏使用",
         rotateText: "本界面为横屏布局，请将设备旋转至横向后使用。",
         adLabel: "广告",
@@ -1588,6 +1633,8 @@
         homeAria: "Back to home",
         fault: "Fault",
         faultAria: "Show out-of-service screen (Demo)",
+        deviceSize: "Size",
+        deviceSizeAria: "Open screen size setup (Demo)",
         rotateTitle: "Please rotate to landscape",
         rotateText: "This screen is built for landscape orientation. Please rotate your device.",
         adLabel: "Ads",
@@ -1674,6 +1721,8 @@
         homeAria: "홈으로 이동",
         fault: "고장",
         faultAria: "고장 화면 표시 (Demo)",
+        deviceSize: "크기",
+        deviceSizeAria: "화면 크기 설정 열기 (Demo)",
         rotateTitle: "가로 화면으로 사용해 주세요",
         rotateText: "이 화면은 가로 방향 전용입니다. 기기를 가로로 돌려 주세요.",
         adLabel: "광고",
@@ -2215,6 +2264,20 @@
     document.getElementById("demoHomeButton").addEventListener("click", () => {
       window.location.href = "welcome.html";
     });
+
+    // 屏幕尺寸快速入口（Demo）：带上返回地址，选完直接回到本页
+    (function initDeviceEntry() {
+      const button = document.getElementById("deviceSetupButton");
+      const tier = document.getElementById("deviceTier");
+      const device = window.FUJI_DEVICE || { mode: "auto", layout: "s10" };
+      const labels = { s10: "10″", m21: "21″", l27: "27″" };
+      if (tier) tier.textContent = labels[device.layout] || "10″";
+      if (button) {
+        button.addEventListener("click", () => {
+          window.location.href = "setup.html?return=index.html";
+        });
+      }
+    })();
 
     document.getElementById("modePackagedButton").addEventListener("click", () => {
       window.location.href = `packaged.html?lang=${currentLanguage}`;

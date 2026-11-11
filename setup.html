@@ -268,7 +268,7 @@
     <p class="eyebrow">DEVICE SETUP · 部署调试</p>
     <h1>选择这台机器的屏幕尺寸</h1>
     <p class="sub">
-      页面会按所选档位加载商品排版与缩放基准。设置保存在本机浏览器中，随时可以从欢迎页右下角回到这里重新选择。
+      页面会按所选档位加载商品排版与缩放基准。设置保存在本机浏览器中：随时可以从欢迎页底部的「屏幕尺寸」按钮，或商品页状态栏左上角的「尺寸」按钮回到这里重新选择。
     </p>
 
     <div class="detect">
@@ -320,11 +320,11 @@
         保存并进入
       </button>
       <button class="btn btn-ghost" id="autoButton" type="button">恢复自动检测</button>
-      <a class="footer-link" href="welcome.html">返回欢迎页</a>
+      <a class="footer-link" id="backLink" href="welcome.html">返回欢迎页</a>
     </div>
 
     <p class="note">
-      自动检测按视口宽度判定：&lt; 1280 → 10″，1280 – 2199 → 21″，≥ 2200 → 27″。此页与欢迎页的设置入口属部署调试功能，上线前应与 DEMO 开关一并移除。
+      自动检测按视口宽度判定：&lt; 1280 → 10″，1280 – 2199 → 21″，≥ 2200 → 27″。此页与欢迎页「屏幕尺寸」、商品页状态栏「尺寸」入口同属部署调试功能，上线前应与 DEMO 开关一并移除。
     </p>
   </main>
 
@@ -334,6 +334,26 @@
     // 档位 → 预包装页使用的排版键
     const PRESET_LAYOUT = { s10: "s10", m21: "m21", l27: "l27" };
     const DIAG_LABEL = { s10: "10″", m21: "21″", l27: "27″" };
+
+    // 从商品页/欢迎页带过来的返回地址，只允许站内已知页面（避免任意跳转）
+    const RETURN_PAGES = new Set([
+      "welcome.html", "index.html", "packaged.html",
+      "payment.html", "preparation.html", "qr-payment.html", "out-of-service.html"
+    ]);
+    const RETURN_PAGE = (function resolveReturn() {
+      const raw = new URLSearchParams(window.location.search).get("return");
+      if (!raw) return "welcome.html";
+      const name = raw.split(/[?#]/)[0].split("/").pop();
+      return RETURN_PAGES.has(name) ? name : "welcome.html";
+    })();
+
+    // 底部「返回」链接跟随来源页面：从商品页进来就回商品页
+    (function initBackLink() {
+      const backLink = document.getElementById("backLink");
+      if (!backLink) return;
+      backLink.href = RETURN_PAGE;
+      backLink.textContent = RETURN_PAGE === "welcome.html" ? "返回欢迎页" : "返回上一页";
+    })();
 
     const optionButtons = Array.from(document.querySelectorAll("[data-preset]"));
     const customRow = document.getElementById("customRow");
@@ -465,14 +485,14 @@
         payload = { mode: "auto", preset: null, layout: null, w: 0, h: 0 };
       }
       writeDevice(payload);
-      window.location.href = "welcome.html";
+      window.location.href = RETURN_PAGE;
     });
 
     document.getElementById("autoButton").addEventListener("click", () => {
       writeDevice({ mode: "auto", preset: null, layout: null, w: 0, h: 0 });
       selection = { mode: "auto", preset: null };
       paint();
-      window.location.href = "welcome.html";
+      window.location.href = RETURN_PAGE;
     });
 
     window.addEventListener("resize", () => { refreshDetect(); });

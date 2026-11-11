@@ -144,11 +144,17 @@
     .start-button:active { transform: translateY(0); }
     .start-button svg { width: 1.5rem; height: 1.5rem; }
 
-    .language-control {
+    /* 底部工具行：语言 + 屏幕尺寸入口同排放置，测试时一眼可见 */
+    .welcome-tools {
       position: absolute;
       z-index: 2;
       left: var(--welcome-left);
       bottom: 7%;
+      display: flex;
+      align-items: flex-end;
+      gap: 1.25rem;
+    }
+    .language-control {
       display: flex;
       align-items: center;
       gap: 0.75rem;
@@ -181,41 +187,67 @@
     .language-flag { font-size: 1.5rem; line-height: 1; }
     .language-name { font-size: 0.875rem; font-weight: 600; line-height: 1.2; white-space: nowrap; }
 
-    /* 设备设置入口（部署调试用，上线前与 DEMO 开关一并移除） */
-    .setup-control {
-      position: absolute;
-      right: 1.75rem;
-      bottom: 1.5rem;
-      z-index: 3;
-    }
+    /* 屏幕尺寸入口（部署调试用，上线前与 DEMO 开关一并移除） */
     .setup-button {
-      display: inline-flex;
+      display: flex;
       align-items: center;
-      gap: 0.5rem;
-      padding: 0.5rem 0.875rem;
-      border: 0.0625rem solid rgba(255, 255, 255, .78);
-      border-radius: 0.625rem;
-      color: #17384e;
+      gap: 0.75rem;
+      min-height: 4.875rem;
+      padding: 0.5rem 1.0625rem 0.5rem 0.75rem;
+      border: 0.0625rem solid rgba(255, 255, 255, .82);
+      border-radius: 0.8125rem;
+      color: var(--text);
       background: rgba(255, 255, 255, .72);
-      box-shadow: 0 0.25rem 0.875rem rgba(28, 62, 82, .12);
+      box-shadow: 0 0.3125rem 1rem rgba(28, 62, 82, .08);
       backdrop-filter: blur(0.5rem);
       -webkit-backdrop-filter: blur(0.5rem);
+      text-align: left;
       font-family: inherit;
-      font-size: 0.8125rem;
-      font-weight: 650;
-      letter-spacing: .01em;
       cursor: pointer;
-      transition: background .16s ease, border-color .16s ease;
+      transition: background .18s ease, border-color .18s ease, box-shadow .18s ease;
     }
     .setup-button:hover { border-color: rgba(7, 91, 158, .48); background: rgba(255, 255, 255, .92); }
-    .setup-button svg { width: 0.9375rem; height: 0.9375rem; }
-    .setup-button b {
-      padding: 0.0625rem 0.3125rem;
-      border-radius: 0.25rem;
-      color: #fff;
-      background: rgba(7, 91, 158, .82);
-      font-size: 0.6875rem;
-      font-weight: 700;
+    .setup-button:active { box-shadow: 0 0.1875rem 0.625rem rgba(28, 62, 82, .12); }
+    .setup-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+      width: 2.375rem;
+      height: 2.375rem;
+      border-radius: 0.625rem;
+      color: var(--fuji-blue);
+      background: rgba(7, 91, 158, .1);
+    }
+    .setup-icon svg { width: 1.375rem; height: 1.375rem; }
+    .setup-text { display: flex; flex-direction: column; gap: 0.1875rem; }
+    .setup-caption {
+      color: #5b7285;
+      font-size: 0.75rem;
+      font-weight: 650;
+      letter-spacing: .02em;
+      line-height: 1.1;
+      white-space: nowrap;
+    }
+    .setup-value {
+      display: flex;
+      align-items: baseline;
+      gap: 0.375rem;
+      color: var(--text);
+      font-size: 1.0625rem;
+      font-weight: 750;
+      letter-spacing: -.01em;
+      line-height: 1.1;
+      white-space: nowrap;
+    }
+    .setup-value b { color: var(--fuji-blue); font-weight: 800; }
+    .setup-value i { color: #7d8fa0; font-size: 0.6875rem; font-style: normal; font-weight: 650; }
+    .setup-chevron {
+      flex: 0 0 auto;
+      width: 0.875rem;
+      height: 0.875rem;
+      margin-left: 0.125rem;
+      color: #7d8fa0;
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -241,33 +273,35 @@
       </button>
     </div>
 
-    <div class="language-control" role="group" aria-label="Language">
-      <button class="language-button" type="button" data-language="ja" aria-pressed="false">
-        <span class="language-flag" aria-hidden="true">🇯🇵</span>
-        <span class="language-name">日本語</span>
-      </button>
-      <button class="language-button active" type="button" data-language="zh" aria-pressed="true">
-        <span class="language-flag" aria-hidden="true">🇨🇳</span>
-        <span class="language-name">简体中文</span>
-      </button>
-      <button class="language-button" type="button" data-language="en" aria-pressed="false">
-        <span class="language-flag" aria-hidden="true">🇺🇸</span>
-        <span class="language-name">English</span>
-      </button>
-      <button class="language-button" type="button" data-language="ko" aria-pressed="false">
-        <span class="language-flag" aria-hidden="true">🇰🇷</span>
-        <span class="language-name">한국어</span>
-      </button>
-    </div>
+    <div class="welcome-tools">
+      <div class="language-control" role="group" aria-label="Language">
+        <button class="language-button" type="button" data-language="ja" aria-pressed="false">
+          <span class="language-flag" aria-hidden="true">🇯🇵</span>
+          <span class="language-name">日本語</span>
+        </button>
+        <button class="language-button active" type="button" data-language="zh" aria-pressed="true">
+          <span class="language-flag" aria-hidden="true">🇨🇳</span>
+          <span class="language-name">简体中文</span>
+        </button>
+        <button class="language-button" type="button" data-language="en" aria-pressed="false">
+          <span class="language-flag" aria-hidden="true">🇺🇸</span>
+          <span class="language-name">English</span>
+        </button>
+        <button class="language-button" type="button" data-language="ko" aria-pressed="false">
+          <span class="language-flag" aria-hidden="true">🇰🇷</span>
+          <span class="language-name">한국어</span>
+        </button>
+      </div>
 
-    <div class="setup-control">
-      <button class="setup-button" id="setupButton" type="button" title="设备设置：切换屏幕尺寸档位">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
-          <circle cx="12" cy="12" r="3.2"></circle>
-          <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.05A1.7 1.7 0 0 0 9 19.4a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.05A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.05A1.7 1.7 0 0 0 15 4.6a1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9v.05a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.05a1.7 1.7 0 0 0-1.55 1z"></path>
-        </svg>
-        设备设置
-        <b id="deviceBadge">—</b>
+      <button class="setup-button" id="setupButton" type="button" title="屏幕尺寸设置：重新选择 10″ / 21″ / 27″ 或自定义分辨率（Demo）">
+        <span class="setup-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.8" y="4.2" width="18.4" height="12.4" rx="1.8"/><path d="M9.2 20.2h5.6M12 16.6v3.6"/></svg>
+        </span>
+        <span class="setup-text">
+          <span class="setup-caption">屏幕尺寸</span>
+          <span class="setup-value"><b id="deviceBadge">—</b><i>切换</i></span>
+        </span>
+        <svg class="setup-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
       </button>
     </div>
   </main>
@@ -386,7 +420,7 @@
       const labels = { s10: "10″", m21: "21″", l27: "27″" };
 
       if (badge) {
-        const prefix = device.mode === "auto" ? "自动 " : device.mode === "custom" ? "自定义 " : "";
+        const prefix = device.mode === "auto" ? "自动 " : device.mode === "custom" ? "自定 " : "";
         badge.textContent = prefix + (labels[device.layout] || "10″");
       }
 
@@ -394,7 +428,7 @@
         button.addEventListener("click", event => {
           // 欢迎页整屏点击会进入商品页，这里必须阻断冒泡
           event.stopPropagation();
-          window.location.href = "setup.html";
+          window.location.href = "setup.html?return=welcome.html";
         });
       }
     })();
