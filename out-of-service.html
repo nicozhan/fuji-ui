@@ -351,44 +351,6 @@
       letter-spacing: .06em;
     }
 
-    /* ── 底部：自动返回提示 ── */
-    .fault-footer {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      flex: 0 0 auto;
-      flex-direction: column;
-      align-items: center;
-      gap: clamp(7px, 1.1vh, 12px);
-      padding: 0 40px clamp(14px, 3.5vh, 38px);
-      color: #93a8b6;
-      font-size: clamp(12.5px, 1.4vh, 15px);
-      letter-spacing: .03em;
-    }
-    .auto-return { display: flex; align-items: center; gap: 8px; }
-    .auto-return strong {
-      color: var(--blue-dark);
-      font-size: clamp(14px, 1.6vh, 17px);
-      font-weight: 750;
-      font-variant-numeric: tabular-nums;
-    }
-    .auto-track {
-      width: 260px;
-      height: 4px;
-      overflow: hidden;
-      border-radius: 999px;
-      background: rgba(125,170,200,.22);
-    }
-    .auto-track i {
-      display: block;
-      width: 100%;
-      height: 100%;
-      border-radius: 999px;
-      background: linear-gradient(90deg, #58b0e6, var(--blue));
-      transform-origin: left center;
-      transition: transform 1s linear;
-    }
-
     @media (max-width: 1400px) {
       .pause-halo, .pause-ring { display: none; }
     }
@@ -540,15 +502,6 @@
 
       <p class="fault-thanks" data-i18n="thanks">感谢您的理解与支持</p>
     </section>
-
-    <footer class="fault-footer">
-      <div class="auto-return">
-        <span data-i18n="autoReturn">设备恢复后将自动返回首页</span>
-        <span>·</span>
-        <span><strong id="countdownValue">60</strong> <span data-i18n="seconds">秒</span></span>
-      </div>
-      <div class="auto-track" aria-hidden="true"><i id="autoProgress"></i></div>
-    </footer>
   </main>
 
   <!-- 调试浮窗：点左侧 LOGO 唤出；默认隐藏，上线前整块移除 -->
@@ -590,6 +543,13 @@
       </section>
 
       <section class="debug-group">
+        <p class="debug-label">设备状态</p>
+        <div class="debug-row">
+          <button class="debug-chip" type="button" id="recoverButton">故障解除 → 售卖界面</button>
+        </div>
+      </section>
+
+      <section class="debug-group">
         <p class="debug-label">页面</p>
         <div class="debug-row">
           <button class="debug-chip" type="button" data-debug-nav="welcome.html">首页</button>
@@ -602,7 +562,6 @@
   </div>
 
   <script>
-    const AUTO_RETURN_SECONDS = 60;
     const params = new URLSearchParams(window.location.search);
     const I18N = {
       zh: {
@@ -621,8 +580,6 @@
         message: "非常抱歉，设备目前正在维护中。<br>请稍后再来或联系工作人员。",
         phoneLabel: "客服电话",
         thanks: "感谢您的理解与支持",
-        autoReturn: "设备恢复后将自动返回首页",
-        seconds: "秒"
       },
       ja: {
         htmlLang: "ja",
@@ -640,8 +597,6 @@
         message: "誠に申し訳ございません。<br>現在メンテナンス中のため、ご利用いただけません。<br>しばらくしてから再度お試しいただくか、係員までお問い合わせください。",
         phoneLabel: "お問い合わせ電話番号",
         thanks: "ご理解とご協力をお願いいたします",
-        autoReturn: "復旧後は自動的にホーム画面に戻ります",
-        seconds: "秒"
       },
       en: {
         htmlLang: "en",
@@ -659,8 +614,6 @@
         message: "We are sorry — this machine is currently under maintenance.<br>Please come back later or contact our staff.",
         phoneLabel: "Customer service",
         thanks: "Thank you for your understanding",
-        autoReturn: "This screen returns home automatically once service resumes",
-        seconds: "sec"
       },
       ko: {
         htmlLang: "ko",
@@ -677,9 +630,7 @@
         title: "현재 서비스를 이용할 수 없습니다",
         message: "죄송합니다. 현재 장비 점검 중입니다.<br>잠시 후 다시 이용하시거나 직원에게 문의해 주세요.",
         phoneLabel: "고객센터 전화",
-        thanks: "양해해 주셔서 감사합니다",
-        autoReturn: "복구되면 자동으로 홈 화면으로 돌아갑니다",
-        seconds: "초"
+        thanks: "양해해 주셔서 감사합니다"
       }
     };
 
@@ -729,28 +680,25 @@
     });
     document.querySelector(".fault-page").setAttribute("aria-label", dictionary.docTitle);
 
-    function goHome() {
-      window.clearInterval(countdownTimer);
-      window.location.href = `welcome.html?lang=${language}`;
+    // 故障页只在设备真实恢复时离开：没有倒计时，不靠时间猜设备状态。
+    // 接入方在拿到后端/本地网关的恢复信号后调用 window.fujiDeviceState("ok")。
+    const RECOVERED_STATES = ["ok", "normal", "online", "ready", "recovered", "resumed"];
+    let leavingForSales = false;
+
+    function returnToSales() {
+      if (leavingForSales) return;
+      leavingForSales = true;
+      window.location.replace(`index.html?lang=${encodeURIComponent(language)}`);
     }
 
-    const countdownNode = document.getElementById("countdownValue");
-    const progressNode = document.getElementById("autoProgress");
-    let deadline = Date.now() + AUTO_RETURN_SECONDS * 1000;
-    let countdownTimer = null;
-
-    function tickCountdown() {
-      const remaining = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
-      countdownNode.textContent = String(remaining);
-      progressNode.style.transform = `scaleX(${Math.max(0, Math.min(1, remaining / AUTO_RETURN_SECONDS))})`;
-      if (remaining <= 0) goHome();
-    }
-
-    countdownNode.textContent = String(AUTO_RETURN_SECONDS);
-    countdownTimer = window.setInterval(tickCountdown, 1000);
-    document.addEventListener("visibilitychange", () => {
-      if (!document.hidden) tickCountdown();
-    });
+    window.fujiDeviceState = function (state) {
+      const value = typeof state === "string" ? state : state && state.status;
+      if (typeof value !== "string") return false;
+      if (!RECOVERED_STATES.includes(value.trim().toLowerCase())) return false;
+      if (leavingForSales) return false;
+      returnToSales();
+      return true;
+    };
   </script>
   <script>
     // ===== 调试浮窗：点左侧 LOGO 唤出（默认不显示，上线前整块移除）=====
@@ -812,6 +760,12 @@
       dock.querySelectorAll("[data-debug-nav]").forEach(button => {
         button.addEventListener("click", () => { window.location.href = button.dataset.debugNav; });
       });
+
+      // 模拟设备恢复：走和真实恢复信号同一条路径
+      const recoverButton = document.getElementById("recoverButton");
+      if (recoverButton) {
+        recoverButton.addEventListener("click", () => { window.fujiDeviceState("ok"); });
+      }
     })();
   </script>
 </body>
