@@ -566,6 +566,9 @@
 
   <script>
     const MAX_CUPS = 3;
+    // Demo 节奏：每一杯固定 5 秒做完，进度按真实时间推进（不受定时器抖动影响）
+    const CUP_PRODUCTION_MS = 5000;
+    const PRODUCTION_TICK_MS = 100;
     const CUP = { WAITING: "waiting", MAKING: "making", READY: "ready", DONE: "done" };
     const params = new URLSearchParams(window.location.search);
     const I18N = {
@@ -659,6 +662,7 @@
     let isDrinkOrder = true;
     let productionTimer = null;
     let autoProduction = false;
+    let lastProductionTick = 0;
 
     function loadOrder() {
       try {
@@ -820,19 +824,25 @@
     }
     function stopProduction() {
       autoProduction = false;
+      lastProductionTick = 0;
       if (productionTimer !== null) window.clearInterval(productionTimer);
       productionTimer = null;
     }
     function startProductionTimer() {
       if (productionTimer !== null) window.clearInterval(productionTimer);
       autoProduction = true;
-      productionTimer = window.setInterval(tickProduction, 120);
+      lastProductionTick = Date.now();
+      productionTimer = window.setInterval(tickProduction, PRODUCTION_TICK_MS);
     }
     function tickProduction() {
       if (!autoProduction) return;
       const index = activeIndex();
       if (index < 0) { stopProduction(); return; }
-      progressValues[index] = Math.min(100, progressValues[index] + 1);
+      const now = Date.now();
+      // 单帧最多补 1 秒：切后台/卡顿回来不会一次跳到底
+      const elapsed = lastProductionTick ? Math.min(now - lastProductionTick, 1000) : 0;
+      lastProductionTick = now;
+      progressValues[index] = Math.min(100, (progressValues[index] || 0) + elapsed / CUP_PRODUCTION_MS * 100);
       if (progressValues[index] >= 100) {
         if (isDrinkOrder) {
           // 关键：这一杯做好就停机，等取走信号，绝不自动进入下一杯
