@@ -616,18 +616,6 @@
     .confirm-icon svg { width: 1.875rem; height: 1.875rem; }
     .confirm-title { margin: 0; font-size: 1.5rem; font-weight: 750; line-height: 1.3; }
     .confirm-text { margin: 0.75rem 0 0; color: var(--text-2); font-size: 1.0625rem; line-height: 1.65; }
-    .confirm-meta {
-      display: inline-block;
-      margin: 1.125rem 0 0;
-      padding: 0.4375rem 0.9375rem;
-      border-radius: 62.4375rem;
-      color: #4a6478;
-      background: #f1f6fa;
-      font-size: 0.875rem;
-      font-weight: 650;
-      font-variant-numeric: tabular-nums;
-    }
-    .confirm-meta[hidden] { display: none; }
     .confirm-actions { display: flex; gap: 0.875rem; margin-top: 1.75rem; }
     .confirm-button {
       flex: 1 1 0;
@@ -788,7 +776,6 @@
       </div>
       <h2 class="confirm-title" id="exitConfirmTitle">返回主页？</h2>
       <p class="confirm-text" id="exitConfirmText">返回主页将清除当前会话信息（包括登录状态、购物车等）。是否继续？</p>
-      <p class="confirm-meta" id="exitConfirmMeta">当前订单 ¥1,000 · 3 件商品</p>
       <div class="confirm-actions">
         <button class="confirm-button confirm-cancel" type="button" id="exitCancel">继续支付</button>
         <button class="confirm-button confirm-accept" type="button" id="exitAccept">返回主页</button>
@@ -1388,7 +1375,6 @@
       const card = scrim && scrim.querySelector(".confirm-card");
       const cancelButton = document.getElementById("exitCancel");
       const acceptButton = document.getElementById("exitAccept");
-      const meta = document.getElementById("exitConfirmMeta");
       if (!trigger || !scrim || !card || !cancelButton || !acceptButton) return;
 
       // 设备级配置必须保留：屏幕档位与显示语言不属于「会话」
@@ -1410,26 +1396,9 @@
         qrTimer = window.setInterval(tickInlineQr, 250);
       }
 
-      // 让用户清楚自己正在放弃什么，避免误退
-      function renderMeta() {
-        if (!meta) return;
-        try {
-          const order = typeof loadOrder === "function" ? loadOrder() : null;
-          const items = (order && Array.isArray(order.items) ? order.items : []).filter(item => item && item.image);
-          const quantity = items.reduce((sum, item) => sum + (Number(item.quantity) || 1), 0);
-          const total = items.reduce((sum, item) => sum + Number(item.price || 0) * (Number(item.quantity) || 1), 0);
-          if (!quantity) { meta.hidden = true; return; }
-          meta.hidden = false;
-          meta.textContent = `当前订单 ¥${total.toLocaleString("zh-CN")} · ${quantity} 件商品`;
-        } catch (error) {
-          meta.hidden = true;
-        }
-      }
-
       function open() {
         if (!scrim.hidden) return;
         lastFocus = document.activeElement;
-        renderMeta();
         pauseCountdown();
         // 支付成功态的自动跳转要一起停，否则弹窗还开着页面就被带走了
         stopQrRedirect();
