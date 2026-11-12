@@ -190,6 +190,29 @@
     .header-button:hover { border-color: #b9d9ed; background: var(--accent-weak); }
     .header-button svg { width: 1.25rem; height: 1.25rem; }
 
+    /* 返回主页：放最左，与品牌之间有分隔，避免误触 */
+    .back-button {
+      display: inline-flex;
+      flex: 0 0 auto;
+      align-items: center;
+      gap: 0.5rem;
+      min-height: 3.375rem;
+      margin-right: 1.5rem;
+      padding: 0 1.375rem 0 1.0625rem;
+      border: 0.0625rem solid var(--border);
+      border-radius: 62.4375rem;
+      color: var(--text);
+      background: #fff;
+      font-size: 1rem;
+      font-weight: 650;
+      letter-spacing: .01em;
+      cursor: pointer;
+      transition: border-color .15s ease, background .15s ease;
+    }
+    .back-button svg { width: 1.25rem; height: 1.25rem; flex: 0 0 1.25rem; }
+    .back-button:hover { border-color: #b9d9ed; background: var(--accent-weak); }
+    .back-button:active { background: #dcecf9; }
+
     .payment-main {
       display: flex;
       flex: 1 1 auto;
@@ -548,6 +571,75 @@
     .demo-state-opt:hover { background: rgba(255,255,255,.13); }
     .demo-state-opt.active { color: var(--accent-dark); background: #fff; }
 
+    /* ===== 返回主页二次确认 ===== */
+    .confirm-scrim {
+      position: fixed;
+      inset: 0;
+      z-index: 260;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      background: rgba(6,28,45,.42);
+      animation: confirm-fade .16s ease both;
+    }
+    .confirm-scrim[hidden] { display: none; }
+    @keyframes confirm-fade { from { opacity: 0; } }
+    .confirm-card {
+      width: min(34rem, 100%);
+      max-height: calc(100vh - 4rem);
+      overflow: auto;
+      padding: 2.25rem 2.5rem 2rem;
+      border-radius: 1.375rem;
+      background: var(--surface);
+      box-shadow: 0 1.75rem 4rem rgba(8,38,60,.34);
+      text-align: center;
+      animation: confirm-in .18s ease both;
+    }
+    @keyframes confirm-in { from { opacity: 0; transform: translateY(0.5rem) scale(.98); } }
+    .confirm-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 3.75rem;
+      height: 3.75rem;
+      margin: 0 auto 1.125rem;
+      border-radius: 50%;
+      color: #c64747;
+      background: #fff0f0;
+    }
+    .confirm-icon svg { width: 1.875rem; height: 1.875rem; }
+    .confirm-title { margin: 0; font-size: 1.5rem; font-weight: 750; line-height: 1.3; }
+    .confirm-text { margin: 0.75rem 0 0; color: var(--text-2); font-size: 1.0625rem; line-height: 1.65; }
+    .confirm-meta {
+      display: inline-block;
+      margin: 1.125rem 0 0;
+      padding: 0.4375rem 0.9375rem;
+      border-radius: 62.4375rem;
+      color: #4a6478;
+      background: #f1f6fa;
+      font-size: 0.875rem;
+      font-weight: 650;
+      font-variant-numeric: tabular-nums;
+    }
+    .confirm-meta[hidden] { display: none; }
+    .confirm-actions { display: flex; gap: 0.875rem; margin-top: 1.75rem; }
+    .confirm-button {
+      flex: 1 1 0;
+      min-width: 0;
+      min-height: 3.5rem;
+      border-radius: 62.4375rem;
+      font-size: 1.0625rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .15s ease, border-color .15s ease;
+    }
+    .confirm-cancel { border: 0; color: #fff; background: var(--accent); }
+    .confirm-cancel:hover { background: var(--accent-dark); }
+    .confirm-accept { border: 0.0625rem solid #e6c6c6; color: #b03a3a; background: #fff7f7; }
+    .confirm-accept:hover { border-color: #d4a5a5; background: #ffecec; }
+    .confirm-button[disabled] { opacity: .6; cursor: default; }
+
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation: none !important; transition: none !important; }
     }
@@ -644,6 +736,10 @@
     </section>
 
     <header class="main-header">
+      <button class="back-button" type="button" id="exitButton" aria-haspopup="dialog" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12H4M10 6l-6 6 6 6"/></svg>
+        返回
+      </button>
       <div class="brand debug-trigger" id="debugTrigger" role="button" tabindex="0" aria-expanded="false" aria-haspopup="dialog" aria-label="Fuji Electric">
         <span class="brand-mark">FE</span>
         <span>Fuji Electric</span>
@@ -678,6 +774,22 @@
       <section class="payment-grid count-2" id="paymentGrid" aria-label="支付方式"></section>
     </section>
   </main>
+
+  <!-- 返回主页二次确认：返回会清除本机会话，故不直接跳转 -->
+  <div class="confirm-scrim" id="exitConfirm" hidden>
+    <div class="confirm-card" role="dialog" aria-modal="true" aria-labelledby="exitConfirmTitle" aria-describedby="exitConfirmText">
+      <div class="confirm-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4M9 8l-4 4 4 4M5 12h9"/></svg>
+      </div>
+      <h2 class="confirm-title" id="exitConfirmTitle">返回主页？</h2>
+      <p class="confirm-text" id="exitConfirmText">返回主页将清除当前会话信息（包括登录状态、购物车等）。是否继续？</p>
+      <p class="confirm-meta" id="exitConfirmMeta">当前订单 ¥1,000 · 3 件商品</p>
+      <div class="confirm-actions">
+        <button class="confirm-button confirm-cancel" type="button" id="exitCancel">继续支付</button>
+        <button class="confirm-button confirm-accept" type="button" id="exitAccept">返回主页</button>
+      </div>
+    </div>
+  </div>
 
   <!-- 调试浮窗：点左侧 LOGO 唤出；默认隐藏，上线前整块移除 -->
   <div class="debug-dock" id="debugDock">
@@ -1260,6 +1372,116 @@
 
       dock.querySelectorAll("[data-debug-nav]").forEach(button => {
         button.addEventListener("click", () => { window.location.href = button.dataset.debugNav; });
+      });
+    })();
+  </script>
+  <script>
+    // ===== 返回主页：二次确认 → 清除本机会话 → 回欢迎页 =====
+    (function initExitConfirm() {
+      const trigger = document.getElementById("exitButton");
+      const scrim = document.getElementById("exitConfirm");
+      const card = scrim && scrim.querySelector(".confirm-card");
+      const cancelButton = document.getElementById("exitCancel");
+      const acceptButton = document.getElementById("exitAccept");
+      const meta = document.getElementById("exitConfirmMeta");
+      if (!trigger || !scrim || !card || !cancelButton || !acceptButton) return;
+
+      // 设备级配置必须保留：屏幕档位与显示语言不属于「会话」
+      const KEEP_KEYS = ["fujiDevice", "fujiLanguage"];
+      let lastFocus = null;
+      let pausedRemaining = 0;
+
+      function pauseCountdown() {
+        if (!inlineQrActive || !QR_CODE_STATES.includes(qrState)) return;
+        pausedRemaining = Math.max(1000, qrDeadline - Date.now());
+        stopQrTimer();
+      }
+
+      function resumeCountdown() {
+        if (!pausedRemaining) return;
+        qrDeadline = Date.now() + pausedRemaining;
+        pausedRemaining = 0;
+        stopQrTimer();
+        qrTimer = window.setInterval(tickInlineQr, 250);
+      }
+
+      // 让用户清楚自己正在放弃什么，避免误退
+      function renderMeta() {
+        if (!meta) return;
+        try {
+          const order = typeof loadOrder === "function" ? loadOrder() : null;
+          const items = (order && Array.isArray(order.items) ? order.items : []).filter(item => item && item.image);
+          const quantity = items.reduce((sum, item) => sum + (Number(item.quantity) || 1), 0);
+          const total = items.reduce((sum, item) => sum + Number(item.price || 0) * (Number(item.quantity) || 1), 0);
+          if (!quantity) { meta.hidden = true; return; }
+          meta.hidden = false;
+          meta.textContent = `当前订单 ¥${total.toLocaleString("zh-CN")} · ${quantity} 件商品`;
+        } catch (error) {
+          meta.hidden = true;
+        }
+      }
+
+      function open() {
+        if (!scrim.hidden) return;
+        lastFocus = document.activeElement;
+        renderMeta();
+        pauseCountdown();
+        // 支付成功态的自动跳转要一起停，否则弹窗还开着页面就被带走了
+        stopQrRedirect();
+        scrim.hidden = false;
+        trigger.setAttribute("aria-expanded", "true");
+        cancelButton.focus();
+      }
+
+      function close() {
+        if (scrim.hidden) return;
+        scrim.hidden = true;
+        trigger.setAttribute("aria-expanded", "false");
+        resumeCountdown();
+        // 回到「支付成功」时重新起跳转，用户放弃返回后仍会进入制作页
+        if (inlineQrActive && qrState === "paid") setInlineQrState("paid");
+        if (lastFocus && typeof lastFocus.focus === "function") lastFocus.focus();
+      }
+
+      // 只清会话：fuji* 前缀中排除设备配置，sessionStorage 整段清空
+      function clearSession() {
+        try {
+          Object.keys(localStorage)
+            .filter(key => key.indexOf("fuji") === 0 && KEEP_KEYS.indexOf(key) === -1)
+            .forEach(key => localStorage.removeItem(key));
+        } catch (error) {
+          console.warn("本地会话清理失败。", error);
+        }
+        try { sessionStorage.clear(); } catch (error) { console.warn("会话存储清理失败。", error); }
+      }
+
+      function leave() {
+        acceptButton.disabled = true;
+        cancelButton.disabled = true;
+        stopQrTimer();
+        stopQrRedirect();
+        clearSession();
+        window.location.href = "welcome.html";
+      }
+
+      trigger.addEventListener("click", open);
+      cancelButton.addEventListener("click", close);
+      acceptButton.addEventListener("click", leave);
+      scrim.addEventListener("click", event => { if (event.target === scrim) close(); });
+
+      // 焦点锁在弹窗内，Esc 视为取消
+      card.addEventListener("keydown", event => {
+        if (event.key === "Escape") { event.stopPropagation(); close(); return; }
+        if (event.key !== "Tab") return;
+        const focusables = [cancelButton, acceptButton].filter(button => !button.disabled);
+        if (!focusables.length) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+      });
+      document.addEventListener("keydown", event => {
+        if (event.key === "Escape" && !scrim.hidden) close();
       });
     })();
   </script>
