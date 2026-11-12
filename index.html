@@ -6,7 +6,7 @@
   <!-- 首帧语言：样式生效前把 <html lang> 定到实际语言，避免中文界面先按日文字形渲染一帧 -->
   <script>
     (function () {
-      var map = { ja: "ja", zh: "zh-CN", en: "en", ko: "ko" };
+      var map = { ja: "ja", zh: "zh-CN", en: "en", ko: "ko", fr: "fr", vi: "vi", th: "th" };
       var lang = null;
       try {
         var requested = new URLSearchParams(window.location.search).get("lang");
@@ -124,6 +124,9 @@
     :root { --font-cjk: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", "Source Han Sans SC"; }
     html[lang="ja"] { --font-cjk: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Noto Sans JP", "Meiryo", "PingFang SC"; }
     html[lang="ko"] { --font-cjk: "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", "Nanum Gothic", "PingFang SC"; }
+    /* 泰文有上下叠标，单独给一支栈；行高另放一点，避免堆叠标被裁切 */
+    html[lang="th"] { --font-cjk: "Noto Sans Thai", "Thonburi", "Leelawadee UI", "Sukhumvit Set", "Tahoma", "PingFang SC"; }
+    html[lang="th"] body { line-height: 1.35; }
 
 
     button { font: inherit; }
@@ -1363,6 +1366,9 @@
           <button class="language-option" type="button" role="option" data-set-language="zh"><span class="lang-flag" aria-hidden="true">🇨🇳</span>简体中文</button>
           <button class="language-option" type="button" role="option" data-set-language="en"><span class="lang-flag" aria-hidden="true">🇺🇸</span>English</button>
           <button class="language-option" type="button" role="option" data-set-language="ko"><span class="lang-flag" aria-hidden="true">🇰🇷</span>한국어</button>
+          <button class="language-option" type="button" role="option" data-set-language="fr"><span class="lang-flag" aria-hidden="true">🇫🇷</span>Français</button>
+          <button class="language-option" type="button" role="option" data-set-language="vi"><span class="lang-flag" aria-hidden="true">🇻🇳</span>Tiếng Việt</button>
+          <button class="language-option" type="button" role="option" data-set-language="th"><span class="lang-flag" aria-hidden="true">🇹🇭</span>ไทย</button>
         </div>
       </div>
     </header>
@@ -1928,6 +1934,273 @@
           26: { name: "망고 프라페", desc: "잘 익은 망고를 갈아 만든 프라페." },
           27: { name: "크림 토핑 아이스 모카", desc: "크림을 올린 아이스 모카." }
         }
+      },
+      fr: {
+        packaged: "Produits emballés",
+        packagedAria: "Passer à l'écran des produits emballés",
+        langName: "Français",
+        contact: "Contact",
+        home: "Accueil",
+        homeAria: "Retour à l'accueil",
+        fault: "Panne",
+        faultAria: "Afficher l'écran hors service (démo)",
+        deviceSize: "Taille",
+        deviceSizeAria: "Ouvrir les réglages de taille d'écran (démo)",
+        rotateTitle: "Veuillez passer en mode paysage",
+        rotateText: "Cet écran est conçu pour le mode paysage. Veuillez tourner l'appareil.",
+        adLabel: "Pub",
+        adOn: "Pub activée : {n} produits affichés.",
+        adOff: "Pub désactivée : {n} produits affichés.",
+        strikeLabel: "Prix barré",
+        strikeAria: "Afficher ou masquer le prix barré",
+        strikeOn: "Prix barrés affichés.",
+        strikeOff: "Prix barrés masqués.",
+        date: "4 nov. 23:40",
+        categories: { all: "Tout", coffee: "Café", milkTea: "Thé au lait", other: "Autres boissons" },
+        categoryToast: "{name} : produits de démonstration affichés.",
+        items: "{n} produits",
+        pageOf: "{current} / {total}",
+        pageNumber: "Page {n}",
+        slidePrev: "Produits précédents",
+        slideNext: "Produits suivants",
+        prevPage: "Page précédente",
+        nextPage: "Page suivante",
+        firstPage: "Vous êtes sur la première page.",
+        demoPage: "La démo affiche uniquement la page 1.",
+        cart: "Panier",
+        cartOpen: "Ouvrir le panier",
+        cartClose: "Fermer le panier",
+        cartTotal: "Total ({n} articles)",
+        checkout: "Commander",
+        emptyCart: "Votre panier est vide.<br>Touchez « + » sur un produit pour l'ajouter.",
+        selectProduct: "Veuillez choisir un produit.",
+        added: "{name} ajouté au panier.",
+        addedCustom: "{name} × {qty} ajouté à la commande.",
+        limitReached: "Limite atteinte — une commande contient au maximum {max} articles",
+        customizeAria: "Personnaliser {name}",
+        addAria: "Ajouter {name} au panier",
+        removeAria: "Retirer {name}",
+        qtyAria: "Quantité de {name}",
+        decrease: "Diminuer la quantité",
+        increase: "Augmenter la quantité",
+        languageMenu: "Langue",
+        customize: {
+          title: "Personnaliser", collapse: "Réduire le panneau", close: "Fermer et annuler les modifications",
+          temperature: "Température", size: "Format", sweetness: "Sucre", milk: "Lait",
+          quantity: "Quantité", total: "Total", submit: "Ajouter à la commande"
+        },
+        temperature: { hot: "Chaud", iced: "Glacé" },
+        tags: { best: "Best-seller d'hiver", bogo: "2e à -50 %", limited: "Série limitée", new: "Nouveauté", top: "N°1 des ventes" },
+        size: { small: "Petit", medium: "Moyen", large: "Grand", regular: "Classique" },
+        sweetness: { none: "Sans sucre", light: "Léger", half: "Moitié", less: "Peu sucré", standard: "Normal" },
+        milk: { milk: "Lait", lowfat: "Écrémé", oat: "Avoine", soy: "Soja" },
+        products: {
+          1: { name: "Americano glacé", desc: "Léger et net, le goût pur du café." },
+          2: { name: "Macchiato caramel", desc: "Des couches de caramel et de lait velouté." },
+          3: { name: "Latte glacé", desc: "L'équilibre classique entre espresso et lait." },
+          4: { name: "Moka glacé", desc: "Chocolat fondant et café intense." },
+          5: { name: "Espresso", desc: "Extraction sous pression, crema généreuse." },
+          6: { name: "Flat White glacé", desc: "Double espresso et lait soyeux." },
+          7: { name: "Frappuccino moka", desc: "Glace mixée et crème fouettée." },
+          8: { name: "Café latte", desc: "Mousse fine, arôme de café tout en douceur." },
+          9: { name: "Flat White", desc: "Micro-mousse légère, le café en avant." },
+          10: { name: "Americano cold brew", desc: "Infusion à froid, douceur sans amertume." },
+          11: { name: "Moka crème", desc: "Moka glacé couronné de crème." },
+          12: { name: "Latte chaud", desc: "Lait chaud et espresso fraîchement tiré." },
+          13: { name: "Latte caramel", desc: "Espresso nappé de sauce caramel." },
+          14: { name: "Americano double", desc: "Deux doses sur glace, franc et net." },
+          15: { name: "Latte caramel salé", desc: "Une pointe de sel arrondit le caramel." },
+          16: { name: "Latte glacé vanille", desc: "Vanille délicate, servi très frais." },
+          17: { name: "Cold brew citron", desc: "Citron vif sur un cold brew doux." },
+          18: { name: "Moka crème des fêtes", desc: "Éclats de chocolat et crème, édition fêtes." },
+          19: { name: "Latte caramel brûlée", desc: "Caramel brûlé façon crème brûlée." },
+          20: { name: "Frappé matcha coco", desc: "Matcha mixé à la crème de coco." },
+          21: { name: "Café glacé coco", desc: "Café glacé à la note tropicale." },
+          22: { name: "Latte vanille", desc: "Vanille et espresso, doux et sucré." },
+          23: { name: "Cold brew hibiscus", desc: "Hibiscus floral, finale lumineuse." },
+          24: { name: "Matcha orange", desc: "Orange acidulée sur matcha intense." },
+          25: { name: "Macchiato double", desc: "Deux tons, caramel profond." },
+          26: { name: "Frappé mangue", desc: "Mangue mûre mixée bien épaisse." },
+          27: { name: "Moka glacé crème", desc: "Moka glacé sous une mousse crémeuse." }
+        }
+      },
+      vi: {
+        packaged: "Sản phẩm đóng gói",
+        packagedAria: "Chuyển sang màn hình sản phẩm đóng gói",
+        langName: "Tiếng Việt",
+        contact: "Liên hệ",
+        home: "Trang chủ",
+        homeAria: "Về trang chủ",
+        fault: "Sự cố",
+        faultAria: "Hiển thị màn hình ngừng phục vụ (Demo)",
+        deviceSize: "Cỡ",
+        deviceSizeAria: "Mở cài đặt kích thước màn hình (Demo)",
+        rotateTitle: "Vui lòng xoay ngang",
+        rotateText: "Màn hình này dành cho chế độ ngang. Vui lòng xoay thiết bị.",
+        adLabel: "Quảng cáo",
+        adOn: "Bật quảng cáo: hiển thị {n} sản phẩm.",
+        adOff: "Tắt quảng cáo: hiển thị {n} sản phẩm.",
+        strikeLabel: "Giá gốc",
+        strikeAria: "Bật tắt hiển thị giá gốc",
+        strikeOn: "Đã hiển thị giá gốc.",
+        strikeOff: "Đã ẩn giá gốc.",
+        date: "4 thg 11, 23:40",
+        categories: { all: "Tất cả", coffee: "Cà phê", milkTea: "Trà sữa", other: "Đồ uống khác" },
+        categoryToast: "{name}: đang hiển thị sản phẩm demo.",
+        items: "{n} sản phẩm",
+        pageOf: "{current} / {total}",
+        pageNumber: "Trang {n}",
+        slidePrev: "Sản phẩm trước",
+        slideNext: "Sản phẩm sau",
+        prevPage: "Trang trước",
+        nextPage: "Trang sau",
+        firstPage: "Đây là trang đầu tiên.",
+        demoPage: "Bản demo chỉ hiển thị trang 1.",
+        cart: "Giỏ hàng",
+        cartOpen: "Mở giỏ hàng",
+        cartClose: "Đóng giỏ hàng",
+        cartTotal: "Tổng cộng ({n} món)",
+        checkout: "Thanh toán",
+        emptyCart: "Giỏ hàng đang trống.<br>Nhấn «+» trên sản phẩm để thêm.",
+        selectProduct: "Vui lòng chọn sản phẩm.",
+        added: "Đã thêm {name} vào giỏ hàng.",
+        addedCustom: "Đã thêm {name} × {qty} vào đơn.",
+        limitReached: "Đã đạt giới hạn — mỗi đơn tối đa {max} món",
+        customizeAria: "Tùy chỉnh {name}",
+        addAria: "Thêm {name} vào giỏ",
+        removeAria: "Xóa {name}",
+        qtyAria: "Số lượng {name}",
+        decrease: "Giảm số lượng",
+        increase: "Tăng số lượng",
+        languageMenu: "Ngôn ngữ",
+        customize: {
+          title: "Tùy chỉnh", collapse: "Thu gọn bảng", close: "Đóng và hủy thay đổi",
+          temperature: "Nhiệt độ", size: "Cỡ ly", sweetness: "Đường", milk: "Sữa",
+          quantity: "Số lượng", total: "Tổng cộng", submit: "Thêm vào đơn"
+        },
+        temperature: { hot: "Nóng", iced: "Đá" },
+        tags: { best: "Bán chạy mùa đông", bogo: "Ly 2 giảm 50%", limited: "Số lượng có hạn", new: "Mới ra mắt", top: "Bán chạy số 1" },
+        size: { small: "Nhỏ", medium: "Vừa", large: "Lớn", regular: "Tiêu chuẩn" },
+        sweetness: { none: "Không đường", light: "Ít đường", half: "Nửa đường", less: "Giảm đường", standard: "Tiêu chuẩn" },
+        milk: { milk: "Sữa", lowfat: "Tách béo", oat: "Yến mạch", soy: "Đậu nành" },
+        products: {
+          1: { name: "Americano đá", desc: "Thanh mát, trọn vị cà phê nguyên bản." },
+          2: { name: "Macchiato caramel", desc: "Caramel và sữa quyện thành từng lớp." },
+          3: { name: "Latte đá", desc: "Cân bằng kinh điển giữa espresso và sữa." },
+          4: { name: "Mocha đá", desc: "Socola đậm đà hòa cùng cà phê." },
+          5: { name: "Espresso", desc: "Chiết xuất áp suất cao, lớp crema dày." },
+          6: { name: "Flat White đá", desc: "Hai shot espresso cùng sữa mịn." },
+          7: { name: "Frappuccino mocha", desc: "Đá xay mịn phủ kem tươi." },
+          8: { name: "Latte", desc: "Bọt sữa mịn, hương cà phê nhẹ nhàng." },
+          9: { name: "Flat White", desc: "Lớp bọt mỏng, vị cà phê nổi bật." },
+          10: { name: "Americano ủ lạnh", desc: "Ủ lạnh chậm, êm và ít đắng." },
+          11: { name: "Mocha kem tươi", desc: "Mocha đá phủ kem tươi trắng." },
+          12: { name: "Latte nóng", desc: "Sữa ấm hòa cùng espresso tươi." },
+          13: { name: "Latte caramel", desc: "Espresso rưới sốt caramel." },
+          14: { name: "Americano đá 2 shot", desc: "Hai shot trên đá, mạnh và sạch vị." },
+          15: { name: "Latte caramel muối", desc: "Chút muối làm caramel tròn vị hơn." },
+          16: { name: "Latte đá vani", desc: "Hương vani nhẹ, phục vụ cùng đá." },
+          17: { name: "Cold brew chanh", desc: "Chanh tươi mát trên cold brew êm." },
+          18: { name: "Mocha kem ngày lễ", desc: "Socola vụn và kem, hương lễ hội." },
+          19: { name: "Latte caramel brûlée", desc: "Vị caramel brûlée béo ngọt." },
+          20: { name: "Matcha dừa xay", desc: "Matcha xay cùng kem dừa." },
+          21: { name: "Cà phê đá dừa", desc: "Cà phê đá hương dừa nhiệt đới." },
+          22: { name: "Latte vani", desc: "Vani và espresso, ngọt dịu." },
+          23: { name: "Cold brew dâm bụt", desc: "Hoa dâm bụt thanh, hậu vị sáng." },
+          24: { name: "Matcha cam", desc: "Cam vàng xen lớp matcha xanh." },
+          25: { name: "Macchiato 2 lớp", desc: "Hai lớp màu, caramel đậm." },
+          26: { name: "Frappuccino xoài", desc: "Xoài chín xay đặc, thơm nồng." },
+          27: { name: "Mocha đá kem tươi", desc: "Mocha đá dưới lớp kem mặn nhẹ." }
+        }
+      },
+      th: {
+        packaged: "สินค้าบรรจุภัณฑ์",
+        packagedAria: "สลับไปหน้าสินค้าบรรจุภัณฑ์",
+        langName: "ไทย",
+        contact: "ติดต่อเรา",
+        home: "หน้าแรก",
+        homeAria: "กลับหน้าแรก",
+        fault: "ขัดข้อง",
+        faultAria: "แสดงหน้าขัดข้อง (Demo)",
+        deviceSize: "ขนาด",
+        deviceSizeAria: "เปิดตั้งค่าขนาดหน้าจอ (Demo)",
+        rotateTitle: "กรุณาใช้แนวนอน",
+        rotateText: "หน้าจอนี้ออกแบบสำหรับแนวนอน กรุณาหมุนอุปกรณ์",
+        adLabel: "โฆษณา",
+        adOn: "เปิดโฆษณา: แสดง {n} รายการ",
+        adOff: "ปิดโฆษณา: แสดง {n} รายการ",
+        strikeLabel: "ราคาปกติ",
+        strikeAria: "สลับการแสดงราคาปกติ",
+        strikeOn: "แสดงราคาปกติแล้ว",
+        strikeOff: "ซ่อนราคาปกติแล้ว",
+        date: "4 พ.ย. 23:40",
+        categories: { all: "ทั้งหมด", coffee: "กาแฟ", milkTea: "ชานม", other: "เครื่องดื่มอื่น ๆ" },
+        categoryToast: "{name}: กำลังแสดงสินค้าตัวอย่าง",
+        items: "{n} รายการ",
+        pageOf: "{current} / {total}",
+        pageNumber: "หน้า {n}",
+        slidePrev: "สินค้าก่อนหน้า",
+        slideNext: "สินค้าถัดไป",
+        prevPage: "หน้าก่อน",
+        nextPage: "หน้าถัดไป",
+        firstPage: "นี่คือหน้าแรก",
+        demoPage: "เดโมแสดงเฉพาะหน้า 1",
+        cart: "ตะกร้า",
+        cartOpen: "เปิดตะกร้า",
+        cartClose: "ปิดตะกร้า",
+        cartTotal: "รวม ({n} ชิ้น)",
+        checkout: "สั่งซื้อ",
+        emptyCart: "ตะกร้ายังว่างอยู่<br>กด «+» ที่สินค้าเพื่อเพิ่ม",
+        selectProduct: "กรุณาเลือกสินค้า",
+        added: "เพิ่ม {name} ลงตะกร้าแล้ว",
+        addedCustom: "เพิ่ม {name} × {qty} ในคำสั่งซื้อแล้ว",
+        limitReached: "ถึงขีดจำกัดแล้ว — หนึ่งคำสั่งซื้อสูงสุด {max} ชิ้น",
+        customizeAria: "ปรับแต่ง {name}",
+        addAria: "เพิ่ม {name} ลงตะกร้า",
+        removeAria: "ลบ {name}",
+        qtyAria: "จำนวน {name}",
+        decrease: "ลดจำนวน",
+        increase: "เพิ่มจำนวน",
+        languageMenu: "ภาษา",
+        customize: {
+          title: "ปรับแต่ง", collapse: "ย่อแผง", close: "ปิดและยกเลิกการแก้ไข",
+          temperature: "อุณหภูมิ", size: "ขนาดแก้ว", sweetness: "ความหวาน", milk: "นม",
+          quantity: "จำนวน", total: "รวม", submit: "เพิ่มในคำสั่งซื้อ"
+        },
+        temperature: { hot: "ร้อน", iced: "เย็น" },
+        tags: { best: "ขายดีฤดูหนาว", bogo: "แก้วที่ 2 ลด 50%", limited: "จำนวนจำกัด", new: "สินค้าใหม่", top: "ขายดีอันดับ 1" },
+        size: { small: "เล็ก", medium: "กลาง", large: "ใหญ่", regular: "มาตรฐาน" },
+        sweetness: { none: "ไม่หวาน", light: "หวานน้อย", half: "หวานครึ่ง", less: "ลดหวาน", standard: "มาตรฐาน" },
+        milk: { milk: "นมสด", lowfat: "พร่องมันเนย", oat: "ข้าวโอ๊ต", soy: "ถั่วเหลือง" },
+        products: {
+          1: { name: "อเมริกาโน่เย็น", desc: "สดชื่น สะอาด รสกาแฟแท้ ๆ" },
+          2: { name: "คาราเมลมัคคิอาโต้", desc: "คาราเมลและนมซ้อนกันเป็นชั้น ๆ" },
+          3: { name: "ลาเต้เย็น", desc: "สมดุลคลาสสิกของเอสเพรสโซ่กับนม" },
+          4: { name: "มอคค่าเย็น", desc: "ช็อกโกแลตเข้มข้นผสานกาแฟ" },
+          5: { name: "เอสเพรสโซ่", desc: "สกัดแรงดันสูง ครีม่าหนาฟู" },
+          6: { name: "แฟลตไวท์เย็น", desc: "ดับเบิ้ลช็อตกับนมเนียนละเอียด" },
+          7: { name: "มอคค่าปั่น", desc: "น้ำแข็งปั่นละเอียด หน้าวิปครีม" },
+          8: { name: "คาเฟ่ลาเต้", desc: "โฟมนุ่ม หอมกาแฟกลมกล่อม" },
+          9: { name: "แฟลตไวท์", desc: "โฟมบางเบา ให้กาแฟนำ" },
+          10: { name: "อเมริกาโน่โคลด์บรูว์", desc: "ชงเย็นนาน เนียน ไม่ขม" },
+          11: { name: "มอคค่าหน้าครีม", desc: "มอคค่าเย็นทับด้วยวิปครีมขาว" },
+          12: { name: "ลาเต้ร้อน", desc: "นมอุ่นกับเอสเพรสโซ่สด" },
+          13: { name: "คาราเมลลาเต้", desc: "เอสเพรสโซ่ราดซอสคาราเมล" },
+          14: { name: "อเมริกาโน่เย็นดับเบิ้ล", desc: "สองช็อตบนน้ำแข็ง เข้มสะอาด" },
+          15: { name: "คาราเมลลาเต้เกลือทะเล", desc: "เกลือเล็กน้อยทำให้คาราเมลกลมขึ้น" },
+          16: { name: "วานิลลาลาเต้เย็น", desc: "วานิลลาหอมอ่อน ๆ เสิร์ฟเย็น" },
+          17: { name: "โคลด์บรูว์มะนาว", desc: "มะนาวเปรี้ยวสดใสบนโคลด์บรูว์" },
+          18: { name: "มอคค่าครีมเทศกาล", desc: "ช็อกโกแลตและครีม เฉพาะเทศกาล" },
+          19: { name: "คาราเมลบรูเล่ลาเต้", desc: "รสคาราเมลบรูเล่ หอมมัน" },
+          20: { name: "มัทฉะมะพร้าวปั่น", desc: "มัทฉะปั่นกับครีมมะพร้าว" },
+          21: { name: "กาแฟเย็นมะพร้าว", desc: "กาแฟเย็นกลิ่นมะพร้าวร้อนชื้น" },
+          22: { name: "วานิลลาลาเต้", desc: "วานิลลากับเอสเพรสโซ่ หอมหวานนุ่ม" },
+          23: { name: "โคลด์บรูว์กระเจี๊ยบ", desc: "กระเจี๊ยบหอม เปรี้ยวปลายลิ้น" },
+          24: { name: "มัทฉะส้ม", desc: "ส้มสดใสซ้อนกับมัทฉะเข้ม" },
+          25: { name: "คาราเมลมัคคิอาโต้สองชั้น", desc: "สองชั้นสี เข้มด้วยคาราเมล" },
+          26: { name: "มะม่วงปั่น", desc: "มะม่วงสุกปั่นข้น หอมเต็มคำ" },
+          27: { name: "มอคค่าเย็นหน้าครีม", desc: "มอคค่าเย็นใต้โฟมครีมเค็มอ่อน ๆ" }
+        }
       }
     };
 
@@ -1962,7 +2235,7 @@
       { id: 27, price: 400, image: "product-cutout-27/333-09.webp", temperature: "iced", tag: "limited" }
     ];
 
-    const SUPPORTED_LANGUAGES = ["ja", "zh", "en", "ko"];
+    const SUPPORTED_LANGUAGES = ["ja", "zh", "en", "ko", "fr", "vi", "th"];
 
     function resolveLanguage() {
       const requested = new URLSearchParams(window.location.search).get("lang");
