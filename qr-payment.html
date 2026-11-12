@@ -949,6 +949,20 @@
       return `FUJI-${Date.now()}-${paymentSession}`;
     }
 
+    // 支付成功后把这一单的订单号交给制作页：会话里存一份，订单里也存一份，
+    // 制作过程中显示的号码就是刚付的这一单。
+    function rememberOrderId(orderId) {
+      if (typeof orderId !== "string" || !orderId) return;
+      try {
+        sessionStorage.setItem("fujiOrderId", orderId);
+        const saved = JSON.parse(localStorage.getItem("fujiOrder"));
+        if (saved && Array.isArray(saved.items) && saved.items.length) {
+          saved.orderId = orderId;
+          localStorage.setItem("fujiOrder", JSON.stringify(saved));
+        }
+      } catch (error) { console.warn(error); }
+    }
+
     function createPaymentCode() {
       activeOrderId = newOrderId();
       const separator = paymentConfig.paymentUrl.includes("?") ? "&" : "?";
@@ -1062,6 +1076,7 @@
         countdownTimer = window.setInterval(tickCountdown, 250);
       } else if (nextState === "paid") {
         try { sessionStorage.setItem("fujiPaymentStatus", "paid"); } catch (error) { console.warn(error); }
+        rememberOrderId(activeOrderId);
         let language = loadOrder().language || "zh";
         try { language = loadOrder().language || localStorage.getItem("fujiLanguage") || "zh"; } catch (error) { console.warn(error); }
         preparationRedirectTimer = window.setTimeout(() => {

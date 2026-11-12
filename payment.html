@@ -1223,6 +1223,20 @@
       return `FUJI-${Date.now()}`;
     }
 
+    // 支付成功后把这一单的订单号交给制作页：会话里存一份，订单里也存一份，
+    // 制作过程中显示的号码就是刚付的这一单。
+    function rememberOrderId(orderId) {
+      if (typeof orderId !== "string" || !orderId) return;
+      try {
+        sessionStorage.setItem("fujiOrderId", orderId);
+        const saved = JSON.parse(localStorage.getItem("fujiOrder"));
+        if (saved && Array.isArray(saved.items) && saved.items.length) {
+          saved.orderId = orderId;
+          localStorage.setItem("fujiOrder", JSON.stringify(saved));
+        }
+      } catch (error) { console.warn(error); }
+    }
+
     // 原状态：单一收款码
     function buildInlineQrCode() {
       const host = document.getElementById("inlineQrCode");
@@ -1321,6 +1335,7 @@
         `;
         document.title = "支付成功 - Fuji Electric";
         try { sessionStorage.setItem("fujiPaymentStatus", "paid"); } catch (error) { console.warn(error); }
+        rememberOrderId(qrOrderId);
         const language = currentLanguage();
         qrRedirectTimer = window.setTimeout(() => {
           window.location.href = `preparation.html?auto=1&lang=${encodeURIComponent(language)}`;
