@@ -412,20 +412,23 @@
       transition: border-color .15s ease, background .15s ease, box-shadow .15s ease;
     }
     .channel-item:active { transform: scale(.995); }
+    /* 左侧每家一个方形品牌标识：品牌色底 + 白色标志，不放缩略码 */
     .channel-thumb {
       display: flex;
       flex: 0 0 auto;
       align-items: center;
       justify-content: center;
-      width: clamp(3.25rem, min(5.2vw, 11vh), 7rem);
+      width: clamp(3.25rem, min(4.6vw, 9.6vh), 5.75rem);
       aspect-ratio: 1 / 1;
-      padding: 0.375rem;
-      border: 0.0625rem solid #e8eff4;
-      border-radius: 0.75rem;
-      background: #fff;
+      border-radius: clamp(0.5625rem, .85vw, 0.875rem);
+      color: #fff;
+      background: var(--ch, #b9c8d3);
+      box-shadow: 0 0.125rem 0.375rem rgba(16, 45, 67, .16);
     }
-    .channel-qr { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
-    .channel-qr img, .channel-qr canvas { display: block; width: 100% !important; height: 100% !important; }
+    .channel-mark { display: block; width: 66%; height: 66%; }
+    /* 微信双气泡：前排气泡用品牌底色描边，与后排气泡留出间隙 */
+    .channel-mark .bubble-front { stroke: var(--ch, #b9c8d3); stroke-width: 1.9; paint-order: stroke; }
+    .channel-mark .bubble-eye { fill: var(--ch, #b9c8d3); }
     .channel-meta { display: flex; flex: 1 1 auto; flex-direction: column; gap: 0.1875rem; min-width: 0; }
     .channel-name { font-size: clamp(1rem, 1.15vw, 1.375rem); font-weight: 750; line-height: 1.25; white-space: nowrap; }
     .channel-sub { color: var(--text-2); font-size: clamp(0.75rem, .78vw, 0.9375rem); font-weight: 600; letter-spacing: .07em; text-transform: uppercase; white-space: nowrap; }
@@ -935,6 +938,13 @@
     let qrOrderId = "";
     let qrChannelId = "alipay";
 
+    // 支付渠道品牌标识：方形 Logo（白色标志 + 品牌色底），左侧不再放缩略二维码
+    const CHANNEL_MARKS = {
+      alipay: `<svg class="channel-mark" viewBox="0 0 32 32" fill="currentColor"><text x="16" y="24.6" text-anchor="middle" font-size="24" font-weight="700">支</text></svg>`,
+      wechat: `<svg class="channel-mark" viewBox="0 0 32 32" fill="currentColor"><ellipse cx="19.2" cy="12.9" rx="8.8" ry="8"/><circle class="bubble-eye" cx="16.2" cy="10.4" r="1.25"/><circle class="bubble-eye" cx="21.9" cy="10.4" r="1.25"/><g class="bubble-front"><ellipse cx="12.4" cy="20.4" rx="7.5" ry="6.7"/><path d="M7.1 25.3 6.1 28.4l4-2.1Z"/><circle class="bubble-eye" cx="9.6" cy="18" r="1.1"/><circle class="bubble-eye" cx="14.9" cy="18" r="1.1"/></g></svg>`,
+      wechatqr: `<svg class="channel-mark" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11.5 5.5h-4a2 2 0 0 0-2 2v4M20.5 5.5h4a2 2 0 0 1 2 2v4M11.5 26.5h-4a2 2 0 0 1-2-2v-4M20.5 26.5h4a2 2 0 0 0 2-2v-4"/><path d="M9.5 16h13"/></svg>`
+    };
+
     // 新增状态的三个渠道；数组顺序即左侧排列顺序
     const QR_CHANNELS = [
       {
@@ -1048,15 +1058,6 @@
       paintQR(host, `https://pay.example.com/fuji/checkout?order=${encodeURIComponent(qrOrderId)}`, 262, "M");
     }
 
-    // 新增状态：左卡三张小码，同一订单号按各渠道生成，图案互不相同
-    function renderChannelThumbs(orderId) {
-      document.querySelectorAll("[data-channel-qr]").forEach(target => {
-        const channel = QR_CHANNELS.find(item => item.id === target.dataset.channelQr);
-        if (!channel) return;
-        paintQR(target, channel.payload(orderId), 120, "L");
-      });
-    }
-
     // 选中渠道：左侧高亮 + 右侧大码与文案同步切换（订单号与倒计时都不重置）
     function selectQrChannel(id) {
       const channel = QR_CHANNELS.find(item => item.id === id) || QR_CHANNELS[0];
@@ -1124,9 +1125,8 @@
         overlay.innerHTML = "";
         setChannelMode(state === "channels");
         if (state === "channels") {
-          // 三张小码与右侧大码共用一个订单号，切渠道只换渠道不换订单
+          // 左卡只放品牌标识，右侧大码按所选渠道生成；切渠道不换订单
           qrOrderId = newQrOrderId();
-          renderChannelThumbs(qrOrderId);
           selectQrChannel(qrChannelId);
         } else {
           buildInlineQrCode();
@@ -1183,7 +1183,7 @@
         const selected = channel.id === qrChannelId;
         return `
           <button class="channel-item is-${channel.id}${selected ? " is-selected" : ""}" type="button" data-channel="${channel.id}" aria-pressed="${selected}">
-            <span class="channel-thumb"><span class="channel-qr" data-channel-qr="${channel.id}"></span></span>
+            <span class="channel-thumb" aria-hidden="true">${CHANNEL_MARKS[channel.id] || ""}</span>
             <span class="channel-meta">
               <span class="channel-name">${channel.name}</span>
               <span class="channel-sub">${channel.sub}</span>

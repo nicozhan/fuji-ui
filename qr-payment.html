@@ -284,7 +284,7 @@
     }
     .backend-image[hidden] { display: none; }
 
-    /* ===== 新增状态「多码选择」：左卡三码可选，右卡放大所选码 ===== */
+    /* ===== 新增状态「多码选择」：左卡三渠道可选（方形 Logo + 名称），右卡展示所选渠道二维码 ===== */
     .media-card { position: relative; }
     .channel-picker {
       position: absolute;
@@ -314,20 +314,23 @@
       transition: border-color .15s ease, background .15s ease, box-shadow .15s ease;
     }
     .channel-item:active { transform: scale(.995); }
+    /* 左侧每家一个方形品牌标识：品牌色底 + 白色标志，不放缩略码 */
     .channel-thumb {
       display: flex;
       flex: 0 0 auto;
       align-items: center;
       justify-content: center;
-      width: clamp(3.25rem, min(4.6vw, 9vh), 5.5rem);
+      width: clamp(3.25rem, min(4.2vw, 8.2vh), 4.9rem);
       aspect-ratio: 1 / 1;
-      padding: 0.375rem;
-      border: 0.0625rem solid #e8eff4;
-      border-radius: 0.625rem;
-      background: #fff;
+      border-radius: clamp(0.5rem, .8vw, 0.75rem);
+      color: #fff;
+      background: var(--ch, #b9c8d3);
+      box-shadow: 0 0.125rem 0.375rem rgba(16, 45, 67, .16);
     }
-    .channel-qr { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
-    .channel-qr img, .channel-qr canvas { display: block; width: 100% !important; height: 100% !important; }
+    .channel-mark { display: block; width: 66%; height: 66%; }
+    /* 微信双气泡：前排气泡用品牌底色描边，与后排气泡留出间隙 */
+    .channel-mark .bubble-front { stroke: var(--ch, #b9c8d3); stroke-width: 1.9; paint-order: stroke; }
+    .channel-mark .bubble-eye { fill: var(--ch, #b9c8d3); }
     .channel-meta { display: flex; flex: 1 1 auto; flex-direction: column; gap: 0.125rem; min-width: 0; }
     .channel-name { font-size: clamp(0.9375rem, 1.05vw, 1.1875rem); font-weight: 750; line-height: 1.25; white-space: nowrap; }
     .channel-sub { color: var(--text-2); font-size: clamp(0.6875rem, .72vw, 0.8125rem); font-weight: 600; letter-spacing: .07em; text-transform: uppercase; white-space: nowrap; }
@@ -532,7 +535,7 @@
       .qr-frame { margin: 0.5rem auto; padding: 0.5rem; border-radius: 0.75rem; }
       .channel-picker { gap: 0.4375rem; padding: 0.4375rem; }
       .channel-item { padding: 0.25rem 0.5rem; border-radius: 0.625rem; }
-      .channel-thumb { padding: 0.1875rem; border-radius: 0.4375rem; }
+      .channel-thumb { border-radius: 0.4375rem; }
       .channel-name { font-size: 0.9375rem; }
       .channel-sub { font-size: 0.625rem; }
       .state-icon { width: min(9.125rem, 20vh); height: min(9.125rem, 20vh); margin-bottom: 1rem; }
@@ -682,10 +685,10 @@
       <div class="payment-content">
         <section class="media-card" id="mediaCard" aria-label="后台配置图片">
           <img class="backend-image" id="backendImage" src="assets/payment-methods.jpg" alt="支持的支付方式：微信支付、支付宝、银联支付、云闪付">
-          <!-- 新增状态「多码选择」时显示：三个码竖排，点选后右侧放大 -->
+          <!-- 新增状态「多码选择」时显示：三个渠道竖排（方形 Logo + 名称），点选后右侧换成对应二维码 -->
           <div class="channel-picker" id="channelPicker" role="group" aria-label="选择支付方式" hidden>
             <button class="channel-item is-alipay is-selected" type="button" data-channel="alipay" aria-pressed="true">
-              <span class="channel-thumb"><span class="channel-qr" data-channel-qr="alipay"></span></span>
+              <span class="channel-thumb" aria-hidden="true"><svg class="channel-mark" viewBox="0 0 32 32" fill="currentColor"><text x="16" y="24.6" text-anchor="middle" font-size="24" font-weight="700">支</text></svg></span>
               <span class="channel-meta">
                 <span class="channel-name">支付宝</span>
                 <span class="channel-sub">AliPay</span>
@@ -693,7 +696,7 @@
               <span class="channel-check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7"/></svg></span>
             </button>
             <button class="channel-item is-wechat" type="button" data-channel="wechat" aria-pressed="false">
-              <span class="channel-thumb"><span class="channel-qr" data-channel-qr="wechat"></span></span>
+              <span class="channel-thumb" aria-hidden="true"><svg class="channel-mark" viewBox="0 0 32 32" fill="currentColor"><ellipse cx="19.2" cy="12.9" rx="8.8" ry="8"/><circle class="bubble-eye" cx="16.2" cy="10.4" r="1.25"/><circle class="bubble-eye" cx="21.9" cy="10.4" r="1.25"/><g class="bubble-front"><ellipse cx="12.4" cy="20.4" rx="7.5" ry="6.7"/><path d="M7.1 25.3 6.1 28.4l4-2.1Z"/><circle class="bubble-eye" cx="9.6" cy="18" r="1.1"/><circle class="bubble-eye" cx="14.9" cy="18" r="1.1"/></g></svg></span>
               <span class="channel-meta">
                 <span class="channel-name">微信支付</span>
                 <span class="channel-sub">WeChat Pay</span>
@@ -701,7 +704,7 @@
               <span class="channel-check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7"/></svg></span>
             </button>
             <button class="channel-item is-wechatqr" type="button" data-channel="wechatqr" aria-pressed="false">
-              <span class="channel-thumb"><span class="channel-qr" data-channel-qr="wechatqr"></span></span>
+              <span class="channel-thumb" aria-hidden="true"><svg class="channel-mark" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11.5 5.5h-4a2 2 0 0 0-2 2v4M20.5 5.5h4a2 2 0 0 1 2 2v4M11.5 26.5h-4a2 2 0 0 1-2-2v-4M20.5 26.5h4a2 2 0 0 0 2-2v-4"/><path d="M9.5 16h13"/></svg></span>
               <span class="channel-meta">
                 <span class="channel-name">微信扫码</span>
                 <span class="channel-sub">WeChat QR</span>
@@ -953,15 +956,6 @@
       paintQR(qrCodeElement, payload, 248, "M");
     }
 
-    // 左卡三张小码：用同一订单号，按各自渠道生成，保证三个码互不相同
-    function renderChannelThumbs(orderId) {
-      document.querySelectorAll("[data-channel-qr]").forEach(target => {
-        const channel = PAY_CHANNELS.find(item => item.id === target.dataset.channelQr);
-        if (!channel) return;
-        paintQR(target, channel.payload(orderId), 120, "L");
-      });
-    }
-
     // 选中渠道：左侧高亮 + 右侧大码与文案同步切换（订单号不变，只换渠道）
     function selectChannel(id) {
       const channel = PAY_CHANNELS.find(item => item.id === id) || PAY_CHANNELS[0];
@@ -1060,9 +1054,8 @@
         paintCountdown(PAYMENT_TIMEOUT_SECONDS);
         countdownTimer = window.setInterval(tickCountdown, 250);
       } else if (nextState === "channels") {
-        // 三个小码与大码共用同一个订单号，切渠道不改订单
+        // 左卡只放品牌标识，右侧大码按所选渠道生成；切渠道不改订单
         activeOrderId = newOrderId();
-        renderChannelThumbs(activeOrderId);
         selectChannel(selectedChannel);
         deadline = Date.now() + PAYMENT_TIMEOUT_SECONDS * 1000;
         paintCountdown(PAYMENT_TIMEOUT_SECONDS);
