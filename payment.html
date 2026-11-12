@@ -636,6 +636,139 @@
     .confirm-accept:hover { border-color: #d4a5a5; background: #ffecec; }
     .confirm-button[disabled] { opacity: .6; cursor: default; }
 
+    /* ===== 帮助弹窗：把求助时要报的几项信息集中到一处 ===== */
+    .help-scrim {
+      position: fixed;
+      inset: 0;
+      z-index: 270;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      background: rgba(6,28,45,.46);
+      animation: confirm-fade .16s ease both;
+    }
+    .help-scrim[hidden] { display: none; }
+    .help-card {
+      width: min(58rem, 100%);
+      max-height: calc(100vh - 4rem);
+      overflow: auto;
+      padding: 1.875rem 2.25rem 1.75rem;
+      border-radius: 1.375rem;
+      background: var(--surface);
+      box-shadow: 0 1.75rem 4rem rgba(8,38,60,.34);
+      animation: confirm-in .18s ease both;
+    }
+    .help-head { display: flex; align-items: flex-start; gap: 1.125rem; }
+    .help-icon {
+      display: flex;
+      flex: 0 0 auto;
+      align-items: center;
+      justify-content: center;
+      width: 3rem;
+      height: 3rem;
+      border-radius: 50%;
+      color: var(--accent);
+      background: var(--accent-weak);
+    }
+    .help-icon svg { width: 1.75rem; height: 1.75rem; }
+    .help-heading { flex: 1 1 auto; min-width: 0; padding-top: 0.125rem; }
+    .help-title { margin: 0; font-size: 1.5rem; font-weight: 750; line-height: 1.25; }
+    .help-subtitle { margin: 0.4375rem 0 0; color: var(--text-2); font-size: 0.9375rem; line-height: 1.55; }
+    .help-close {
+      flex: 0 0 auto;
+      width: 2.375rem;
+      height: 2.375rem;
+      border: 0;
+      border-radius: 50%;
+      color: #5d7285;
+      background: #eff4f8;
+      font-size: 1rem;
+      line-height: 1;
+      cursor: pointer;
+    }
+    .help-close:hover { color: var(--text); background: #e2ebf2; }
+
+    .help-body {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) clamp(10rem, 12vw, 11.5rem);
+      gap: 1.75rem;
+      margin-top: 1.5rem;
+      align-items: stretch;
+    }
+    .help-facts { display: flex; flex-direction: column; gap: 0.4375rem; margin: 0; }
+    .help-fact {
+      display: grid;
+      grid-template-columns: 5.75rem minmax(0, 1fr);
+      align-items: baseline;
+      gap: 0.875rem;
+      padding: 0.625rem 0.9375rem;
+      border-radius: 0.6875rem;
+      background: #f5f9fc;
+    }
+    .help-fact dt { color: #728799; font-size: 0.8125rem; font-weight: 650; letter-spacing: .04em; }
+    .help-fact dd {
+      margin: 0;
+      color: var(--text);
+      font-size: 1.0625rem;
+      font-weight: 650;
+      font-variant-numeric: tabular-nums;
+      word-break: break-all;
+    }
+    .help-fact.is-code dd { letter-spacing: .015em; }
+
+    .help-scan {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      padding: 0.5rem 0.5rem 0.75rem;
+      border: 0.0625rem solid #e6eef4;
+      border-radius: 0.875rem;
+      background: #f6fafd;
+      text-align: center;
+    }
+    .help-qr {
+      display: grid;
+      place-items: center;
+      width: 100%;
+      max-width: 10rem;
+      aspect-ratio: 1 / 1;
+      padding: 0.375rem;
+      border-radius: 0.5rem;
+      background: #fff;
+    }
+    .help-qr canvas, .help-qr img { display: block; width: 100% !important; height: 100% !important; }
+    .help-scan-text { margin: 0; color: #5a7083; font-size: 0.75rem; font-weight: 650; line-height: 1.5; }
+
+    .help-note {
+      display: flex;
+      gap: 0.5625rem;
+      margin-top: 1.125rem;
+      padding: 0.75rem 0.9375rem;
+      border-radius: 0.75rem;
+      color: #4a6478;
+      background: #f1f7fc;
+      font-size: 0.8125rem;
+      line-height: 1.55;
+    }
+    .help-note svg { flex: 0 0 auto; width: 1.0625rem; height: 1.0625rem; margin-top: 0.125rem; color: var(--accent); }
+    .help-actions { display: flex; justify-content: center; margin-top: 1.375rem; }
+    .help-done {
+      width: min(20rem, 100%);
+      min-height: 3.375rem;
+      border: 0;
+      border-radius: 62.4375rem;
+      color: #fff;
+      background: var(--accent);
+      font-size: 1.0625rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .15s ease;
+    }
+    .help-done:hover { background: var(--accent-dark); }
+
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation: none !important; transition: none !important; }
     }
@@ -741,7 +874,7 @@
         <span>Fuji Electric</span>
       </div>
       <div class="header-actions">
-        <button class="header-button" type="button" data-toast="帮助：请拨打服务热线 800-1234-5678。">
+        <button class="header-button" type="button" id="helpButton" aria-haspopup="dialog" aria-expanded="false">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.8 9a2.3 2.3 0 1 1 3.3 2.1c-.8.4-1.1.9-1.1 1.9M12 16.8h.01"/></svg>
           帮助
         </button>
@@ -782,6 +915,46 @@
       <div class="confirm-actions">
         <button class="confirm-button confirm-cancel" type="button" id="exitCancel">继续支付</button>
         <button class="confirm-button confirm-accept" type="button" id="exitAccept">返回主页</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 帮助弹窗：订单号 / 机器 ID / 时间 / 电话 / 邮箱 + 客服二维码 -->
+  <div class="help-scrim" id="helpDialog" hidden>
+    <div class="help-card" role="dialog" aria-modal="true" aria-labelledby="helpTitle" aria-describedby="helpSubtitle">
+      <div class="help-head">
+        <div class="help-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.2"/><path d="M9.6 9.2a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1.1.9-1.1 1.7v.3"/><path d="M12 17.1h.01"/></svg>
+        </div>
+        <div class="help-heading">
+          <h2 class="help-title" id="helpTitle">需要帮助？</h2>
+          <p class="help-subtitle" id="helpSubtitle">把订单号或机器 ID 告诉工作人员，我们能立刻查到这一单。</p>
+        </div>
+        <button class="help-close" type="button" id="helpClose" aria-label="关闭帮助">✕</button>
+      </div>
+
+      <div class="help-body">
+        <dl class="help-facts">
+          <div class="help-fact is-code"><dt>订单号</dt><dd id="helpOrderId">—</dd></div>
+          <div class="help-fact is-code"><dt>机器 ID</dt><dd id="helpMachineId">—</dd></div>
+          <div class="help-fact"><dt>时间</dt><dd id="helpTime">—</dd></div>
+          <div class="help-fact"><dt>联系电话</dt><dd id="helpPhone">800-1234-5678</dd></div>
+          <div class="help-fact"><dt>邮箱</dt><dd id="helpEmail">service@fuji.example.com</dd></div>
+        </dl>
+
+        <div class="help-scan">
+          <div class="help-qr" id="helpQr" role="img" aria-label="客服二维码，含订单号与机器 ID"></div>
+          <p class="help-scan-text">手机扫码<br>自动带出本单信息</p>
+        </div>
+      </div>
+
+      <p class="help-note">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.6h.01"/></svg>
+        <span>二维码只包含本次订单号与机器 ID，不含支付信息。请勿在电话中提供银行卡号或验证码。</span>
+      </p>
+
+      <div class="help-actions">
+        <button class="help-done" type="button" id="helpDone">我知道了</button>
       </div>
     </div>
   </div>
@@ -1457,6 +1630,130 @@
       document.addEventListener("keydown", event => {
         if (event.key === "Escape" && !scrim.hidden) close();
       });
+    })();
+  </script>
+  <script>
+    // ===== 帮助弹窗：把求助时要报的几项信息集中到一处，并提供客服二维码 =====
+    (function initHelpDialog() {
+      const trigger = document.getElementById("helpButton");
+      const scrim = document.getElementById("helpDialog");
+      const card = scrim && scrim.querySelector(".help-card");
+      const closeButton = document.getElementById("helpClose");
+      const doneButton = document.getElementById("helpDone");
+      if (!trigger || !scrim || !card || !closeButton || !doneButton) return;
+
+      // 门店客服信息：接入真实系统时替换这三处即可
+      const SUPPORT = {
+        phone: "800-1234-5678",
+        email: "service@fuji.example.com",
+        url: "https://service.fuji.example.com/support"
+      };
+
+      const nodes = {
+        order: document.getElementById("helpOrderId"),
+        machine: document.getElementById("helpMachineId"),
+        time: document.getElementById("helpTime"),
+        phone: document.getElementById("helpPhone"),
+        email: document.getElementById("helpEmail"),
+        qr: document.getElementById("helpQr")
+      };
+
+      let sessionOrderId = "";
+      let pausedRemaining = 0;
+
+      // 扫码态已生成真实订单号就沿用，否则给这一次求助一个稳定的会话号
+      function currentOrderId() {
+        if (typeof qrOrderId === "string" && qrOrderId) return qrOrderId;
+        if (!sessionOrderId) sessionOrderId = `FUJI-${Date.now()}`;
+        return sessionOrderId;
+      }
+
+      function currentMachineId() {
+        const node = document.querySelector(".machine-id strong");
+        return node && node.textContent.trim() ? node.textContent.trim() : "—";
+      }
+
+      function stamp() {
+        const now = new Date();
+        const pad = value => String(value).padStart(2, "0");
+        return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} `
+          + `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+      }
+
+      // 弹窗开着时倒计时与成功后跳转都要停，否则页面会在用户背后跳走
+      function pauseCountdown() {
+        if (!inlineQrActive || !QR_CODE_STATES.includes(qrState)) return;
+        pausedRemaining = Math.max(1000, qrDeadline - Date.now());
+        stopQrTimer();
+      }
+
+      function resumeCountdown() {
+        if (!pausedRemaining) return;
+        qrDeadline = Date.now() + pausedRemaining;
+        pausedRemaining = 0;
+        stopQrTimer();
+        qrTimer = window.setInterval(tickInlineQr, 250);
+      }
+
+      function renderFacts() {
+        const order = currentOrderId();
+        const machine = currentMachineId();
+        if (nodes.order) nodes.order.textContent = order;
+        if (nodes.machine) nodes.machine.textContent = machine;
+        if (nodes.time) nodes.time.textContent = stamp();
+        if (nodes.phone) nodes.phone.textContent = SUPPORT.phone;
+        if (nodes.email) nodes.email.textContent = SUPPORT.email;
+        if (nodes.qr) {
+          const target = Math.max(180, Math.round((nodes.qr.clientWidth || 160) * 1.5));
+          const payload = `${SUPPORT.url}?order=${encodeURIComponent(order)}&machine=${encodeURIComponent(machine)}`;
+          paintQR(nodes.qr, payload, target, "M");
+        }
+      }
+
+      function open() {
+        if (!scrim.hidden) return;
+        pauseCountdown();
+        stopQrRedirect();
+        renderFacts();
+        scrim.hidden = false;
+        trigger.setAttribute("aria-expanded", "true");
+        closeButton.focus();
+      }
+
+      function close() {
+        if (scrim.hidden) return;
+        scrim.hidden = true;
+        trigger.setAttribute("aria-expanded", "false");
+        resumeCountdown();
+        if (inlineQrActive && qrState === "paid") setInlineQrState("paid");
+        // 关闭后回到唤起它的按钮，键盘与读屏用户不会丢失位置
+        trigger.focus();
+      }
+
+      trigger.addEventListener("click", open);
+      closeButton.addEventListener("click", close);
+      doneButton.addEventListener("click", close);
+      scrim.addEventListener("click", event => { if (event.target === scrim) close(); });
+
+      card.addEventListener("keydown", event => {
+        if (event.key === "Escape") { event.stopPropagation(); close(); return; }
+        if (event.key !== "Tab") return;
+        const focusables = [closeButton, doneButton];
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+      });
+      document.addEventListener("keydown", event => {
+        if (event.key === "Escape" && !scrim.hidden) close();
+      });
+
+      // 演示 / 联调直接打开：payment.html?help=1
+      try {
+        if (new URLSearchParams(window.location.search).get("help") === "1") open();
+      } catch (error) {
+        console.warn("帮助弹窗入口参数读取失败。", error);
+      }
     })();
   </script>
 </body>
