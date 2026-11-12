@@ -3,6 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- 首帧语言：样式生效前把 <html lang> 定到实际语言，避免中文界面先按日文字形渲染一帧 -->
+  <script>
+    (function () {
+      var map = { ja: "ja", zh: "zh-CN", en: "en", ko: "ko" };
+      var lang = null;
+      try {
+        var requested = new URLSearchParams(window.location.search).get("lang");
+        lang = map[requested] || map[localStorage.getItem("fujiLanguage")] || null;
+      } catch (error) {
+        console.warn("首帧语言读取失败。", error);
+      }
+      if (lang) document.documentElement.lang = lang;
+    })();
+  </script>
+
   <!-- 设备配置引导：读取 setup.html 保存的档位，决定排版标记与根字号基准 -->
   <script>
     (function () {
@@ -102,9 +117,14 @@
     body {
       color: var(--text);
       background: var(--bg);
-      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Yu Gothic", "Noto Sans JP", "PingFang SC", "Microsoft YaHei", sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, var(--font-cjk), sans-serif;
       -webkit-font-smoothing: antialiased;
     }
+    /* 统一字体：拉丁固定 SF Pro / Segoe UI；CJK 随文档语言切换，避免同一流程内跳字 */
+    :root { --font-cjk: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", "Source Han Sans SC"; }
+    html[lang="ja"] { --font-cjk: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Noto Sans JP", "Meiryo", "PingFang SC"; }
+    html[lang="ko"] { --font-cjk: "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", "Nanum Gothic", "PingFang SC"; }
+
 
     button { font: inherit; }
     button, [role="switch"] { -webkit-tap-highlight-color: transparent; }
