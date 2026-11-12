@@ -572,7 +572,7 @@
         htmlLang: "zh-CN", title: "饮品制作", demoTitle: "制作过程页面",
         demoStart: "开始制作", demoTaken: "模拟取走", demoComplete: "跳到完成",
         making: "饮品正在制作中", makingFor: "正在为您制作第 {current} / {total} 杯",
-        readyTitle: "请取走第 {cup} 杯", readyHint: "取走后将立即制作下一杯", readyHintLast: "取走后本次订单完成",
+        readyTitle: "请取走第 {cup} 杯", readyHint: "取走后将立即制作下一杯", readyHintLast: "取走后本次订单结束，返回首页", pickupHint: "请从取货口取走商品",
         pickup: "请拿走您的饮品", complete: "您的饮品已全部制作完成，感谢光临！",
         orderProgress: "订单制作进度", cups: "共 {n} 杯", done: "已取走", working: "制作中", readyTag: "待取走",
         waiting: "等待制作", waitingPrev: "请先取走上一杯", next: "下一杯：{name}",
@@ -584,7 +584,7 @@
         htmlLang: "ja", title: "ドリンク製造", demoTitle: "製造プロセス DEMO",
         demoStart: "製造開始", demoTaken: "受け取り完了", demoComplete: "完了へ",
         making: "ドリンクを製造しています", makingFor: "{total}杯中 {current}杯目を製造しています",
-        readyTitle: "「{cup}杯目」をお受け取りください", readyHint: "お取り上げ後、すぐに次の1杯を製造します", readyHintLast: "お取り上げでご注文は完了です",
+        readyTitle: "「{cup}杯目」をお受け取りください", readyHint: "お取り上げ後、すぐに次の1杯を製造します", readyHintLast: "お取り上げでご注文は終了、ホームに戻ります", pickupHint: "受け取り口から商品をお取りください",
         pickup: "ドリンクをお受け取りください", complete: "すべてのドリンクが完成しました。ありがとうございました。",
         orderProgress: "注文の製造状況", cups: "合計 {n} 杯", done: "受取済み", working: "製造中", readyTag: "お受け取り待ち",
         waiting: "待機中", waitingPrev: "前の1杯をお取りください", next: "次：{name}",
@@ -596,7 +596,7 @@
         htmlLang: "en", title: "Drink Preparation", demoTitle: "Preparation Demo",
         demoStart: "Start", demoTaken: "Cup taken", demoComplete: "Skip to finish",
         making: "Your drink is being prepared", makingFor: "Preparing cup {current} of {total}",
-        readyTitle: "Please take cup {cup}", readyHint: "The next cup starts right after you take it", readyHintLast: "Taking it completes your order",
+        readyTitle: "Please take cup {cup}", readyHint: "The next cup starts right after you take it", readyHintLast: "Taking it ends your order and returns home", pickupHint: "Please collect your items from the outlet",
         pickup: "Please collect your drinks", complete: "All your drinks are ready. Thank you!",
         orderProgress: "ORDER PROGRESS", cups: "{n} cups", done: "Taken", working: "Preparing", readyTag: "Ready",
         waiting: "Waiting", waitingPrev: "Take the previous cup first", next: "Next: {name}",
@@ -608,7 +608,7 @@
         htmlLang: "ko", title: "음료 제조", demoTitle: "제조 과정 DEMO",
         demoStart: "제조 시작", demoTaken: "수령 완료", demoComplete: "완료로 이동",
         making: "음료를 제조하고 있습니다", makingFor: "총 {total}잔 중 {current}번째 잔을 제조 중입니다",
-        readyTitle: "{cup}번째 잔을 가져가 주세요", readyHint: "가져가시면 바로 다음 잔을 제조합니다", readyHintLast: "가져가시면 주문이 완료됩니다",
+        readyTitle: "{cup}번째 잔을 가져가 주세요", readyHint: "가져가시면 바로 다음 잔을 제조합니다", readyHintLast: "가져가시면 주문이 종료되고 홈으로 이동합니다", pickupHint: "수령구에서 상품을 가져가 주세요",
         pickup: "음료를 가져가 주세요", complete: "모든 음료가 완성되었습니다. 감사합니다!",
         orderProgress: "주문 제조 현황", cups: "총 {n}잔", done: "수령 완료", working: "제조 중", readyTag: "수령 대기",
         waiting: "대기 중", waitingPrev: "이전 잔을 먼저 가져가 주세요", next: "다음: {name}",
@@ -772,7 +772,8 @@
         subtitleEl.textContent = t("complete");
       } else if (pickup) {
         titleEl.textContent = isDrinkOrder ? t("readyTitle", { cup: ready + 1 }) : t("pickup");
-        subtitleEl.textContent = isDrinkOrder && ready + 1 < cups.length ? t("readyHint") : t("readyHintLast");
+        subtitleEl.textContent = !isDrinkOrder ? t("pickupHint")
+          : ready + 1 < cups.length ? t("readyHint") : t("readyHintLast");
       } else {
         titleEl.textContent = t("making");
         subtitleEl.textContent = t("makingFor", { current: Math.max(0, making) + 1, total: cups.length });
@@ -888,7 +889,9 @@
           progressValues[next] = 0;
           startProductionTimer();
         } else {
-          finishOrder();
+          // 最后一杯就是流程终点：取走后本次会话结束，直接回首页，不再进完成页
+          goHome();
+          return true;
         }
       } else if (allCupsDone()) {
         finishOrder();
