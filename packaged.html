@@ -1443,20 +1443,47 @@
     .direct-control.collapse { left: 2.75rem; }
     .direct-control.close { right: 2.75rem; font-size: 1.25rem; }
     .direct-body { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); flex: 1 1 auto; min-height: 0; }
-    .direct-left { display: flex; flex-direction: column; justify-content: center; gap: 1.125rem; padding: 2rem 3.5rem; border-right: 0.0625rem solid #e4ebf0; }
+    .direct-left { display: flex; flex-direction: column; justify-content: center; align-items: stretch; gap: 1.75rem; padding: 2rem 3.5rem; border-right: 0.0625rem solid #e4ebf0; }
+    .direct-product-figure {
+      display: grid; place-items: center;
+      width: 15rem; height: 15rem; margin: 0 auto;
+      overflow: hidden; border: 0.0625rem solid #e0edf6; border-radius: 1.5rem;
+      background: linear-gradient(155deg, #f6fbff 0%, #e9f4fc 100%);
+      box-shadow: inset 0 0.0625rem 0 rgba(255,255,255,.9);
+    }
+    .direct-product-figure img { width: 100%; height: 100%; padding: 0.625rem; object-fit: contain; filter: drop-shadow(0 0.625rem 0.875rem rgba(13,59,93,.14)); }
+    .direct-product-figure.is-empty img { display: none; }
+    .direct-product-fallback { display: none; place-items: center; width: 44%; height: 44%; color: #9ec1d8; }
+    .direct-product-figure.is-empty .direct-product-fallback { display: grid; }
+    .direct-product-fallback svg { display: block; width: 100%; height: 100%; }
+    .direct-copy { display: flex; flex-direction: column; gap: 0.75rem; }
     .direct-label { margin: 0; color: #7d93a3; font-size: 1rem; font-weight: 700; letter-spacing: .16em; }
     .direct-name { margin: 0; color: #0d3b5d; font-size: clamp(2rem, 3.4vw, 3.25rem); font-weight: 800; line-height: 1.25; overflow-wrap: anywhere; }
     .direct-price { margin: 0; color: #075b9e; font-size: 2.25rem; font-weight: 800; letter-spacing: -.01em; }
     .direct-meta { display: flex; flex-wrap: wrap; gap: 0.75rem; }
     .direct-chip { padding: 0.5rem 1rem; border-radius: 62.4375rem; color: #2c6691; background: #eef7fd; font-size: 1.0625rem; font-weight: 650; line-height: 1.35; }
     .direct-right { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.875rem; padding: 1.5rem 2rem; text-align: center; }
+    .direct-pay-methods { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.625rem; }
+    .direct-pay-caption { color: #7d93a3; font-size: 1rem; font-weight: 700; letter-spacing: .08em; }
+    .direct-pay-method {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.375rem 0.9375rem 0.375rem 0.375rem;
+      border: 0.0625rem solid #e1ebf2; border-radius: 62.4375rem;
+      color: #173f5b; background: #f8fcfe; font-size: 1.0625rem; font-weight: 700; white-space: nowrap;
+    }
+    .direct-pay-icon { display: grid; place-items: center; width: 2rem; height: 2rem; border-radius: 0.625rem; color: #fff; background: var(--ch, #b9c8d3); }
+    .direct-pay-icon svg { display: block; width: 70%; height: 70%; }
+    .direct-pay-method.is-wechat { --ch: #07c160; }
+    .direct-pay-method.is-alipay { --ch: #1677ff; }
+    .direct-pay-icon .bubble-front { stroke: var(--ch, #07c160); stroke-width: 1.9; paint-order: stroke; }
+    .direct-pay-icon .bubble-eye { fill: var(--ch, #07c160); }
     .direct-qr { position: relative; width: 16rem; height: 16rem; overflow: hidden; border: 0.0625rem solid #dbe9f3; border-radius: 1.125rem; background: #fff; box-shadow: 0 1rem 2.5rem rgba(9,80,140,.1); }
     .direct-qr > * { position: absolute; inset: 0; display: block; width: 100% !important; height: 100% !important; }
     .direct-hint { margin: 0; color: #102d43; font-size: 1.25rem; font-weight: 700; }
     .direct-total { margin: 0; color: #075b9e; font-size: 1.5rem; font-weight: 800; }
     .direct-timer { margin: 0; color: #6d8494; font-size: 1.0625rem; }
     .direct-timer strong { color: #0877c9; font-size: 1.25rem; font-variant-numeric: tabular-nums; }
-    .direct-overlay { position: absolute; inset: 0; z-index: 3; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 0.875rem; background: rgba(255,255,255,.97); text-align: center; }
+    .direct-overlay { position: absolute; inset: 0; z-index: 3; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 0.875rem; background: #fff; text-align: center; }
     .direct-overlay.show { display: flex; }
     .direct-result-icon { display: grid; place-items: center; width: 5.5rem; height: 5.5rem; border-radius: 50%; }
     .direct-result-icon svg { width: 3.5rem; height: 3.5rem; }
@@ -1476,6 +1503,12 @@
       .direct-head { flex-basis: 4.25rem; }
       .direct-control { top: 0.625rem; width: 3rem; height: 3rem; }
       .direct-qr { width: 11rem; height: 11rem; }
+      .direct-left { gap: 0.875rem; padding: 1.25rem 2rem; }
+      .direct-product-figure { width: 9rem; height: 9rem; }
+      .direct-copy { gap: 0.5rem; }
+      .direct-pay-icon { width: 1.625rem; height: 1.625rem; }
+      .direct-pay-method { font-size: 0.9375rem; }
+      .direct-pay-caption { font-size: 0.875rem; }
       .direct-name { font-size: 2rem; }
       .direct-price { font-size: 1.75rem; }
     }
@@ -1700,15 +1733,34 @@
       </header>
       <div class="direct-body">
         <div class="direct-left">
-          <p class="direct-label" data-direct-i18n="productLabel">商品</p>
-          <h3 class="direct-name" id="directProductName">—</h3>
-          <p class="direct-price" id="directProductPrice">¥0</p>
-          <div class="direct-meta">
-            <span class="direct-chip" id="directQuantity">数量 1</span>
-            <span class="direct-chip" id="directSingleNote">单件商品 · 无需选配</span>
+          <figure class="direct-product-figure is-empty" id="directProductFigure">
+            <img id="directProductImage" src="" alt="" width="700" height="700">
+            <span class="direct-product-fallback" aria-hidden="true">
+              <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M14 22h32v20a10 10 0 0 1-10 10H24a10 10 0 0 1-10-10V22Z"/><path d="M46 26h5a6 6 0 0 1 0 12h-5M20 14c0-3 3-3 3-6M30 14c0-3 3-3 3-6M40 14c0-3 3-3 3-6"/></svg>
+            </span>
+          </figure>
+          <div class="direct-copy">
+            <p class="direct-label" data-direct-i18n="productLabel">商品</p>
+            <h3 class="direct-name" id="directProductName">—</h3>
+            <p class="direct-price" id="directProductPrice">¥0</p>
+            <div class="direct-meta">
+              <span class="direct-chip" id="directQuantity">数量 1</span>
+              <span class="direct-chip" id="directSingleNote">单件商品 · 无需选配</span>
+            </div>
           </div>
         </div>
         <div class="direct-right">
+        <div class="direct-pay-methods" role="group" data-direct-i18n-aria="payMethodsAria" aria-label="支持微信支付、支付宝">
+          <span class="direct-pay-caption" data-direct-i18n="supportedLabel">支持</span>
+          <span class="direct-pay-method is-wechat">
+            <span class="direct-pay-icon" aria-hidden="true"><svg class="direct-pay-mark" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><ellipse cx="19.2" cy="12.9" rx="8.8" ry="8"/><circle class="bubble-eye" cx="16.2" cy="10.4" r="1.25"/><circle class="bubble-eye" cx="21.9" cy="10.4" r="1.25"/><g class="bubble-front"><ellipse cx="12.4" cy="20.4" rx="7.5" ry="6.7"/><path d="M7.1 25.3 6.1 28.4l4-2.1Z"/><circle class="bubble-eye" cx="9.6" cy="18" r="1.1"/><circle class="bubble-eye" cx="14.9" cy="18" r="1.1"/></g></svg></span>
+            <span data-direct-i18n="wechatPay">微信支付</span>
+          </span>
+          <span class="direct-pay-method is-alipay">
+            <span class="direct-pay-icon" aria-hidden="true"><svg class="direct-pay-mark" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><text x="16" y="24.6" text-anchor="middle" font-size="24" font-weight="700">支</text></svg></span>
+            <span data-direct-i18n="alipayPay">支付宝</span>
+          </span>
+        </div>
           <div class="direct-qr" id="directQrCode" role="img" data-direct-i18n-aria="qrAria" aria-label="订单支付二维码"></div>
           <p class="direct-hint" data-direct-i18n="qrHint">请使用手机扫描二维码</p>
           <p class="direct-total" id="directAmount">应付金额 ¥0</p>
@@ -2822,6 +2874,7 @@
     const DIRECT_BUY_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M14 7l5 5-5 5"/></svg>';
     const DIRECT_I18N = {
       zh: {
+        supportedLabel: "支持", wechatPay: "微信支付", alipayPay: "支付宝", payMethodsAria: "支持微信支付、支付宝",
         modeOn: "已开启「一件无配置」模式", modeOff: "已关闭「一件无配置」模式",
         buyNow: "立即购买", buyNowAria: "{name}，立即购买",
         sheetTitle: "请扫码支付", productLabel: "商品", singleNote: "单件商品 · 无需选配",
@@ -2831,6 +2884,7 @@
         closeAria: "关闭支付抽屉", collapseAria: "收起支付抽屉", qrAria: "订单支付二维码"
       },
       ja: {
+        supportedLabel: "対応", wechatPay: "WeChat Pay", alipayPay: "Alipay", payMethodsAria: "対応決済：WeChat Pay、Alipay",
         modeOn: "「1点・カスタマイズなし」モードに切り替えました", modeOff: "通常モードに戻しました",
         buyNow: "すぐに購入", buyNowAria: "{name}をすぐに購入",
         sheetTitle: "QRコードでお支払い", productLabel: "商品", singleNote: "1点のみ・カスタマイズ不要",
@@ -2840,6 +2894,7 @@
         closeAria: "決済パネルを閉じる", collapseAria: "決済パネルを収める", qrAria: "お支払い用QRコード"
       },
       en: {
+        supportedLabel: "Supports", wechatPay: "WeChat Pay", alipayPay: "Alipay", payMethodsAria: "Supported payments: WeChat Pay, Alipay",
         modeOn: "One-item mode on", modeOff: "One-item mode off",
         buyNow: "Buy now", buyNowAria: "Buy {name} now",
         sheetTitle: "Scan to pay", productLabel: "Item", singleNote: "One item · no customization",
@@ -2849,6 +2904,7 @@
         closeAria: "Close payment panel", collapseAria: "Collapse payment panel", qrAria: "Payment QR code"
       },
       ko: {
+        supportedLabel: "지원", wechatPay: "위챗페이", alipayPay: "알리페이", payMethodsAria: "지원 결제: 위챗페이, 알리페이",
         modeOn: "1개·옵션 없음 모드 켜짐", modeOff: "1개·옵션 없음 모드 꺼짐",
         buyNow: "바로 구매", buyNowAria: "{name} 바로 구매",
         sheetTitle: "QR로 결제", productLabel: "상품", singleNote: "1개만 · 옵션 없음",
@@ -2858,6 +2914,7 @@
         closeAria: "결제 패널 닫기", collapseAria: "결제 패널 접기", qrAria: "결제용 QR 코드"
       },
       fr: {
+        supportedLabel: "Accepte", wechatPay: "WeChat Pay", alipayPay: "Alipay", payMethodsAria: "Paiements acceptés : WeChat Pay, Alipay",
         modeOn: "Mode un article activé", modeOff: "Mode un article désactivé",
         buyNow: "Acheter", buyNowAria: "Acheter {name}",
         sheetTitle: "Payer par QR code", productLabel: "Produit", singleNote: "Un seul article · sans option",
@@ -2867,6 +2924,7 @@
         closeAria: "Fermer le panneau de paiement", collapseAria: "Réduire le panneau de paiement", qrAria: "QR code de paiement"
       },
       vi: {
+        supportedLabel: "Hỗ trợ", wechatPay: "WeChat Pay", alipayPay: "Alipay", payMethodsAria: "Thanh toán hỗ trợ: WeChat Pay, Alipay",
         modeOn: "Đã bật chế độ 1 sản phẩm", modeOff: "Đã tắt chế độ 1 sản phẩm",
         buyNow: "Mua ngay", buyNowAria: "Mua ngay {name}",
         sheetTitle: "Quét mã thanh toán", productLabel: "Sản phẩm", singleNote: "1 sản phẩm · không tùy chọn",
@@ -2876,6 +2934,7 @@
         closeAria: "Đóng bảng thanh toán", collapseAria: "Thu gọn bảng thanh toán", qrAria: "Mã QR thanh toán"
       },
       th: {
+        supportedLabel: "รองรับ", wechatPay: "WeChat Pay", alipayPay: "Alipay", payMethodsAria: "รองรับ WeChat Pay และ Alipay",
         modeOn: "เปิดโหมด 1 รายการแล้ว", modeOff: "ปิดโหมด 1 รายการแล้ว",
         buyNow: "ซื้อเลย", buyNowAria: "ซื้อ {name} เลย",
         sheetTitle: "สแกนเพื่อชำระเงิน", productLabel: "สินค้า", singleNote: "1 รายการ · ไม่มีตัวเลือก",
@@ -2992,6 +3051,16 @@
     function renderDirectSheet() {
       if (!directProduct) return;
       document.getElementById("directProductName").textContent = productName(directProduct);
+      const directImage = document.getElementById("directProductImage");
+      const directFigure = document.getElementById("directProductFigure");
+      if (directImage && directFigure) {
+        const imageSrc = directProduct.image || "";
+        directFigure.classList.toggle("is-empty", !imageSrc);
+        directImage.onload = () => directFigure.classList.remove("is-empty");
+        directImage.onerror = () => directFigure.classList.add("is-empty");
+        directImage.alt = productName(directProduct);
+        directImage.src = imageSrc;
+      }
       document.getElementById("directProductPrice").textContent = directYen(directProduct.price);
       document.getElementById("directQuantity").textContent = `${dt("quantityLabel")} 1`;
       document.getElementById("directSingleNote").textContent = dt("singleNote");
