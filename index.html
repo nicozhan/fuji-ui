@@ -1407,27 +1407,33 @@
     .direct-control:hover { background: #e9f5fc; }
     .direct-control.collapse { left: 2.75rem; }
     .direct-control.close { right: 2.75rem; font-size: 1.25rem; }
-    .direct-body { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); flex: 1 1 auto; min-height: 0; }
-    .direct-left { display: flex; flex-direction: column; justify-content: center; align-items: stretch; gap: 1.75rem; padding: 2rem 3.5rem; border-right: 0.0625rem solid #e4ebf0; }
+    /* 与 .customization-body 同规格：23.75rem 商品栏 + 3.5rem 间距 + 相同内边距 */
+    .direct-body {
+      position: relative; display: grid;
+      grid-template-columns: 23.75rem minmax(0, 1fr);
+      gap: 3.5rem; flex: 1 1 auto; min-height: 0;
+      padding: 1.625rem 4rem 1.75rem; overflow: hidden;
+    }
+    .direct-left { display: flex; flex-direction: column; align-items: stretch; min-width: 0; min-height: 0; padding: 0; }
+    /* 与 .custom-product-image 同规格：23.75rem 方形、透明底、无圆角、同款投影 */
     .direct-product-figure {
       display: grid; place-items: center;
-      width: 15rem; height: 15rem; margin: 0 auto;
-      overflow: hidden; border: 0.0625rem solid #e0edf6; border-radius: 1.5rem;
-      background: linear-gradient(155deg, #f6fbff 0%, #e9f4fc 100%);
-      box-shadow: inset 0 0.0625rem 0 rgba(255,255,255,.9);
+      width: 23.75rem; height: 23.75rem; margin: 0;
+      aspect-ratio: 1 / 1;
+      border: 0; border-radius: 0; background: transparent; box-shadow: none;
     }
-    .direct-product-figure img { width: 100%; height: 100%; padding: 0.625rem; object-fit: contain; filter: drop-shadow(0 0.625rem 0.875rem rgba(13,59,93,.14)); }
+    .direct-product-figure img { width: 100%; height: 100%; padding: 0; object-fit: contain; filter: drop-shadow(0 1.125rem 1.5rem rgba(24,58,84,.16)); }
     .direct-product-figure.is-empty img { display: none; }
     .direct-product-fallback { display: none; place-items: center; width: 44%; height: 44%; color: #9ec1d8; }
     .direct-product-figure.is-empty .direct-product-fallback { display: grid; }
     .direct-product-fallback svg { display: block; width: 100%; height: 100%; }
-    .direct-copy { display: flex; flex-direction: column; gap: 0.75rem; }
-    .direct-label { margin: 0; color: #7d93a3; font-size: 1rem; font-weight: 700; letter-spacing: .16em; }
-    .direct-name { margin: 0; color: #0d3b5d; font-size: clamp(2rem, 3.4vw, 3.25rem); font-weight: 800; line-height: 1.25; overflow-wrap: anywhere; }
-    .direct-price { margin: 0; color: #075b9e; font-size: 2.25rem; font-weight: 800; letter-spacing: -.01em; }
-    .direct-meta { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+    /* 名称 / 价格沿用 .custom-product-name / .custom-product-price 的字号与间距 */
+    .direct-name { margin: 1.25rem 0 0.375rem; color: var(--text, #102d43); font-size: 1.75rem; font-weight: 750; line-height: 1.25; overflow-wrap: anywhere; }
+    .direct-price { margin: 0; color: var(--accent-dark, #075b9e); font-size: 1.625rem; font-weight: 800; letter-spacing: -.01em; }
+    .direct-meta { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.75rem; }
     .direct-chip { padding: 0.5rem 1rem; border-radius: 62.4375rem; color: #2c6691; background: #eef7fd; font-size: 1.0625rem; font-weight: 650; line-height: 1.35; }
-    .direct-right { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.875rem; padding: 1.5rem 2rem; text-align: center; }
+    /* 右栏换成支付内容：沿用定制抽屉选项区的位置与宽度，内容居中 */
+    .direct-right { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.875rem; min-width: 0; min-height: 0; padding: 0; text-align: center; }
     .direct-pay-methods { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.625rem; }
     .direct-pay-caption { color: #7d93a3; font-size: 1rem; font-weight: 700; letter-spacing: .08em; }
     .direct-pay-method {
@@ -1464,18 +1470,21 @@
     .direct-dots i:nth-child(3) { animation-delay: .32s; }
     @keyframes direct-dot { 0%, 100% { opacity: .3; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-0.25rem); } }
     @media (max-height: 720px) {
-      .direct-sheet { height: min(34rem, 92vh); }
-      .direct-head { flex-basis: 4.25rem; }
-      .direct-control { top: 0.625rem; width: 3rem; height: 3rem; }
-      .direct-qr { width: 11rem; height: 11rem; }
-      .direct-left { gap: 0.875rem; padding: 1.25rem 2rem; }
-      .direct-product-figure { width: 9rem; height: 9rem; }
-      .direct-copy { gap: 0.5rem; }
-      .direct-pay-icon { width: 1.625rem; height: 1.625rem; }
+      .direct-head { flex-basis: 4.5rem; }
+      .direct-control { top: 0.75rem; width: 3.25rem; height: 3.25rem; }
+      .direct-right { gap: 0.625rem; }
+      .direct-pay-icon { width: 1.75rem; height: 1.75rem; }
       .direct-pay-method { font-size: 0.9375rem; }
       .direct-pay-caption { font-size: 0.875rem; }
-      .direct-name { font-size: 2rem; }
-      .direct-price { font-size: 1.75rem; }
+    }
+    /* 极矮视口（1024×600 一类）才等比缩内容，抽屉外形仍与定制饮品一致 */
+    @media (max-height: 620px) {
+      .direct-body { gap: 2.25rem; padding: 1.125rem 2.75rem 1.25rem; }
+      .direct-product-figure { width: 17rem; height: 17rem; }
+      .direct-qr { width: 12rem; height: 12rem; }
+      .direct-name { margin-top: 0.875rem; font-size: 1.5rem; }
+      .direct-price { font-size: 1.375rem; }
+      .direct-chip { padding: 0.375rem 0.75rem; font-size: 0.9375rem; }
     }
   </style>
 </head>
@@ -1690,20 +1699,13 @@
       <div class="direct-body">
         <div class="direct-left">
           <figure class="direct-product-figure is-empty" id="directProductFigure">
-            <img id="directProductImage" src="" alt="" width="700" height="700">
+            <img id="directProductImage" src="" alt="" width="380" height="380">
             <span class="direct-product-fallback" aria-hidden="true">
               <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M14 22h32v20a10 10 0 0 1-10 10H24a10 10 0 0 1-10-10V22Z"/><path d="M46 26h5a6 6 0 0 1 0 12h-5M20 14c0-3 3-3 3-6M30 14c0-3 3-3 3-6M40 14c0-3 3-3 3-6"/></svg>
             </span>
           </figure>
-          <div class="direct-copy">
-            <p class="direct-label" data-direct-i18n="productLabel">商品</p>
-            <h3 class="direct-name" id="directProductName">—</h3>
-            <p class="direct-price" id="directProductPrice">¥0</p>
-            <div class="direct-meta">
-              <span class="direct-chip" id="directQuantity">数量 1</span>
-              <span class="direct-chip" id="directSingleNote">单件商品 · 无需选配</span>
-            </div>
-          </div>
+          <h3 class="direct-name" id="directProductName">—</h3>
+          <p class="direct-price" id="directProductPrice">¥0</p>
         </div>
         <div class="direct-right">
         <div class="direct-pay-methods" role="group" data-direct-i18n-aria="payMethodsAria" aria-label="支持微信支付、支付宝">
@@ -1720,6 +1722,10 @@
           <div class="direct-qr" id="directQrCode" role="img" data-direct-i18n-aria="qrAria" aria-label="订单支付二维码"></div>
           <p class="direct-hint" data-direct-i18n="qrHint">请使用手机扫描二维码</p>
           <p class="direct-total" id="directAmount">应付金额 ¥0</p>
+          <div class="direct-meta">
+            <span class="direct-chip" id="directQuantity">数量 1</span>
+            <span class="direct-chip" id="directSingleNote">单件商品 · 无需选配</span>
+          </div>
           <p class="direct-timer" id="directTimer">二维码有效 90 秒</p>
         </div>
         <div class="direct-overlay" id="directOverlay"></div>
