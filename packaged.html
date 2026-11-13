@@ -1443,7 +1443,7 @@
     .direct-control.collapse { left: 2.75rem; }
     .direct-control.close { right: 2.75rem; font-size: 1.25rem; }
     .direct-body { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); flex: 1 1 auto; min-height: 0; }
-    .direct-left { display: flex; flex-direction: column; justify-content: center; align-items: stretch; gap: 1.75rem; padding: 2rem 3.5rem; border-right: 0.0625rem solid #e4ebf0; }
+    .direct-left { display: flex; flex-direction: column; justify-content: center; align-items: stretch; gap: 1.75rem; padding: 2rem 3.5rem; border-right: 0.0625rem solid #e4ebf0; text-align: center; }
     .direct-product-figure {
       display: grid; place-items: center;
       width: 15rem; height: 15rem; margin: 0 auto;
@@ -1460,8 +1460,6 @@
     .direct-label { margin: 0; color: #7d93a3; font-size: 1rem; font-weight: 700; letter-spacing: .16em; }
     .direct-name { margin: 0; color: #0d3b5d; font-size: clamp(2rem, 3.4vw, 3.25rem); font-weight: 800; line-height: 1.25; overflow-wrap: anywhere; }
     .direct-price { margin: 0; color: #075b9e; font-size: 2.25rem; font-weight: 800; letter-spacing: -.01em; }
-    .direct-meta { display: flex; flex-wrap: wrap; gap: 0.75rem; }
-    .direct-chip { padding: 0.5rem 1rem; border-radius: 62.4375rem; color: #2c6691; background: #eef7fd; font-size: 1.0625rem; font-weight: 650; line-height: 1.35; }
     .direct-right { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.875rem; padding: 1.5rem 2rem; text-align: center; }
     .direct-pay-methods { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.625rem; }
     .direct-pay-caption { color: #7d93a3; font-size: 1rem; font-weight: 700; letter-spacing: .08em; }
@@ -1743,10 +1741,6 @@
             <p class="direct-label" data-direct-i18n="productLabel">商品</p>
             <h3 class="direct-name" id="directProductName">—</h3>
             <p class="direct-price" id="directProductPrice">¥0</p>
-            <div class="direct-meta">
-              <span class="direct-chip" id="directQuantity">数量 1</span>
-              <span class="direct-chip" id="directSingleNote">单件商品 · 无需选配</span>
-            </div>
           </div>
         </div>
         <div class="direct-right">
@@ -2877,8 +2871,8 @@
         supportedLabel: "支持", wechatPay: "微信支付", alipayPay: "支付宝", payMethodsAria: "支持微信支付、支付宝",
         modeOn: "已开启「一件无配置」模式", modeOff: "已关闭「一件无配置」模式",
         buyNow: "立即购买", buyNowAria: "{name}，立即购买",
-        sheetTitle: "请扫码支付", productLabel: "商品", singleNote: "单件商品 · 无需选配",
-        quantityLabel: "数量", totalLabel: "应付金额", qrHint: "请使用手机扫描二维码",
+        sheetTitle: "请扫码支付", productLabel: "商品",
+totalLabel: "应付金额", qrHint: "请使用手机扫描二维码",
         timer: "二维码有效 {n} 秒", expired: "二维码已过期", expiredHint: "请重新获取二维码",
         refresh: "重新获取二维码", paid: "支付成功", paidHint: "正在为您制作，请稍候",
         closeAria: "关闭支付抽屉", collapseAria: "收起支付抽屉", qrAria: "订单支付二维码"
@@ -2887,8 +2881,8 @@
         supportedLabel: "対応", wechatPay: "WeChat Pay", alipayPay: "Alipay", payMethodsAria: "対応決済：WeChat Pay、Alipay",
         modeOn: "「1点・カスタマイズなし」モードに切り替えました", modeOff: "通常モードに戻しました",
         buyNow: "すぐに購入", buyNowAria: "{name}をすぐに購入",
-        sheetTitle: "QRコードでお支払い", productLabel: "商品", singleNote: "1点のみ・カスタマイズ不要",
-        quantityLabel: "数量", totalLabel: "お支払い金額", qrHint: "スマートフォンでQRコードを読み取ってください",
+        sheetTitle: "QRコードでお支払い", productLabel: "商品",
+totalLabel: "お支払い金額", qrHint: "スマートフォンでQRコードを読み取ってください",
         timer: "QRコード有効期限 {n} 秒", expired: "QRコードの有効期限が切れました", expiredHint: "QRコードを再取得してください",
         refresh: "QRコードを再取得", paid: "決済完了", paidHint: "お飲み物をご用意しています",
         closeAria: "決済パネルを閉じる", collapseAria: "決済パネルを収める", qrAria: "お支払い用QRコード"
@@ -2897,8 +2891,8 @@
         supportedLabel: "Supports", wechatPay: "WeChat Pay", alipayPay: "Alipay", payMethodsAria: "Supported payments: WeChat Pay, Alipay",
         modeOn: "One-item mode on", modeOff: "One-item mode off",
         buyNow: "Buy now", buyNowAria: "Buy {name} now",
-        sheetTitle: "Scan to pay", productLabel: "Item", singleNote: "One item · no customization",
-        quantityLabel: "Qty", totalLabel: "Amount due", qrHint: "Scan the QR code with your phone",
+        sheetTitle: "Scan to pay", productLabel: "Item",
+totalLabel: "Amount due", qrHint: "Scan the QR code with your phone",
         timer: "QR code valid for {n}s", expired: "QR code expired", expiredHint: "Please get a new QR code",
         refresh: "Get new QR code", paid: "Payment successful", paidHint: "Preparing your order",
         closeAria: "Close payment panel", collapseAria: "Collapse payment panel", qrAria: "Payment QR code"
@@ -2907,8 +2901,8 @@
         supportedLabel: "지원", wechatPay: "위챗페이", alipayPay: "알리페이", payMethodsAria: "지원 결제: 위챗페이, 알리페이",
         modeOn: "1개·옵션 없음 모드 켜짐", modeOff: "1개·옵션 없음 모드 꺼짐",
         buyNow: "바로 구매", buyNowAria: "{name} 바로 구매",
-        sheetTitle: "QR로 결제", productLabel: "상품", singleNote: "1개만 · 옵션 없음",
-        quantityLabel: "수량", totalLabel: "결제 금액", qrHint: "휴대폰으로 QR 코드를 스캔하세요",
+        sheetTitle: "QR로 결제", productLabel: "상품",
+totalLabel: "결제 금액", qrHint: "휴대폰으로 QR 코드를 스캔하세요",
         timer: "QR 코드 유효 {n}초", expired: "QR 코드가 만료되었습니다", expiredHint: "QR 코드를 다시 받아 주세요",
         refresh: "QR 코드 다시 받기", paid: "결제 완료", paidHint: "제조를 시작합니다",
         closeAria: "결제 패널 닫기", collapseAria: "결제 패널 접기", qrAria: "결제용 QR 코드"
@@ -2917,8 +2911,8 @@
         supportedLabel: "Accepte", wechatPay: "WeChat Pay", alipayPay: "Alipay", payMethodsAria: "Paiements acceptés : WeChat Pay, Alipay",
         modeOn: "Mode un article activé", modeOff: "Mode un article désactivé",
         buyNow: "Acheter", buyNowAria: "Acheter {name}",
-        sheetTitle: "Payer par QR code", productLabel: "Produit", singleNote: "Un seul article · sans option",
-        quantityLabel: "Qté", totalLabel: "Montant", qrHint: "Scannez le QR code avec votre téléphone",
+        sheetTitle: "Payer par QR code", productLabel: "Produit",
+totalLabel: "Montant", qrHint: "Scannez le QR code avec votre téléphone",
         timer: "QR code valable {n} s", expired: "QR code expiré", expiredHint: "Veuillez obtenir un nouveau QR code",
         refresh: "Nouveau QR code", paid: "Paiement réussi", paidHint: "Préparation en cours",
         closeAria: "Fermer le panneau de paiement", collapseAria: "Réduire le panneau de paiement", qrAria: "QR code de paiement"
@@ -2927,8 +2921,8 @@
         supportedLabel: "Hỗ trợ", wechatPay: "WeChat Pay", alipayPay: "Alipay", payMethodsAria: "Thanh toán hỗ trợ: WeChat Pay, Alipay",
         modeOn: "Đã bật chế độ 1 sản phẩm", modeOff: "Đã tắt chế độ 1 sản phẩm",
         buyNow: "Mua ngay", buyNowAria: "Mua ngay {name}",
-        sheetTitle: "Quét mã thanh toán", productLabel: "Sản phẩm", singleNote: "1 sản phẩm · không tùy chọn",
-        quantityLabel: "SL", totalLabel: "Số tiền", qrHint: "Dùng điện thoại quét mã QR",
+        sheetTitle: "Quét mã thanh toán", productLabel: "Sản phẩm",
+totalLabel: "Số tiền", qrHint: "Dùng điện thoại quét mã QR",
         timer: "Mã QR còn {n} giây", expired: "Mã QR đã hết hạn", expiredHint: "Vui lòng lấy mã mới",
         refresh: "Lấy mã QR mới", paid: "Thanh toán thành công", paidHint: "Đang pha chế",
         closeAria: "Đóng bảng thanh toán", collapseAria: "Thu gọn bảng thanh toán", qrAria: "Mã QR thanh toán"
@@ -2937,8 +2931,8 @@
         supportedLabel: "รองรับ", wechatPay: "WeChat Pay", alipayPay: "Alipay", payMethodsAria: "รองรับ WeChat Pay และ Alipay",
         modeOn: "เปิดโหมด 1 รายการแล้ว", modeOff: "ปิดโหมด 1 รายการแล้ว",
         buyNow: "ซื้อเลย", buyNowAria: "ซื้อ {name} เลย",
-        sheetTitle: "สแกนเพื่อชำระเงิน", productLabel: "สินค้า", singleNote: "1 รายการ · ไม่มีตัวเลือก",
-        quantityLabel: "จำนวน", totalLabel: "ยอดชำระ", qrHint: "ใช้โทรศัพท์สแกน QR code",
+        sheetTitle: "สแกนเพื่อชำระเงิน", productLabel: "สินค้า",
+totalLabel: "ยอดชำระ", qrHint: "ใช้โทรศัพท์สแกน QR code",
         timer: "QR ใช้ได้อีก {n} วินาที", expired: "QR หมดอายุ", expiredHint: "กรุณารับ QR ใหม่",
         refresh: "รับ QR ใหม่", paid: "ชำระเงินสำเร็จ", paidHint: "กำลังเตรียมเครื่องดื่ม",
         closeAria: "ปิดแผงชำระเงิน", collapseAria: "ย่อแผงชำระเงิน", qrAria: "QR code สำหรับชำระเงิน"
@@ -3062,8 +3056,6 @@
         directImage.src = imageSrc;
       }
       document.getElementById("directProductPrice").textContent = directYen(directProduct.price);
-      document.getElementById("directQuantity").textContent = `${dt("quantityLabel")} 1`;
-      document.getElementById("directSingleNote").textContent = dt("singleNote");
       document.getElementById("directAmount").textContent = `${dt("totalLabel")} ${directYen(directProduct.price)}`;
       applyDirectI18n();
       paintDirectQR();
