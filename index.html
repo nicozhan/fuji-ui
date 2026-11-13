@@ -15,6 +15,14 @@
         console.warn("首帧语言读取失败。", error);
       }
       if (lang) document.documentElement.lang = lang;
+      // 首帧模式标记：避免「一件无配置」模式下购物车先闪一帧
+      // URL 参数优先，其次读同一标签页保存的模式；新会话默认仍是购物车模式
+      var modeParam = new URLSearchParams(window.location.search).get("mode");
+      var savedMode = null;
+      try { savedMode = sessionStorage.getItem("fujiSalesMode"); } catch (e) {}
+      if (modeParam ? modeParam === "direct" : savedMode === "direct") {
+        document.documentElement.dataset.mode = "direct";
+      }
     })();
   </script>
 
@@ -1343,6 +1351,99 @@
       .landscape-guard-title { margin: 0; font-size: 5vw; font-weight: 800; letter-spacing: -.01em; }
       .landscape-guard-text { margin: 0; max-width: 62vw; color: var(--text-2); font-size: 3.4vw; line-height: 1.6; }
     }
+
+    /* ===== 一件无配置（Direct Pay）：单件直购 + 底部扫码抽屉 ===== */
+    html[data-mode="direct"] .cart-panel,
+    html[data-mode="direct"] .open-cart-button { display: none !important; }
+
+    .buy-now-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.3125rem;
+      min-height: 2.25rem;
+      padding: 0 0.75rem;
+      border: 0.125rem solid #0877c9;
+      border-radius: 62.4375rem;
+      color: #fff;
+      background: #0877c9;
+      box-shadow: 0 0.25rem 0.75rem rgba(8,119,201,.2);
+      font-size: clamp(0.625rem, .82vw, 0.9375rem);
+      font-weight: 750;
+      line-height: 1.35;
+      letter-spacing: .01em;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: background .18s ease, border-color .18s ease, transform .14s ease;
+    }
+    .buy-now-button:hover { background: #075b9e; border-color: #075b9e; transform: translateY(-0.0625rem); }
+    .buy-now-button:active { transform: scale(.96); }
+    .buy-now-button svg { width: 0.9375rem; height: 0.9375rem; flex: 0 0 0.9375rem; }
+    html[lang="th"] .buy-now-button { line-height: 1.5; }
+
+    .direct-layer { position: fixed; z-index: 110; inset: 0; visibility: hidden; pointer-events: none; transition: visibility 0s linear .34s; }
+    .direct-layer.open { visibility: visible; pointer-events: auto; transition-delay: 0s; }
+    .direct-backdrop { position: absolute; inset: 0; background: rgba(9,28,42,.44); opacity: 0; transition: opacity .3s ease; }
+    .direct-layer.open .direct-backdrop { opacity: 1; }
+    .direct-sheet {
+      position: absolute; bottom: 0; left: 50%;
+      display: flex; flex-direction: column;
+      width: min(77.5rem, 86vw); height: min(51.25rem, 88vh);
+      overflow: hidden; border-radius: 2rem 2rem 0 0;
+      background: #fff; box-shadow: 0 -1.25rem 3.75rem rgba(13,43,62,.24);
+      transform: translate(-50%, 105%);
+      transition: transform .34s cubic-bezier(.22,.8,.28,1);
+    }
+    .direct-layer.open .direct-sheet { transform: translate(-50%, 0); }
+    .direct-head { position: relative; display: flex; flex: 0 0 5.75rem; align-items: center; justify-content: center; border-bottom: 0.0625rem solid #e4ebf0; }
+    .direct-title { margin: 0; color: #102d43; font-size: 1.75rem; font-weight: 750; letter-spacing: .02em; }
+    .direct-control {
+      position: absolute; top: 1rem;
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 4rem; height: 4rem; padding: 0;
+      border: 0.0625rem solid #d9e6ed; border-radius: 50%;
+      color: #075b9e; background: #fff; font-size: 1.5rem; line-height: 1; cursor: pointer;
+    }
+    .direct-control:hover { background: #e9f5fc; }
+    .direct-control.collapse { left: 2.75rem; }
+    .direct-control.close { right: 2.75rem; font-size: 1.25rem; }
+    .direct-body { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); flex: 1 1 auto; min-height: 0; }
+    .direct-left { display: flex; flex-direction: column; justify-content: center; gap: 1.125rem; padding: 2rem 3.5rem; border-right: 0.0625rem solid #e4ebf0; }
+    .direct-label { margin: 0; color: #7d93a3; font-size: 1rem; font-weight: 700; letter-spacing: .16em; }
+    .direct-name { margin: 0; color: #0d3b5d; font-size: clamp(2rem, 3.4vw, 3.25rem); font-weight: 800; line-height: 1.25; overflow-wrap: anywhere; }
+    .direct-price { margin: 0; color: #075b9e; font-size: 2.25rem; font-weight: 800; letter-spacing: -.01em; }
+    .direct-meta { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+    .direct-chip { padding: 0.5rem 1rem; border-radius: 62.4375rem; color: #2c6691; background: #eef7fd; font-size: 1.0625rem; font-weight: 650; line-height: 1.35; }
+    .direct-right { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.875rem; padding: 1.5rem 2rem; text-align: center; }
+    .direct-qr { position: relative; width: 16rem; height: 16rem; overflow: hidden; border: 0.0625rem solid #dbe9f3; border-radius: 1.125rem; background: #fff; box-shadow: 0 1rem 2.5rem rgba(9,80,140,.1); }
+    .direct-qr > * { position: absolute; inset: 0; display: block; width: 100% !important; height: 100% !important; }
+    .direct-hint { margin: 0; color: #102d43; font-size: 1.25rem; font-weight: 700; }
+    .direct-total { margin: 0; color: #075b9e; font-size: 1.5rem; font-weight: 800; }
+    .direct-timer { margin: 0; color: #6d8494; font-size: 1.0625rem; }
+    .direct-timer strong { color: #0877c9; font-size: 1.25rem; font-variant-numeric: tabular-nums; }
+    .direct-overlay { position: absolute; inset: 0; z-index: 3; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 0.875rem; background: rgba(255,255,255,.97); text-align: center; }
+    .direct-overlay.show { display: flex; }
+    .direct-result-icon { display: grid; place-items: center; width: 5.5rem; height: 5.5rem; border-radius: 50%; }
+    .direct-result-icon svg { width: 3.5rem; height: 3.5rem; }
+    .direct-result-icon.success { color: #0f8a58; background: #e4f7ee; }
+    .direct-result-icon.failed { color: #b07818; background: #fdf2dd; }
+    .direct-overlay h2 { margin: 0; color: #0d3b5d; font-size: 2rem; font-weight: 800; }
+    .direct-overlay p { margin: 0; color: #6d8494; font-size: 1.1875rem; }
+    .direct-refresh { margin-top: 0.5rem; padding: 0.75rem 2rem; border: 0; border-radius: 62.4375rem; color: #fff; background: #0877c9; font-size: 1.125rem; font-weight: 700; cursor: pointer; }
+    .direct-refresh:hover { background: #075b9e; }
+    .direct-dots { display: flex; gap: 0.5rem; }
+    .direct-dots i { width: 0.625rem; height: 0.625rem; border-radius: 50%; background: #0877c9; animation: direct-dot 1s ease-in-out infinite; }
+    .direct-dots i:nth-child(2) { animation-delay: .16s; }
+    .direct-dots i:nth-child(3) { animation-delay: .32s; }
+    @keyframes direct-dot { 0%, 100% { opacity: .3; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-0.25rem); } }
+    @media (max-height: 720px) {
+      .direct-sheet { height: min(34rem, 92vh); }
+      .direct-head { flex-basis: 4.25rem; }
+      .direct-control { top: 0.625rem; width: 3rem; height: 3rem; }
+      .direct-qr { width: 11rem; height: 11rem; }
+      .direct-name { font-size: 2rem; }
+      .direct-price { font-size: 1.75rem; }
+    }
   </style>
 </head>
 <body>
@@ -1527,7 +1628,51 @@
           </button>
         </div>
       </section>
+
+      <section class="debug-group">
+        <p class="debug-label">一件无配置</p>
+        <div class="debug-row">
+          <button class="demo-control" id="directModeToggle" type="button" role="switch" aria-checked="false" aria-label="切换一件无配置模式">
+            <span class="demo-badge">DEMO</span>
+            <span class="demo-label">模式 <strong id="directModeState">OFF</strong></span>
+            <span class="switch-track" aria-hidden="true"><span class="switch-thumb"></span></span>
+          </button>
+          <button class="debug-chip" type="button" id="directPaidButton">模拟支付成功</button>
+          <button class="debug-chip" type="button" id="directExpireButton">模拟二维码过期</button>
+        </div>
+        <p class="debug-note">单件直购：无购物车、无选配；点商品弹出支付抽屉，二维码 90 秒有效。</p>
+      </section>
     </div>
+  </div>
+
+  <!-- 一件无配置：单件直购支付抽屉（默认隐藏，仅 ?mode=direct 使用） -->
+  <div class="direct-layer" id="directLayer" aria-hidden="true">
+    <div class="direct-backdrop" id="directBackdrop"></div>
+    <section class="direct-sheet" role="dialog" aria-modal="true" aria-labelledby="directTitle">
+      <header class="direct-head">
+        <button class="direct-control collapse" id="directCollapse" type="button" data-direct-i18n-aria="collapseAria" aria-label="收起支付抽屉">↓</button>
+        <h2 class="direct-title" id="directTitle" data-direct-i18n="sheetTitle">请扫码支付</h2>
+        <button class="direct-control close" id="directClose" type="button" data-direct-i18n-aria="closeAria" aria-label="关闭支付抽屉">✕</button>
+      </header>
+      <div class="direct-body">
+        <div class="direct-left">
+          <p class="direct-label" data-direct-i18n="productLabel">商品</p>
+          <h3 class="direct-name" id="directProductName">—</h3>
+          <p class="direct-price" id="directProductPrice">¥0</p>
+          <div class="direct-meta">
+            <span class="direct-chip" id="directQuantity">数量 1</span>
+            <span class="direct-chip" id="directSingleNote">单件商品 · 无需选配</span>
+          </div>
+        </div>
+        <div class="direct-right">
+          <div class="direct-qr" id="directQrCode" role="img" data-direct-i18n-aria="qrAria" aria-label="订单支付二维码"></div>
+          <p class="direct-hint" data-direct-i18n="qrHint">请使用手机扫描二维码</p>
+          <p class="direct-total" id="directAmount">应付金额 ¥0</p>
+          <p class="direct-timer" id="directTimer">二维码有效 90 秒</p>
+        </div>
+        <div class="direct-overlay" id="directOverlay"></div>
+      </div>
+    </section>
   </div>
 
   <div class="customization-layer" id="customizationLayer" aria-hidden="true">
@@ -1622,6 +1767,7 @@
     </div>
   </div>
 
+  <script src="assets/qrcode.min.js"></script>
   <script>
     const I18N = {
       ja: {
@@ -2327,11 +2473,19 @@
         .filter(id => Number.isInteger(id) && products.some(product => product.id === id)))];
     }
 
+    // 销售模式：URL 参数优先（?mode=direct / ?mode=cart），其次同一标签页保持上次选择，新会话默认购物车模式
+    function resolveSalesMode() {
+      const requested = previewParams.get("mode");
+      if (requested) return requested === "direct";
+      try { return sessionStorage.getItem("fujiSalesMode") === "direct"; } catch (error) { return false; }
+    }
+
     const state = {
       adEnabled: previewParams.get("ad") !== "off",
       // 临时开关（Demo）：划线原价默认开启，可用状态栏开关或 ?strike=off 关闭
       strikeEnabled: previewParams.get("strike") !== "off",
       cartOpen: previewParams.get("cart") === "open",
+      directMode: resolveSalesMode(),
       page: 0,
       cart: new Map([[1, 1], [3, 1], [4, 1]]),
       cartVariants: new Map(),
@@ -2417,7 +2571,7 @@
               <h2 class="product-name" title="${name}">${name}</h2>
               <p class="product-price">${priceMarkup(product.price)}</p>
             </div>
-            <button class="add-button" type="button" data-add="${product.id}" aria-label="${t("addAria", { name })}"${disabled}>${soldOut ? icons.ban : icons.plus}</button>
+            <button class="${state.directMode && !soldOut ? "buy-now-button" : "add-button"}" type="button" data-add="${product.id}" aria-label="${state.directMode && !soldOut ? dt("buyNowAria", { name }) : t("addAria", { name })}"${disabled}>${soldOut ? icons.ban : state.directMode ? `<span>${dt("buyNow")}</span>${DIRECT_BUY_ICON}` : icons.plus}</button>
           </div>
           ${soldOut ? `<span class="sold-out-veil" aria-hidden="true"></span><span class="sold-out-mark" aria-hidden="true">${icons.ban}</span>` : ""}
         </article>
@@ -2838,6 +2992,7 @@
         if (next.has(id)) { state.cart.delete(id); state.cartVariants.delete(id); }
       });
       if (customizationLayer.classList.contains("open") && next.has(customDraft.productId)) hideCustomization(true);
+      if (directLayer.classList.contains("open") && next.has(directProduct && directProduct.id)) closeDirectPay();
       renderProducts();
       renderCart();
       return [...next];
@@ -2851,6 +3006,12 @@
     productTrack.addEventListener("click", event => {
       const card = event.target.closest(".product-card");
       if (card && card.classList.contains("is-sold-out")) { event.preventDefault(); return; }
+      if (state.directMode) {
+        const trigger = event.target.closest("[data-add], [data-customize]");
+        const id = Number(trigger ? (trigger.dataset.add || trigger.dataset.customize) : (card && card.dataset.productId));
+        if (id && !state.soldOut.has(id)) openDirectPay(id);
+        return;
+      }
       const addButton = event.target.closest("[data-add]");
       if (addButton) {
         addToCart(Number(addButton.dataset.add));
@@ -2945,6 +3106,8 @@
       renderProducts();
       renderCart();
       if (customizationLayer.classList.contains("open")) renderCustomization();
+      applyDirectI18n();
+      if (directLayer.classList.contains("open")) renderDirectSheet();
 
       if (options.persist !== false) {
         try {
@@ -2999,9 +3162,308 @@
     window.addEventListener("resize", fitAdSidebar);
     window.addEventListener("orientationchange", fitAdSidebar);
 
+
+    // ===== 一件无配置（Direct Pay）：一次一件、无选配、点商品直接扫码支付 =====
+    // 默认关闭；?mode=direct 或调试浮窗开关进入。购物车与二次选配在这一模式完全不参与。
+    const DIRECT_QR_SECONDS = 90;
+    const DIRECT_BUY_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M14 7l5 5-5 5"/></svg>';
+    const DIRECT_I18N = {
+      zh: {
+        modeOn: "已开启「一件无配置」模式", modeOff: "已关闭「一件无配置」模式",
+        buyNow: "立即购买", buyNowAria: "{name}，立即购买",
+        sheetTitle: "请扫码支付", productLabel: "商品", singleNote: "单件商品 · 无需选配",
+        quantityLabel: "数量", totalLabel: "应付金额", qrHint: "请使用手机扫描二维码",
+        timer: "二维码有效 {n} 秒", expired: "二维码已过期", expiredHint: "请重新获取二维码",
+        refresh: "重新获取二维码", paid: "支付成功", paidHint: "正在为您制作，请稍候",
+        closeAria: "关闭支付抽屉", collapseAria: "收起支付抽屉", qrAria: "订单支付二维码"
+      },
+      ja: {
+        modeOn: "「1点・カスタマイズなし」モードに切り替えました", modeOff: "通常モードに戻しました",
+        buyNow: "すぐに購入", buyNowAria: "{name}をすぐに購入",
+        sheetTitle: "QRコードでお支払い", productLabel: "商品", singleNote: "1点のみ・カスタマイズ不要",
+        quantityLabel: "数量", totalLabel: "お支払い金額", qrHint: "スマートフォンでQRコードを読み取ってください",
+        timer: "QRコード有効期限 {n} 秒", expired: "QRコードの有効期限が切れました", expiredHint: "QRコードを再取得してください",
+        refresh: "QRコードを再取得", paid: "決済完了", paidHint: "お飲み物をご用意しています",
+        closeAria: "決済パネルを閉じる", collapseAria: "決済パネルを収める", qrAria: "お支払い用QRコード"
+      },
+      en: {
+        modeOn: "One-item mode on", modeOff: "One-item mode off",
+        buyNow: "Buy now", buyNowAria: "Buy {name} now",
+        sheetTitle: "Scan to pay", productLabel: "Item", singleNote: "One item · no customization",
+        quantityLabel: "Qty", totalLabel: "Amount due", qrHint: "Scan the QR code with your phone",
+        timer: "QR code valid for {n}s", expired: "QR code expired", expiredHint: "Please get a new QR code",
+        refresh: "Get new QR code", paid: "Payment successful", paidHint: "Preparing your order",
+        closeAria: "Close payment panel", collapseAria: "Collapse payment panel", qrAria: "Payment QR code"
+      },
+      ko: {
+        modeOn: "1개·옵션 없음 모드 켜짐", modeOff: "1개·옵션 없음 모드 꺼짐",
+        buyNow: "바로 구매", buyNowAria: "{name} 바로 구매",
+        sheetTitle: "QR로 결제", productLabel: "상품", singleNote: "1개만 · 옵션 없음",
+        quantityLabel: "수량", totalLabel: "결제 금액", qrHint: "휴대폰으로 QR 코드를 스캔하세요",
+        timer: "QR 코드 유효 {n}초", expired: "QR 코드가 만료되었습니다", expiredHint: "QR 코드를 다시 받아 주세요",
+        refresh: "QR 코드 다시 받기", paid: "결제 완료", paidHint: "제조를 시작합니다",
+        closeAria: "결제 패널 닫기", collapseAria: "결제 패널 접기", qrAria: "결제용 QR 코드"
+      },
+      fr: {
+        modeOn: "Mode un article activé", modeOff: "Mode un article désactivé",
+        buyNow: "Acheter", buyNowAria: "Acheter {name}",
+        sheetTitle: "Payer par QR code", productLabel: "Produit", singleNote: "Un seul article · sans option",
+        quantityLabel: "Qté", totalLabel: "Montant", qrHint: "Scannez le QR code avec votre téléphone",
+        timer: "QR code valable {n} s", expired: "QR code expiré", expiredHint: "Veuillez obtenir un nouveau QR code",
+        refresh: "Nouveau QR code", paid: "Paiement réussi", paidHint: "Préparation en cours",
+        closeAria: "Fermer le panneau de paiement", collapseAria: "Réduire le panneau de paiement", qrAria: "QR code de paiement"
+      },
+      vi: {
+        modeOn: "Đã bật chế độ 1 sản phẩm", modeOff: "Đã tắt chế độ 1 sản phẩm",
+        buyNow: "Mua ngay", buyNowAria: "Mua ngay {name}",
+        sheetTitle: "Quét mã thanh toán", productLabel: "Sản phẩm", singleNote: "1 sản phẩm · không tùy chọn",
+        quantityLabel: "SL", totalLabel: "Số tiền", qrHint: "Dùng điện thoại quét mã QR",
+        timer: "Mã QR còn {n} giây", expired: "Mã QR đã hết hạn", expiredHint: "Vui lòng lấy mã mới",
+        refresh: "Lấy mã QR mới", paid: "Thanh toán thành công", paidHint: "Đang pha chế",
+        closeAria: "Đóng bảng thanh toán", collapseAria: "Thu gọn bảng thanh toán", qrAria: "Mã QR thanh toán"
+      },
+      th: {
+        modeOn: "เปิดโหมด 1 รายการแล้ว", modeOff: "ปิดโหมด 1 รายการแล้ว",
+        buyNow: "ซื้อเลย", buyNowAria: "ซื้อ {name} เลย",
+        sheetTitle: "สแกนเพื่อชำระเงิน", productLabel: "สินค้า", singleNote: "1 รายการ · ไม่มีตัวเลือก",
+        quantityLabel: "จำนวน", totalLabel: "ยอดชำระ", qrHint: "ใช้โทรศัพท์สแกน QR code",
+        timer: "QR ใช้ได้อีก {n} วินาที", expired: "QR หมดอายุ", expiredHint: "กรุณารับ QR ใหม่",
+        refresh: "รับ QR ใหม่", paid: "ชำระเงินสำเร็จ", paidHint: "กำลังเตรียมเครื่องดื่ม",
+        closeAria: "ปิดแผงชำระเงิน", collapseAria: "ย่อแผงชำระเงิน", qrAria: "QR code สำหรับชำระเงิน"
+      }
+    };
+
+    function dt(key, vars) {
+      const dict = DIRECT_I18N[currentLanguage] || DIRECT_I18N.zh;
+      const text = typeof dict[key] === "string" ? dict[key] : (DIRECT_I18N.zh[key] || key);
+      return vars ? text.replace(/\{(\w+)\}/g, (match, name) => vars[name] !== undefined ? vars[name] : match) : text;
+    }
+    function directYen(value) { return `¥${Number(value || 0).toLocaleString("ja-JP")}`; }
+
+    const directLayer = document.getElementById("directLayer");
+    const directOverlay = document.getElementById("directOverlay");
+    let directProduct = null;
+    let directOrderId = "";
+    let directOrderSeq = 0;
+    function newDirectOrderId() { directOrderSeq += 1; return `FUJI-${Date.now()}-${directOrderSeq}`; }
+    let directDeadline = 0;
+    let directTimer = null;
+    let directRedirectTimer = null;
+    let directQRState = "ready";
+
+    function applyDirectI18n() {
+      document.querySelectorAll("[data-direct-i18n]").forEach(element => {
+        element.textContent = dt(element.dataset.directI18n);
+      });
+      document.querySelectorAll("[data-direct-i18n-aria]").forEach(element => {
+        element.setAttribute("aria-label", dt(element.dataset.directI18nAria));
+      });
+    }
+
+    function stopDirectTimer() {
+      if (directTimer !== null) window.clearInterval(directTimer);
+      directTimer = null;
+    }
+
+    function paintDirectQR() {
+      const host = document.getElementById("directQrCode");
+      if (!host) return;
+      host.replaceChildren();
+      if (typeof window.QRCode !== "function") { host.textContent = "QR"; return; }
+      new window.QRCode(host, {
+        text: `https://pay.example.com/fuji/checkout?order=${encodeURIComponent(directOrderId)}&amount=${directProduct ? directProduct.price : 0}`,
+        width: 256,
+        height: 256,
+        colorDark: "#102d43",
+        colorLight: "#ffffff",
+        correctLevel: window.QRCode.CorrectLevel.M
+      });
+    }
+
+    function renderDirectTimer() {
+      const node = document.getElementById("directTimer");
+      if (!node) return;
+      const remaining = Math.max(0, Math.ceil((directDeadline - Date.now()) / 1000));
+      node.innerHTML = dt("timer", { n: `<strong>${remaining}</strong>` });
+    }
+
+    function renderExpiredOverlay() {
+      directOverlay.innerHTML = `
+        <div class="direct-result-icon failed" aria-hidden="true">
+          <svg viewBox="0 0 96 96" fill="none"><circle cx="48" cy="48" r="41" stroke="currentColor" stroke-width="5"/><path d="M34 34l28 28M62 34 34 62" stroke="currentColor" stroke-width="7" stroke-linecap="round"/></svg>
+        </div>
+        <h2>${dt("expired")}</h2>
+        <p>${dt("expiredHint")}</p>
+        <button class="direct-refresh" id="directRefresh" type="button">${dt("refresh")}</button>
+      `;
+      directOverlay.classList.add("show");
+      const retry = directOverlay.querySelector("#directRefresh");
+      if (retry) retry.addEventListener("click", refreshDirectQR);
+    }
+
+    function renderPaidOverlay() {
+      directOverlay.innerHTML = `
+        <div class="direct-result-icon success" aria-hidden="true">
+          <svg viewBox="0 0 96 96" fill="none"><circle cx="48" cy="48" r="41" stroke="currentColor" stroke-width="5"/><path d="m29 49 13 13 26-29" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h2>${dt("paid")}</h2>
+        <p>${dt("paidHint")}</p>
+        <div class="direct-dots" aria-hidden="true"><i></i><i></i><i></i></div>
+      `;
+      directOverlay.classList.add("show");
+    }
+
+    function setDirectQRState(next) {
+      directQRState = next;
+      stopDirectTimer();
+      if (next === "ready") {
+        directOverlay.classList.remove("show");
+        directOverlay.innerHTML = "";
+        directDeadline = Date.now() + DIRECT_QR_SECONDS * 1000;
+        renderDirectTimer();
+        directTimer = window.setInterval(tickDirectQR, 250);
+      } else if (next === "expired") {
+        renderExpiredOverlay();
+      } else if (next === "paid") {
+        renderPaidOverlay();
+      }
+    }
+
+    function tickDirectQR() {
+      if (directQRState !== "ready") return;
+      const remaining = Math.max(0, Math.ceil((directDeadline - Date.now()) / 1000));
+      renderDirectTimer();
+      if (remaining === 0) setDirectQRState("expired");
+    }
+
+    function renderDirectSheet() {
+      if (!directProduct) return;
+      document.getElementById("directProductName").textContent = productName(directProduct);
+      document.getElementById("directProductPrice").textContent = directYen(directProduct.price);
+      document.getElementById("directQuantity").textContent = `${dt("quantityLabel")} 1`;
+      document.getElementById("directSingleNote").textContent = dt("singleNote");
+      document.getElementById("directAmount").textContent = `${dt("totalLabel")} ${directYen(directProduct.price)}`;
+      applyDirectI18n();
+      paintDirectQR();
+      renderDirectTimer();
+      if (directQRState === "expired") renderExpiredOverlay();
+      else if (directQRState === "paid") renderPaidOverlay();
+      else { directOverlay.classList.remove("show"); directOverlay.innerHTML = ""; }
+    }
+
+    function refreshDirectQR() {
+      directOrderId = newDirectOrderId();
+      paintDirectQR();
+      setDirectQRState("ready");
+    }
+
+    function openDirectPay(productId) {
+      const product = getProduct(productId);
+      if (!product || state.soldOut.has(product.id)) return false;
+      if (typeof customizationLayer !== "undefined" && customizationLayer.classList.contains("open") && typeof hideCustomization === "function") hideCustomization(true);
+      directProduct = product;
+      directOrderId = newDirectOrderId();
+      directQRState = "ready";
+      renderDirectSheet();
+      setDirectQRState("ready");
+      directLayer.classList.add("open");
+      directLayer.setAttribute("aria-hidden", "false");
+      return true;
+    }
+
+    function closeDirectPay() {
+      directLayer.classList.remove("open");
+      directLayer.setAttribute("aria-hidden", "true");
+      stopDirectTimer();
+      if (directRedirectTimer !== null) { window.clearTimeout(directRedirectTimer); directRedirectTimer = null; }
+    }
+
+    function markDirectPaid() {
+      if (!directProduct || directQRState === "paid") return false;
+      setDirectQRState("paid");
+      const order = {
+        items: [{
+          productId: directProduct.id,
+          name: productName(directProduct),
+          price: directProduct.price,
+          quantity: 1,
+          image: directProduct.image,
+          variant: "",
+          variantData: { temperature: directProduct.temperature || "hot", size: "regular" }
+        }],
+        language: currentLanguage,
+        orderId: directOrderId,
+        single: true
+      };
+      try {
+        localStorage.setItem("fujiOrder", JSON.stringify(order));
+        sessionStorage.setItem("fujiOrderId", directOrderId);
+        sessionStorage.setItem("fujiPaymentStatus", "paid");
+        sessionStorage.removeItem("fujiPreparationState");
+      } catch (error) { console.warn("订单暂存失败。", error); }
+      if (directRedirectTimer !== null) window.clearTimeout(directRedirectTimer);
+      directRedirectTimer = window.setTimeout(() => {
+        window.location.href = `preparation.html?auto=1&lang=${encodeURIComponent(currentLanguage)}`;
+      }, 1400);
+      return true;
+    }
+
+    document.getElementById("directClose").addEventListener("click", closeDirectPay);
+    document.getElementById("directCollapse").addEventListener("click", closeDirectPay);
+    document.getElementById("directBackdrop").addEventListener("click", closeDirectPay);
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape" && directLayer.classList.contains("open")) closeDirectPay();
+    });
+
+    const directModeToggle = document.getElementById("directModeToggle");
+    const directModeState = document.getElementById("directModeState");
+    directModeToggle.setAttribute("aria-checked", String(state.directMode));
+    directModeState.textContent = state.directMode ? "ON" : "OFF";
+    directModeToggle.addEventListener("click", () => {
+      const next = new URLSearchParams(window.location.search);
+      const enabled = !state.directMode;
+      next.set("mode", enabled ? "direct" : "cart");
+      if (enabled) { next.delete("customize"); next.delete("product"); }
+      try { sessionStorage.setItem("fujiSalesMode", enabled ? "direct" : "cart"); } catch (error) { console.warn(error); }
+      const query = next.toString();
+      window.location.href = window.location.pathname + (query ? `?${query}` : "");
+    });
+    document.getElementById("directPaidButton").addEventListener("click", () => {
+      if (!directLayer.classList.contains("open")) {
+        const first = products.find(product => !state.soldOut.has(product.id));
+        if (!first || !openDirectPay(first.id)) return;
+      }
+      markDirectPaid();
+    });
+    document.getElementById("directExpireButton").addEventListener("click", () => {
+      if (!directLayer.classList.contains("open")) {
+        const first = products.find(product => !state.soldOut.has(product.id));
+        if (!first || !openDirectPay(first.id)) return;
+      }
+      setDirectQRState("expired");
+    });
+
+    // 与 fujiSetSoldOut 同风格：接入方可查询状态、直接触发支付成功 / 过期 / 刷新
+    window.fujiDirectPay = {
+      open: openDirectPay,
+      close: closeDirectPay,
+      paid: markDirectPaid,
+      expire: () => { if (directLayer.classList.contains("open")) setDirectQRState("expired"); },
+      refresh: refreshDirectQR,
+      state: () => ({
+        mode: state.directMode,
+        open: directLayer.classList.contains("open"),
+        productId: directProduct ? directProduct.id : null,
+        orderId: directOrderId,
+        phase: directQRState,
+        remaining: Math.max(0, Math.ceil((directDeadline - Date.now()) / 1000))
+      })
+    };
+
     applyLanguage(currentLanguage, { persist: false });
+    if (state.directMode && previewParams.get("product")) openDirectPay(Number(previewParams.get("product")) || 1);
     setCartOpen(state.cartOpen);
-    if (previewParams.get("customize") === "1") {
+    if (!state.directMode && previewParams.get("customize") === "1") {
       openCustomization(Number(previewParams.get("product")) || 1);
     }
   </script>
