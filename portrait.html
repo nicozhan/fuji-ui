@@ -78,30 +78,44 @@
     .brand { display: flex; align-items: center; gap: 0.875rem; min-width: 0; color: var(--accent-dark); }
     .brand-mark { font-size: 2.25rem; font-style: italic; font-weight: 900; letter-spacing: -.12em; transform: skew(-8deg); }
     .brand-name { font-size: 1.5rem; font-weight: 750; letter-spacing: -.025em; white-space: nowrap; }
-    .header-actions { display: flex; align-items: center; gap: 0.75rem; }
+    /* ===== 复用横屏既有控件规格：payment.html 帮助按钮 + 商品页语言菜单 ===== */
+    .header-actions { display: flex; align-items: center; gap: 1.125rem; margin-left: auto; }
     .header-button {
-      display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
-      min-width: 44px; min-height: 44px; height: 3rem; padding: 0 1.125rem;
-      border: 0.0625rem solid #c9dce9; border-radius: 62.4375rem;
-      color: #35566e; background: #fff; font-size: 1rem; font-weight: 650; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.625rem;
+      min-width: 8.25rem; min-height: 3.375rem; padding: 0 1.4375rem;
+      border: 0.0625rem solid var(--border); border-radius: 62.4375rem;
+      color: var(--text); background: #fff; cursor: pointer;
     }
-    .header-button:hover { color: var(--accent-dark); border-color: #91c4e4; background: #f3f9fd; }
+    .header-button:hover { border-color: #b9d9ed; background: var(--accent-weak); }
     .header-button svg { width: 1.25rem; height: 1.25rem; }
-    .language-picker { position: relative; }
+    .language-button {
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.5625rem;
+      min-height: 3.25rem; padding: 0 1.3125rem;
+      border: 0.0625rem solid var(--border); border-radius: 62.4375rem;
+      color: var(--text); background: var(--surface); white-space: nowrap; cursor: pointer;
+      transition: background .18s ease, color .18s ease, border-color .18s ease;
+    }
+    .language-button:hover { border-color: #b9d9ed; background: var(--accent-weak); }
+    .language-button svg { width: 1.25rem; height: 1.25rem; }
+    .language-picker { position: relative; display: flex; flex: 0 0 auto; }
+    .language-picker .caret { transition: transform .18s ease; }
+    .language-picker.open .caret { transform: rotate(180deg); }
     .language-menu {
-      position: absolute; top: calc(100% + .625rem); right: 0; z-index: 80;
-      display: none; width: 12rem; padding: 0.5rem; border: 0.0625rem solid #dce8f0;
-      border-radius: 1rem; background: #fff; box-shadow: 0 1rem 2.5rem rgba(16,45,67,.16);
+      position: absolute; z-index: 70; top: calc(100% + 0.75rem); right: 0;
+      display: none; min-width: 14.125rem; padding: 0.625rem;
+      border: 0.0625rem solid var(--border); border-radius: 1.25rem;
+      background: #fff; box-shadow: 0 1.125rem 2.5rem rgba(16,45,67,.16);
     }
-    .language-menu.open { display: block; }
+    .language-picker.open .language-menu, .language-menu.open { display: block; }
     .language-option {
-      display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 44px;
-      padding: 0.75rem 1rem; border: 0; border-radius: 0.625rem; color: var(--text);
-      background: transparent; text-align: left; cursor: pointer;
+      display: flex; align-items: center; gap: 0.75rem; width: 100%; min-height: 3.5rem;
+      padding: 0 1rem; border: 0; border-radius: 0.8125rem;
+      color: var(--text); background: transparent; font-size: 1rem; font-weight: 600;
+      text-align: left; cursor: pointer;
     }
-    .language-option:hover { background: #f0f7fc; }
-    .language-option[aria-selected="true"] { color: var(--accent-dark); background: var(--accent-weak); font-weight: 750; }
-    .language-option[aria-selected="true"]::after { content: "✓"; color: var(--accent); }
+    .language-option:hover { background: var(--accent-weak); }
+    .language-option.active { color: #fff; background: var(--accent); }
+    .language-option .lang-flag { font-size: 1.3125rem; line-height: 1; }
 
     /* 横向广告：图片与容器同比例，contain 不裁切、不拉伸。 */
     .ad-section { flex: 0 0 18rem; padding: 0 var(--page-x) 1rem; }
@@ -156,7 +170,7 @@
     }
     .product-info {
       position: relative; z-index: 5; display: grid; flex: 0 0 7.5rem;
-      grid-template-columns: minmax(0, 1fr) 3.5rem; grid-template-rows: auto auto;
+      grid-template-columns: minmax(0, 1fr) 2.875rem; grid-template-rows: auto auto;
       column-gap: 0.75rem; padding-top: 0.75rem;
     }
     .product-name {
@@ -167,15 +181,22 @@
     .price-line { display: flex; grid-column: 1; grid-row: 2; align-items: baseline; align-self: end; gap: 0.5rem; min-width: 0; }
     .product-price { color: var(--accent); font-size: 1.375rem; font-weight: 800; letter-spacing: -.02em; white-space: nowrap; }
     .original-price { color: var(--muted); font-size: 0.9375rem; font-weight: 500; white-space: nowrap; }
+    /* 复用 packaged.html .add-button：2.875rem 圆形蓝描边、svg 50%、原有阴影与按压动效 */
     .add-button {
-      display: grid; grid-column: 2; grid-row: 1 / 3; place-items: center; align-self: end;
-      width: 3.5rem; height: 3.5rem; min-width: 44px; min-height: 44px; padding: 0;
-      border: 0.125rem solid var(--accent); border-radius: 50%; color: var(--accent); background: #fff; cursor: pointer;
-      transition: color .15s ease, background .15s ease, transform .15s ease;
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 2.875rem; aspect-ratio: 1; min-width: 44px; min-height: 44px; padding: 0;
+      border: 0.125rem solid var(--accent); border-radius: 50%;
+      color: var(--accent); background: #fff;
+      box-shadow: 0 0.25rem 0.75rem rgba(8,119,201,.16);
+      cursor: pointer;
+      transition: color .18s ease, background .18s ease, box-shadow .18s ease, transform .14s ease;
     }
-    .add-button svg { width: 1.5rem; height: 1.5rem; }
-    .add-button:hover { color: #fff; background: var(--accent); }
-    .add-button:active { transform: scale(.94); }
+    .add-button:hover {
+      color: #fff; background: var(--accent);
+      box-shadow: 0 0.5rem 1.125rem rgba(8,119,201,.32); transform: translateY(-0.0625rem);
+    }
+    .add-button:active { transform: scale(.94); box-shadow: 0 0.125rem 0.375rem rgba(8,119,201,.24); }
+    .add-button svg { width: 50%; height: 50%; stroke-width: 2.4; }
     /* 售罄沿用既有纯图形方案：白雾 + 禁止圆牌，不增加售罄文字。 */
     .sold-out-veil { position: absolute; inset: 0; z-index: 3; display: none; background: rgba(247,251,253,.72); }
     .sold-out-mark {
@@ -188,7 +209,12 @@
     .product-card.is-sold-out .sold-out-veil { display: block; }
     .product-card.is-sold-out .product-image { filter: grayscale(1); opacity: .42; }
     .product-card.is-sold-out .product-name, .product-card.is-sold-out .product-price { color: var(--muted); }
-    .product-card.is-sold-out .add-button { color: #9aaab5; border-color: #d5dfe6; background: #f2f5f7; }
+    .product-card.is-sold-out .add-button,
+    .product-card.is-sold-out .add-button:hover,
+    .product-card.is-sold-out .add-button:active {
+      color: #aabdc9; border-color: #bccbd6; background: #f2f6f9;
+      box-shadow: none; transform: none; cursor: default;
+    }
     .product-card.is-sold-out .promotion-tag { color: #8295a2; background: #eef2f5; }
 
     /* 底栏：分页在左，购物车胶囊在右，不遮挡商品。 */
@@ -196,29 +222,66 @@
       display: flex; flex: 0 0 7rem; align-items: center; justify-content: space-between;
       gap: 1rem; padding: 1rem var(--page-x); border-top: 0.0625rem solid #e2ebf1; background: #fff;
     }
-    .pagination { display: flex; align-items: center; gap: 0.5rem; min-width: 0; }
-    .page-button {
-      display: grid; place-items: center; width: 3rem; height: 3rem; min-width: 44px; min-height: 44px;
-      padding: 0; border: 0.0625rem solid #d7e5ef; border-radius: 0.75rem; color: #45657b; background: #fff; cursor: pointer;
+    /* 复用 packaged.html 分页控件：2.75rem × 2.625rem、渐变底、蓝色渐变选中态 */
+    .pagination { display: flex; align-items: center; justify-content: center; gap: 0.625rem; min-width: 0; color: var(--text-2); font-size: 0.8125rem; }
+    .page-numbers { display: inline-flex; align-items: center; gap: 0.625rem; }
+    .page-nav, .page-number {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 2.75rem; height: 2.625rem; padding: 0 0.875rem;
+      border: 0.0625rem solid #c6dbe8; border-radius: 0.75rem;
+      color: var(--accent-dark); background: linear-gradient(180deg, #ffffff, #f2f8fc);
+      box-shadow: 0 0.1875rem 0.5rem rgba(24,66,96,.09), inset 0 0.0625rem 0 #fff;
+      font-size: 0.9375rem; font-weight: 750; font-variant-numeric: tabular-nums; line-height: 1;
+      cursor: pointer;
+      transition: color .16s ease, background .16s ease, border-color .16s ease, box-shadow .16s ease, transform .16s ease;
     }
-    .page-button svg { width: 1.25rem; height: 1.25rem; }
-    .page-button.current { color: #fff; border-color: var(--accent); background: var(--accent); font-weight: 750; }
-    .page-button:disabled { color: #b6c4ce; border-color: #e7edf1; background: #f7f9fa; }
-    .page-summary { margin-left: 0.5rem; color: var(--text-2); font-size: 0.875rem; white-space: nowrap; }
+    .page-nav:hover:not(:disabled), .page-number:hover:not(.active) {
+      border-color: var(--accent); color: var(--accent); transform: translateY(-0.125rem);
+      box-shadow: 0 0.5625rem 1.125rem rgba(8,119,201,.2);
+    }
+    .page-nav:active:not(:disabled), .page-number:active:not(.active) { transform: translateY(0); box-shadow: 0 0.125rem 0.375rem rgba(8,119,201,.14); }
+    .page-number.active {
+      border-color: transparent; color: #fff;
+      background: linear-gradient(135deg, #2f95da, #0e6bad);
+      box-shadow: 0 0.5rem 1.25rem rgba(8,119,201,.32), inset 0 0.0625rem 0 rgba(255,255,255,.28);
+    }
+    .page-nav:disabled { opacity: .38; cursor: not-allowed; box-shadow: none; background: #f5f9fc; }
+    .page-nav svg { width: 1.125rem; height: 1.125rem; }
+    .page-summary { margin-left: 0.875rem; color: var(--text-2); font-size: 0.875rem; white-space: nowrap; }
     .page-summary strong { color: #35566e; font-weight: 700; }
-    .cart-button {
-      display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; gap: 0.75rem;
-      min-width: 13rem; min-height: 44px; height: 4rem; padding: 0 1.5rem; border: 0; border-radius: 62.4375rem;
-      color: #fff; background: var(--accent); font-size: 1.125rem; font-weight: 750; cursor: pointer;
-      box-shadow: 0 0.5rem 1.25rem rgba(8,120,206,.18);
+    /* 复用 packaged.html .open-cart-button + .cart-count（含 badge/pulse 加购反馈动效） */
+    .open-cart-button {
+      display: inline-flex; flex: 0 0 auto; align-items: center; gap: 0.625rem;
+      min-height: 3.25rem; padding: 0 1.5rem; border: 0; border-radius: 62.4375rem;
+      color: #fff; background: var(--accent); box-shadow: 0 0.5rem 1.25rem rgba(8,119,201,.22);
+      font-size: 1.25rem; font-weight: 700; letter-spacing: .01em; cursor: pointer;
     }
-    .cart-button svg { width: 1.5rem; height: 1.5rem; }
+    .open-cart-button svg { width: 1.3125rem; height: 1.3125rem; }
     .cart-count {
-      display: grid; place-items: center; min-width: 2rem; height: 2rem; padding: 0 0.5rem;
-      border-radius: 62.4375rem; color: var(--accent-dark); background: #fff; font-size: 1rem; font-weight: 800;
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 1.8125rem; height: 1.8125rem; padding: 0 0.5rem;
+      border-radius: 62.4375rem; color: var(--accent-dark); background: #fff;
+      font-size: 0.9375rem; font-weight: 800;
     }
-    .cart-button.bump { animation: cart-bump .24s ease; }
-    @keyframes cart-bump { 50% { transform: scale(1.035); } }
+    .open-cart-button .cart-count { min-width: 1.75rem; height: 1.75rem; font-size: 1rem; color: var(--accent); }
+    @keyframes cart-badge-blink {
+      0%   { transform: scale(1);    box-shadow: 0 0 0 0 rgba(255,255,255,.85); }
+      16%  { transform: scale(1.45); box-shadow: 0 0 0 0.4rem rgba(255,255,255,.72); }
+      34%  { transform: scale(1);    box-shadow: 0 0 0 0.52rem rgba(255,255,255,0); }
+      54%  { transform: scale(1.3);  box-shadow: 0 0 0 0.32rem rgba(255,255,255,.62); }
+      72%  { transform: scale(1);    box-shadow: 0 0 0 0.46rem rgba(255,255,255,0); }
+      100% { transform: scale(1);    box-shadow: 0 0 0 0 rgba(255,255,255,0); }
+    }
+    @keyframes cart-button-pulse {
+      0%   { transform: scale(1);    box-shadow: 0 0.5rem 1.25rem rgba(8,119,201,.22), 0 0 0 0 rgba(8,119,201,.5); }
+      35%  { transform: scale(1.045); box-shadow: 0 0.75rem 1.75rem rgba(8,119,201,.3), 0 0 0 0.5rem rgba(8,119,201,.26); }
+      100% { transform: scale(1);    box-shadow: 0 0.5rem 1.25rem rgba(8,119,201,.22), 0 0 0 1.5rem rgba(8,119,201,0); }
+    }
+    .cart-count.is-bumping { animation: cart-badge-blink .72s cubic-bezier(.36,.07,.19,.97) 1 both; }
+    .open-cart-button.is-bumping { animation: cart-button-pulse .78s ease-out 1; }
+    @media (prefers-reduced-motion: reduce) {
+      .cart-count.is-bumping, .open-cart-button.is-bumping { animation: none; }
+    }
 
     /* 购物车抽屉 */
     .drawer-layer { position: fixed; inset: 0; z-index: 100; visibility: hidden; pointer-events: none; }
@@ -232,47 +295,85 @@
       box-shadow: 0 -1rem 3rem rgba(13,45,66,.16); transform: translate(-50%,102%); transition: transform .28s ease;
     }
     .drawer-layer.open .cart-sheet { transform: translate(-50%,0); }
-    .sheet-header { display: flex; flex: 0 0 6rem; align-items: center; justify-content: space-between; padding: 0 2rem; border-bottom: 0.0625rem solid #e5edf2; }
-    .sheet-title { display: flex; align-items: center; gap: 0.75rem; margin: 0; font-size: 1.75rem; font-weight: 800; }
-    .sheet-title span { color: var(--text-2); font-size: 1rem; font-weight: 600; }
-    .sheet-close { display: grid; place-items: center; width: 3rem; height: 3rem; min-width: 44px; min-height: 44px; border: 0.0625rem solid #dce7ee; border-radius: 50%; color: #45657b; background: #fff; cursor: pointer; }
-    .sheet-close svg { width: 1.25rem; height: 1.25rem; }
-    .cart-items { display: flex; flex: 1 1 auto; flex-direction: column; gap: 0.75rem; min-height: 0; padding: 1.25rem 2rem; overflow-y: auto; }
-    .cart-row { display: grid; grid-template-columns: 5.5rem minmax(0,1fr) auto auto; align-items: center; gap: 1.25rem; padding: 1rem; border: 0.0625rem solid #e3ecf2; border-radius: 1rem; }
-    .cart-thumb { width: 5.5rem; height: 5.5rem; object-fit: contain; }
-    .cart-product-name { margin: 0 0 0.375rem; font-size: 1.125rem; font-weight: 700; line-height: 1.35; }
-    .cart-unit { color: var(--text-2); font-size: 0.9375rem; }
-    .quantity-stepper { display: flex; align-items: center; gap: 0.75rem; }
-    .quantity-button { display: grid; place-items: center; width: 2.75rem; height: 2.75rem; min-width: 44px; min-height: 44px; border: 0.0625rem solid #cfdee8; border-radius: 50%; color: var(--accent-dark); background: #fff; font-size: 1.375rem; cursor: pointer; }
+    /* 复用 packaged.html 购物车面板：深蓝头部、条目字号、合计与结算按钮 */
+    .cart-header {
+      display: flex; flex: 0 0 6.25rem; align-items: center; justify-content: space-between;
+      padding: 0 2.375rem; color: #fff; background: var(--accent-dark);
+    }
+    .cart-title { display: flex; align-items: center; gap: 0.8125rem; margin: 0; font-size: 1.625rem; font-weight: 720; }
+    .cart-title > svg { width: 1.6875rem; height: 1.6875rem; }
+    .close-cart { display: inline-flex; align-items: center; justify-content: center; width: 2.5rem; height: 2.5rem; padding: 0; border: 0; color: #fff; background: transparent; cursor: pointer; }
+    .close-cart svg { width: 1.625rem; height: 1.625rem; }
+    .cart-items { display: flex; flex: 1 1 auto; flex-direction: column; min-height: 0; padding: 0; overflow-y: auto; scroll-behavior: smooth; }
+    .cart-item {
+      display: grid; grid-template-columns: 9.375rem minmax(0,1fr) auto; align-items: center;
+      gap: 0.75rem 1.5rem; padding: 0.875rem 2.375rem; border-bottom: 0.0625rem solid #edf1f4;
+    }
+    .cart-thumb { width: 9.36rem; height: 9.36rem; aspect-ratio: 1; object-fit: contain; border-radius: 0; background: transparent; filter: drop-shadow(0 0.25rem 0.5rem rgba(24,58,84,.12)); }
+    .cart-item-main { min-width: 0; }
+    .cart-item-name { display: flex; align-items: center; gap: 0.625rem; margin: 0 0 0.5625rem; font-size: 1.375rem; font-weight: 750; line-height: 1.25; }
+    .cart-item-title { display: -webkit-box; min-width: 0; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow-wrap: anywhere; line-break: strict; }
+    .cart-item-variant { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: 0; color: var(--text-2); font-size: 1.0625rem; line-height: 1.45; }
+    .cart-item-qty { flex: none; padding: 0.125rem 0.5rem; border-radius: 62.4375rem; color: var(--accent-dark); background: #eaf2fa; font-size: 0.875rem; font-weight: 800; line-height: 1.3; white-space: nowrap; }
+    .cart-item-tail { display: flex; flex-direction: row; align-items: center; gap: 1.125rem; }
+    .cart-item-price { font-size: 1.625rem; font-weight: 750; letter-spacing: -.01em; white-space: nowrap; }
+    /* 竖屏保留数量增减：按钮沿用横屏 .remove-item 的 3.5rem / .875rem / #f2f6f9 规格 */
+    .quantity-stepper { display: flex; align-items: center; gap: 0.5rem; }
+    .quantity-button {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 3.5rem; height: 3.5rem; border: 0; border-radius: 0.875rem;
+      color: #4c6172; background: #f2f6f9; font-size: 1.75rem; cursor: pointer;
+      transition: background .16s ease, color .16s ease;
+    }
+    .quantity-button:hover { color: var(--accent); background: #e3edf6; }
+    .quantity-button:active { background: #d7e5f1; }
     .quantity-value { min-width: 1.5rem; text-align: center; font-size: 1.125rem; font-weight: 750; font-variant-numeric: tabular-nums; }
-    .cart-subtotal { min-width: 6rem; color: var(--accent-dark); font-size: 1.25rem; font-weight: 800; text-align: right; }
+    .remove-item { display: inline-flex; align-items: center; justify-content: center; width: 3.5rem; height: 3.5rem; padding: 0; border: 0; border-radius: 0.875rem; color: #4c6172; background: #f2f6f9; cursor: pointer; transition: background .16s ease, color .16s ease; }
+    .remove-item:hover { color: var(--accent); background: #e3edf6; }
+    .remove-item:active { background: #d7e5f1; }
+    .remove-item svg { width: 1.75rem; height: 1.75rem; }
     .cart-empty { display: flex; flex: 1; flex-direction: column; align-items: center; justify-content: center; gap: 0.75rem; color: var(--text-2); text-align: center; }
     .cart-empty svg { width: 4rem; height: 4rem; color: #a9c2d2; }
     .cart-empty strong { color: #35566e; font-size: 1.375rem; }
-    .cart-footer { flex: 0 0 auto; padding: 1.25rem 2rem 1.5rem; border-top: 0.0625rem solid #e5edf2; background: #fbfdfe; }
-    .cart-total-row { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 1rem; }
-    .cart-total-row span { color: var(--text-2); font-size: 1rem; }
-    .cart-total-row strong { color: var(--accent-dark); font-size: 2rem; font-weight: 850; }
-    .checkout-button { display: flex; align-items: center; justify-content: center; gap: 0.75rem; width: 100%; min-height: 44px; height: 3.75rem; border: 0; border-radius: 0.875rem; color: #fff; background: var(--accent); font-size: 1.25rem; font-weight: 750; cursor: pointer; }
+    .cart-footer { flex: 0 0 auto; padding: 1.5625rem 2.375rem 2.125rem; border-top: 0.0625rem solid var(--border); background: #fff; }
+    .cart-total-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.4375rem; }
+    .cart-total-label { font-size: 1.1875rem; font-weight: 650; }
+    .cart-total { font-size: 2.125rem; font-weight: 800; letter-spacing: -.02em; }
+    .checkout-button { display: flex; align-items: center; justify-content: center; gap: 1.125rem; width: 100%; min-height: 4rem; border: 0; border-radius: 62.4375rem; color: #fff; background: var(--accent); font-size: 1.0625rem; font-weight: 700; cursor: pointer; }
+    .checkout-button:hover { background: var(--accent-dark); }
     .checkout-button:disabled { color: #93a5b2; background: #e5edf2; }
-    .checkout-button svg { width: 1.375rem; height: 1.375rem; }
+    .checkout-button svg { width: 1.3125rem; height: 1.3125rem; }
 
     /* 帮助弹窗 */
+    /* 复用 payment.html 帮助弹窗：卡片宽度/内边距、标题、信息行、二维码与确认按钮字号 */
     .help-layer { position: fixed; inset: 0; z-index: 120; display: none; align-items: center; justify-content: center; padding: 2rem; }
     .help-layer.open { display: flex; }
-    .help-backdrop { position: absolute; inset: 0; background: rgba(13,45,66,.42); }
-    .help-card { position: relative; width: min(42rem, 100%); max-height: 90dvh; overflow-y: auto; padding: 2rem; border-radius: 1.5rem; background: #fff; box-shadow: 0 1.5rem 4rem rgba(13,45,66,.2); }
-    .help-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; }
-    .help-header h2 { margin: 0 0 0.375rem; font-size: 1.75rem; }
-    .help-header p { margin: 0; color: var(--text-2); font-size: 1rem; line-height: 1.5; }
-    .help-details { display: grid; grid-template-columns: 1fr 12rem; gap: 1.5rem; align-items: center; }
-    .help-list { margin: 0; }
-    .help-list div { padding: 0.875rem 0; border-bottom: 0.0625rem solid #edf2f5; }
-    .help-list dt { margin-bottom: 0.25rem; color: var(--text-2); font-size: 0.875rem; }
-    .help-list dd { margin: 0; color: #294c65; font-size: 1.0625rem; font-weight: 650; overflow-wrap: anywhere; }
-    .help-qr { width: 12rem; height: 12rem; padding: 0.625rem; border: 0.0625rem solid #dfeaf1; border-radius: 1rem; background: #fff; }
+    .help-backdrop { position: absolute; inset: 0; background: rgba(6,28,45,.46); }
+    .help-card {
+      position: relative; width: min(58rem, 100%); max-height: calc(100vh - 4rem); max-height: calc(100dvh - 4rem);
+      overflow: auto; padding: 1.875rem 2.25rem 1.75rem; border-radius: 1.375rem;
+      background: var(--surface); box-shadow: 0 1.75rem 4rem rgba(8,38,60,.34);
+    }
+    .help-header { display: flex; align-items: flex-start; gap: 1.125rem; margin-bottom: 0; }
+    .help-icon { display: flex; flex: 0 0 auto; align-items: center; justify-content: center; width: 3rem; height: 3rem; border-radius: 50%; color: var(--accent); background: var(--accent-weak); }
+    .help-icon svg { width: 1.75rem; height: 1.75rem; }
+    .help-heading { flex: 1 1 auto; min-width: 0; padding-top: 0.125rem; }
+    .help-heading h2 { margin: 0; font-size: 1.5rem; font-weight: 750; line-height: 1.25; }
+    .help-heading p { margin: 0.4375rem 0 0; color: var(--text-2); font-size: 0.9375rem; line-height: 1.55; }
+    .help-close { flex: 0 0 auto; width: 2.375rem; height: 2.375rem; border: 0; border-radius: 50%; color: #5d7285; background: #eff4f8; font-size: 1rem; line-height: 1; cursor: pointer; }
+    .help-close:hover { color: var(--text); background: #e2ebf2; }
+    .help-details { display: grid; grid-template-columns: minmax(0,1fr) 11.5rem; gap: 1.75rem; margin-top: 1.5rem; align-items: stretch; }
+    .help-details > div:last-child { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.75rem; padding: 0.5rem 0.5rem 0.75rem; border: 0.0625rem solid #e6eef4; border-radius: 0.875rem; background: #f6fafd; }
+    .help-list { display: flex; flex-direction: column; gap: 0.4375rem; margin: 0; }
+    .help-list div { display: grid; grid-template-columns: 5.75rem minmax(0,1fr); align-items: baseline; gap: 0.875rem; padding: 0.625rem 0.9375rem; border: 0; border-radius: 0.6875rem; background: #f5f9fc; }
+    .help-list dt { margin: 0; color: #728799; font-size: 0.8125rem; font-weight: 650; letter-spacing: .04em; }
+    .help-list dd { margin: 0; color: var(--text); font-size: 1.0625rem; font-weight: 650; font-variant-numeric: tabular-nums; word-break: break-all; }
+    .help-qr { display: grid; place-items: center; width: 100%; max-width: 10rem; aspect-ratio: 1; margin: 0 auto; padding: 0.375rem; border: 0.0625rem solid #e6eef4; border-radius: 0.5rem; background: #fff; }
     .help-qr img, .help-qr canvas { display: block; width: 100% !important; height: 100% !important; }
-    .help-qr-caption { margin: 0.625rem 0 0; color: var(--text-2); font-size: 0.8125rem; text-align: center; }
+    .help-qr-caption { margin: 0.75rem 0 0; color: #5a7083; font-size: 0.75rem; font-weight: 650; line-height: 1.5; text-align: center; }
+    .help-actions { display: flex; justify-content: center; margin-top: 1.375rem; }
+    .help-done { width: min(20rem, 100%); min-height: 3.375rem; border: 0; border-radius: 62.4375rem; color: #fff; background: var(--accent); font-size: 1.0625rem; font-weight: 700; cursor: pointer; }
+    .help-done:hover { background: var(--accent-dark); }
 
     .toast { position: fixed; left: 50%; bottom: 8rem; z-index: 160; max-width: calc(100% - 4rem); padding: 0.875rem 1.25rem; border-radius: 62.4375rem; color: #fff; background: rgba(16,45,67,.94); font-size: 1rem; line-height: 1.4; text-align: center; opacity: 0; pointer-events: none; transform: translate(-50%,.75rem); transition: opacity .18s ease, transform .18s ease; }
     .toast.show { opacity: 1; transform: translate(-50%,0); }
@@ -280,6 +381,12 @@
     .orientation-guard svg { width: 4rem; height: 4rem; color: var(--accent); }
     .orientation-guard strong { font-size: 1.5rem; }
     .orientation-guard p { margin: 0; color: var(--text-2); }
+    /* 小尺寸整体缩放时保底 44 CSS px 触控热区；设计画布下不触发 */
+    @media (max-width: 1000px) {
+      .header-button, .language-button, .language-option, .page-nav, .page-number,
+      .open-cart-button, .quantity-button, .remove-item, .help-close, .help-done, .close-cart { min-height: 44px; }
+      .page-nav, .page-number, .quantity-button, .remove-item, .help-close, .close-cart { min-width: 44px; }
+    }
     @media (orientation: landscape) { .orientation-guard { display: flex; } }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; } }
   </style>
@@ -310,20 +417,20 @@
       <div class="brand" aria-label="Fuji Electric"><span class="brand-mark">FE</span><span class="brand-name">Fuji Electric</span></div>
       <div class="header-actions">
         <button class="header-button" id="helpButton" type="button" data-i18n-aria="helpAria" aria-label="打开帮助">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.7 9a2.4 2.4 0 1 1 3.5 2.15c-.75.4-1.2.85-1.2 1.85M12 17h.01"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.8 9a2.3 2.3 0 1 1 3.3 2.1c-.8.4-1.1.9-1.1 1.9M12 16.8h.01"/></svg>
           <span data-i18n="help">帮助</span>
         </button>
         <div class="language-picker" id="languagePicker">
-          <button class="header-button" id="languageButton" type="button" aria-haspopup="listbox" aria-expanded="false" data-i18n-aria="languageMenu" aria-label="语言">
+          <button class="language-button" id="languageButton" type="button" aria-haspopup="listbox" aria-expanded="false" data-i18n-aria="languageMenu" aria-label="语言">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
             <span id="languageLabel">简体中文</span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m7 9 5 5 5-5"/></svg>
+            <svg class="caret" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m7 9 5 5 5-5"/></svg>
           </button>
           <div class="language-menu" id="languageMenu" role="listbox" data-i18n-aria="languageMenu" aria-label="语言">
-            <button class="language-option" type="button" role="option" data-set-language="zh">简体中文</button>
-            <button class="language-option" type="button" role="option" data-set-language="en">English</button>
-            <button class="language-option" type="button" role="option" data-set-language="ja">日本語</button>
-            <button class="language-option" type="button" role="option" data-set-language="ko">한국어</button>
+            <button class="language-option" type="button" role="option" data-set-language="zh"><span class="lang-flag" aria-hidden="true">&#127464;&#127475;</span>简体中文</button>
+            <button class="language-option" type="button" role="option" data-set-language="en"><span class="lang-flag" aria-hidden="true">&#127482;&#127480;</span>English</button>
+            <button class="language-option" type="button" role="option" data-set-language="ja"><span class="lang-flag" aria-hidden="true">&#127471;&#127477;</span>日本語</button>
+            <button class="language-option" type="button" role="option" data-set-language="ko"><span class="lang-flag" aria-hidden="true">&#127472;&#127479;</span>한국어</button>
           </div>
         </div>
       </div>
@@ -354,14 +461,14 @@
 
     <footer class="bottom-bar">
       <nav class="pagination" data-i18n-aria="paginationAria" aria-label="商品分页">
-        <button class="page-button" id="pagePrev" type="button" data-i18n-aria="prevPage" aria-label="上一页"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></button>
-        <div class="pagination" id="pageNumbers"></div>
-        <button class="page-button" id="pageNext" type="button" data-i18n-aria="nextPage" aria-label="下一页"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+        <button class="page-nav" id="pagePrev" type="button" data-i18n-aria="prevPage" aria-label="上一页"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></button>
+        <div class="page-numbers" id="pageNumbers"></div>
+        <button class="page-nav" id="pageNext" type="button" data-i18n-aria="nextPage" aria-label="下一页"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
         <span class="page-summary"><strong id="pageSummary">1 / 3</strong> · <span id="productCount">26 件商品</span></span>
       </nav>
-      <button class="cart-button" id="cartButton" type="button" data-i18n-aria="cartOpen" aria-label="打开购物车">
+      <button class="open-cart-button" id="cartButton" type="button" data-i18n-aria="cartOpen" aria-label="打开购物车">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 4h2l2.2 11.2a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 2-1.6L20 8H6M10 21h.01M17 21h.01"/></svg>
-        <span data-i18n="cart">购物车</span><span class="cart-count" data-cart-count>0</span>
+        <span data-i18n="cart">购物车</span> <span class="cart-count" data-cart-count>0</span>
       </button>
     </footer>
   </main>
@@ -369,9 +476,12 @@
   <div class="drawer-layer" id="cartLayer" aria-hidden="true">
     <div class="drawer-backdrop" id="cartBackdrop"></div>
     <section class="cart-sheet" role="dialog" aria-modal="true" aria-labelledby="cartTitle">
-      <header class="sheet-header">
-        <h2 class="sheet-title" id="cartTitle"><span data-i18n="cart" style="color:inherit;font-size:inherit;font-weight:inherit">购物车</span><span id="cartTitleCount">0 件商品</span></h2>
-        <button class="sheet-close" id="cartClose" type="button" data-i18n-aria="cartClose" aria-label="关闭购物车"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+      <header class="cart-header">
+        <h2 class="cart-title" id="cartTitle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 4h2l2.2 11.2a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 2-1.6L20 8H6M10 21h.01M17 21h.01"/></svg>
+          <span data-i18n="cart">购物车</span> <span class="cart-count" data-cart-count>0</span>
+        </h2>
+        <button class="close-cart" id="cartClose" type="button" data-i18n-aria="cartClose" aria-label="关闭购物车"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
       </header>
       <div class="cart-items" id="cartItems"></div>
       <div class="cart-empty" id="cartEmpty">
@@ -379,7 +489,7 @@
         <strong data-i18n="emptyCart">购物车中还没有商品</strong><span data-i18n="emptyHint">点击商品右下角「＋」即可添加。</span>
       </div>
       <footer class="cart-footer">
-        <div class="cart-total-row"><span id="cartTotalLabel">合计（0 件）</span><strong id="cartTotal">¥0</strong></div>
+        <div class="cart-total-row"><span class="cart-total-label" id="cartTotalLabel">合计（0 件）</span><strong class="cart-total" id="cartTotal">¥0</strong></div>
         <button class="checkout-button" id="checkoutButton" type="button" disabled><span data-i18n="checkout">去结算</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 12h15M14 7l5 5-5 5"/></svg></button>
       </footer>
     </section>
@@ -389,8 +499,14 @@
     <div class="help-backdrop" id="helpBackdrop"></div>
     <section class="help-card" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
       <header class="help-header">
-        <div><h2 id="helpTitle" data-i18n="helpTitle">需要帮助？</h2><p data-i18n="helpDesc">如需协助，请联系设备服务人员。</p></div>
-        <button class="sheet-close" id="helpClose" type="button" data-i18n-aria="close" aria-label="关闭"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+        <div class="help-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.2"/><path d="M9.6 9.2a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1.1.9-1.1 1.7v.3"/><path d="M12 17.1h.01"/></svg>
+        </div>
+        <div class="help-heading">
+          <h2 id="helpTitle" data-i18n="helpTitle">需要帮助？</h2>
+          <p data-i18n="helpDesc">如需协助，请联系设备服务人员。</p>
+        </div>
+        <button class="help-close" id="helpClose" type="button" data-i18n-aria="close" aria-label="关闭">✕</button>
       </header>
       <div class="help-details">
         <dl class="help-list">
@@ -399,8 +515,12 @@
           <div><dt data-i18n="supportPhone">客服电话</dt><dd>800-1234-5678</dd></div>
           <div><dt data-i18n="supportEmail">客服邮箱</dt><dd>service@fuji.example.com</dd></div>
         </dl>
-        <div><div class="help-qr" id="helpQr" role="img" data-i18n-aria="qrAria" aria-label="服务支持二维码"></div><p class="help-qr-caption" data-i18n="scanSupport">扫码打开服务支持</p></div>
+        <div>
+          <div class="help-qr" id="helpQr" role="img" data-i18n-aria="qrAria" aria-label="服务支持二维码"></div>
+          <p class="help-qr-caption" data-i18n="scanSupport">扫码打开服务支持</p>
+        </div>
       </div>
+      <div class="help-actions"><button class="help-done" id="helpDone" type="button" data-i18n="helpDone">我知道了</button></div>
     </section>
   </div>
 
@@ -424,6 +544,7 @@
         checkoutPending: "竖屏支付流程将在下一步接入。", emptyCart: "购物车中还没有商品", emptyHint: "点击商品右下角「＋」即可添加。",
         added: "已将{name}加入购物车。", addAria: "将{name}加入购物车", soldOut: "商品已售罄", promotion: "促销", originalPrice: "原价 {price}",
         decrease: "减少{name}数量", increase: "增加{name}数量", unitPrice: "单价 {price}", subtotal: "{name}小计 {price}",
+        remove: "从购物车移除{name}", helpDone: "我知道了",
         helpTitle: "需要帮助？", helpDesc: "如需协助，请联系设备服务人员。", machineId: "设备编号", currentTime: "当前时间",
         supportPhone: "客服电话", supportEmail: "客服邮箱", scanSupport: "扫码打开服务支持", qrAria: "服务支持二维码", close: "关闭",
         rotateTitle: "请竖屏使用", rotateText: "本界面为 10 寸竖屏布局，请将设备旋转至纵向后使用。"
@@ -437,6 +558,7 @@
         checkoutPending: "Portrait checkout will be connected in the next step.", emptyCart: "Your cart is empty", emptyHint: "Tap + on a product to add it.",
         added: "{name} added to cart.", addAria: "Add {name} to cart", soldOut: "Sold out", promotion: "Sale", originalPrice: "Original price {price}",
         decrease: "Decrease {name} quantity", increase: "Increase {name} quantity", unitPrice: "Unit price {price}", subtotal: "{name} subtotal {price}",
+        remove: "Remove {name} from cart", helpDone: "Got it",
         helpTitle: "Need help?", helpDesc: "Contact the machine service team for assistance.", machineId: "Machine ID", currentTime: "Current time",
         supportPhone: "Service phone", supportEmail: "Service email", scanSupport: "Scan for service support", qrAria: "Service support QR code", close: "Close",
         rotateTitle: "Use portrait orientation", rotateText: "This interface is designed for a 10-inch portrait display. Rotate the device to continue."
@@ -450,6 +572,7 @@
         checkoutPending: "縦画面の決済フローは次のステップで接続します。", emptyCart: "カートに商品がありません", emptyHint: "商品の「＋」から追加してください。",
         added: "{name}をカートに追加しました。", addAria: "{name}をカートに追加", soldOut: "売り切れ", promotion: "セール", originalPrice: "通常価格 {price}",
         decrease: "{name}の数量を減らす", increase: "{name}の数量を増やす", unitPrice: "単価 {price}", subtotal: "{name}の小計 {price}",
+        remove: "{name}をカートから削除", helpDone: "わかりました",
         helpTitle: "お困りですか？", helpDesc: "ご不明な点は設備サービス担当者までご連絡ください。", machineId: "マシン ID", currentTime: "現在時刻",
         supportPhone: "サービス電話", supportEmail: "サービスメール", scanSupport: "スキャンしてサポートを開く", qrAria: "サポート用 QR コード", close: "閉じる",
         rotateTitle: "縦画面でご利用ください", rotateText: "この画面は 10 インチ縦向き専用です。端末を回転してご利用ください。"
@@ -463,6 +586,7 @@
         checkoutPending: "세로 화면 결제는 다음 단계에서 연결됩니다.", emptyCart: "장바구니가 비어 있습니다", emptyHint: "상품의 ＋ 버튼을 눌러 추가하세요.",
         added: "{name}을(를) 장바구니에 담았습니다.", addAria: "{name} 장바구니에 추가", soldOut: "품절", promotion: "할인", originalPrice: "정가 {price}",
         decrease: "{name} 수량 줄이기", increase: "{name} 수량 늘리기", unitPrice: "단가 {price}", subtotal: "{name} 소계 {price}",
+        remove: "{name} 장바구니에서 삭제", helpDone: "확인",
         helpTitle: "도움이 필요하세요?", helpDesc: "기기 서비스 담당자에게 문의하세요.", machineId: "기기 ID", currentTime: "현재 시간",
         supportPhone: "서비스 전화", supportEmail: "서비스 이메일", scanSupport: "QR 코드를 스캔해 지원 열기", qrAria: "서비스 지원 QR 코드", close: "닫기",
         rotateTitle: "세로 화면으로 이용하세요", rotateText: "이 화면은 10인치 세로형 레이아웃입니다. 기기를 세로로 돌려 주세요."
@@ -548,6 +672,7 @@
 
     const PLUS_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
     const BAN_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="m6 6 12 12"/></svg>';
+    const TRASH_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M7 7l1 14h8l1-14M10 11v6M14 11v6"/></svg>';
 
     function productCard(product) {
       const soldOut = state.soldOut.has(product.id);
@@ -578,7 +703,7 @@
       document.getElementById("pageNext").disabled = state.page >= total;
       document.getElementById("pageNumbers").innerHTML = Array.from({ length: total }, (_, index) => {
         const page = index + 1;
-        return `<button class="page-button${page === state.page ? " current" : ""}" type="button" data-page="${page}" aria-label="${escapeHTML(t("pageNumber", { n: page }))}" ${page === state.page ? 'aria-current="page"' : ""}>${page}</button>`;
+        return `<button class="page-number${page === state.page ? " active" : ""}" type="button" data-page="${page}" aria-label="${escapeHTML(t("pageNumber", { n: page }))}" ${page === state.page ? 'aria-current="page"' : ""}>${page}</button>`;
       }).join("");
       document.getElementById("pageSummary").textContent = t("pageOf", { current: state.page, total });
       document.getElementById("productCount").textContent = t("items", { n: filteredProducts().length });
@@ -595,7 +720,6 @@
     function renderCart() {
       const quantity = cartQuantity();
       document.querySelectorAll("[data-cart-count]").forEach(element => { element.textContent = quantity; });
-      document.getElementById("cartTitleCount").textContent = t("items", { n: quantity });
       document.getElementById("cartTotalLabel").textContent = t("cartTotal", { n: quantity });
       document.getElementById("cartTotal").textContent = yen(cartTotal());
       document.getElementById("checkoutButton").disabled = quantity === 0;
@@ -605,12 +729,18 @@
         const product = PRODUCTS.find(item => item.id === id);
         if (!product) return "";
         const name = productName(product);
-        return `<div class="cart-row" data-cart-row="${id}">
-          <img class="cart-thumb" src="${product.image}" alt="" width="88" height="88">
-          <div><p class="cart-product-name">${escapeHTML(name)}</p><span class="cart-unit">${t("unitPrice", { price: yen(product.price) })}</span></div>
-          <div class="quantity-stepper"><button class="quantity-button" type="button" data-cart-action="decrease" data-id="${id}" aria-label="${escapeHTML(t("decrease", { name }))}">−</button><span class="quantity-value" aria-label="${itemQuantity}">${itemQuantity}</span><button class="quantity-button" type="button" data-cart-action="increase" data-id="${id}" aria-label="${escapeHTML(t("increase", { name }))}">+</button></div>
-          <strong class="cart-subtotal" aria-label="${escapeHTML(t("subtotal", { name, price: yen(product.price * itemQuantity) }))}">${yen(product.price * itemQuantity)}</strong>
-        </div>`;
+        return `<article class="cart-item" data-cart-row="${id}">
+          <img class="cart-thumb" src="${product.image}" alt="" width="150" height="150">
+          <div class="cart-item-main">
+            <h3 class="cart-item-name"><span class="cart-item-title" title="${escapeHTML(name)}">${escapeHTML(name)}</span></h3>
+            <p class="cart-item-variant">${escapeHTML(t("unitPrice", { price: yen(product.price) }))}${itemQuantity > 1 ? `<span class="cart-item-qty">× ${itemQuantity}</span>` : ""}</p>
+          </div>
+          <div class="cart-item-tail">
+            <div class="quantity-stepper"><button class="quantity-button" type="button" data-cart-action="decrease" data-id="${id}" aria-label="${escapeHTML(t("decrease", { name }))}">−</button><span class="quantity-value" aria-label="${itemQuantity}">${itemQuantity}</span><button class="quantity-button" type="button" data-cart-action="increase" data-id="${id}" aria-label="${escapeHTML(t("increase", { name }))}">+</button></div>
+            <span class="cart-item-price" aria-label="${escapeHTML(t("subtotal", { name, price: yen(product.price * itemQuantity) }))}">${yen(product.price * itemQuantity)}</span>
+            <button class="remove-item" type="button" data-cart-remove="${id}" aria-label="${escapeHTML(t("remove", { name }))}">${TRASH_ICON}</button>
+          </div>
+        </article>`;
       }).join("");
       saveCart();
     }
@@ -621,7 +751,11 @@
       document.querySelectorAll("[data-i18n-aria]").forEach(element => { element.setAttribute("aria-label", t(element.dataset.i18nAria)); });
       document.querySelectorAll("[data-i18n-alt]").forEach(element => { element.setAttribute("alt", t(element.dataset.i18nAlt)); });
       document.getElementById("languageLabel").textContent = LANGUAGE_NAMES[state.language];
-      document.querySelectorAll("[data-set-language]").forEach(button => button.setAttribute("aria-selected", String(button.dataset.setLanguage === state.language)));
+      document.querySelectorAll("[data-set-language]").forEach(button => {
+        const active = button.dataset.setLanguage === state.language;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-selected", String(active));
+      });
       updateTime();
     }
 
@@ -652,7 +786,10 @@
       state.cart.set(product.id, Math.min(99, (state.cart.get(product.id) || 0) + 1));
       renderCart();
       const button = document.getElementById("cartButton");
-      button.classList.remove("bump"); void button.offsetWidth; button.classList.add("bump");
+      const badges = document.querySelectorAll("[data-cart-count]");
+      button.classList.remove("is-bumping"); badges.forEach(badge => badge.classList.remove("is-bumping"));
+      void button.offsetWidth;
+      button.classList.add("is-bumping"); badges.forEach(badge => badge.classList.add("is-bumping"));
       showToast(t("added", { name: productName(product) }));
     }
 
@@ -663,9 +800,13 @@
       renderCart();
     }
 
-    function openCart() { lastFocus = document.activeElement; cartLayer.classList.add("open"); cartLayer.setAttribute("aria-hidden", "false"); document.getElementById("cartClose").focus(); }
-    function closeCart() { cartLayer.classList.remove("open"); cartLayer.setAttribute("aria-hidden", "true"); lastFocus?.focus?.(); }
-    function setLanguageMenu(open) { languageMenu.classList.toggle("open", open); document.getElementById("languageButton").setAttribute("aria-expanded", String(open)); }
+    function openCart() { lastFocus = document.activeElement; cartLayer.classList.add("open"); cartLayer.setAttribute("aria-hidden", "false"); document.getElementById("cartButton").style.visibility = "hidden"; document.getElementById("cartClose").focus(); }
+    function closeCart() { cartLayer.classList.remove("open"); cartLayer.setAttribute("aria-hidden", "true"); document.getElementById("cartButton").style.visibility = ""; lastFocus?.focus?.(); }
+    function setLanguageMenu(open) {
+      document.getElementById("languagePicker").classList.toggle("open", open);
+      languageMenu.classList.toggle("open", open);
+      document.getElementById("languageButton").setAttribute("aria-expanded", String(open));
+    }
 
     function updateTime() {
       const locale = { zh:"zh-CN", en:"en-GB", ja:"ja-JP", ko:"ko-KR" }[state.language];
@@ -705,14 +846,17 @@
     document.getElementById("cartClose").addEventListener("click", closeCart);
     document.getElementById("cartBackdrop").addEventListener("click", closeCart);
     document.getElementById("cartItems").addEventListener("click", event => {
+      const remove = event.target.closest("[data-cart-remove]");
+      if (remove) { state.cart.delete(Number(remove.dataset.cartRemove)); renderCart(); return; }
       const button = event.target.closest("[data-cart-action]");
       if (button) changeQuantity(Number(button.dataset.id), button.dataset.cartAction === "increase" ? 1 : -1);
     });
     document.getElementById("checkoutButton").addEventListener("click", () => { if (cartQuantity()) showToast(t("checkoutPending")); });
     document.getElementById("helpButton").addEventListener("click", openHelp);
     document.getElementById("helpClose").addEventListener("click", closeHelp);
+    document.getElementById("helpDone").addEventListener("click", closeHelp);
     document.getElementById("helpBackdrop").addEventListener("click", closeHelp);
-    document.getElementById("languageButton").addEventListener("click", () => setLanguageMenu(!languageMenu.classList.contains("open")));
+    document.getElementById("languageButton").addEventListener("click", () => setLanguageMenu(!document.getElementById("languagePicker").classList.contains("open")));
     languageMenu.addEventListener("click", event => { const button = event.target.closest("[data-set-language]"); if (button) setLanguage(button.dataset.setLanguage); });
     document.addEventListener("click", event => { if (!document.getElementById("languagePicker").contains(event.target)) setLanguageMenu(false); });
     document.addEventListener("keydown", event => {
