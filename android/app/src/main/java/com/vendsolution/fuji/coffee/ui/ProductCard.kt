@@ -4,6 +4,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -54,6 +55,8 @@ import com.vendsolution.fuji.coffee.design.ssp
 fun ProductCard(
     product: Product,
     modifier: Modifier = Modifier,
+    onAdd: () -> Unit = {},
+    onCustomize: () -> Unit = {},
 ) {
     val soldOut = product.soldOut
     val shape = RoundedCornerShape(FujiDimens.CARD_RADIUS.sdp())
@@ -88,6 +91,7 @@ fun ProductCard(
                 .fillMaxWidth(0.90f)
                 .fillMaxHeight(0.96f)
                 .align(Alignment.BottomCenter)
+                .clickable(enabled = !soldOut, onClick = onCustomize)
             val imageRes = product.imageRes
             if (imageRes != null) {
                 Image(
@@ -162,7 +166,12 @@ fun ProductCard(
                 Spacer(Modifier.height(7.sdp()))
                 PriceRow(product, soldOut)
             }
-            AddOrBanButton(soldOut, Modifier.size(FujiDimens.ADD_BUTTON_SIZE.sdp()))
+            AddOrBanButton(
+                soldOut,
+                Modifier
+                    .size(FujiDimens.ADD_BUTTON_SIZE.sdp())
+                    .clickable(enabled = !soldOut, onClick = onAdd),
+            )
         }
     }
 }

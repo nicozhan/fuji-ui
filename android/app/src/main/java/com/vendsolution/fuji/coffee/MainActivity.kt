@@ -6,8 +6,10 @@ import androidx.activity.compose.setContent
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import com.vendsolution.fuji.coffee.data.AppScreen
+import com.vendsolution.fuji.coffee.data.AppState
 import com.vendsolution.fuji.coffee.design.FujiCoffeeTheme
-import com.vendsolution.fuji.coffee.ui.ProductGridScreen
+import com.vendsolution.fuji.coffee.ui.AppRoot
 
 /**
  * 横屏咖啡商品展示页入口。
@@ -21,9 +23,14 @@ class MainActivity : ComponentActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         hideSystemBars()
 
+        // 调试入口：adb shell am start -n com.vendsolution.fuji.coffee/.MainActivity -e screen PAYMENT
+        intent.getStringExtra("screen")?.let { name ->
+            runCatching { AppScreen.valueOf(name) }.onSuccess { AppState.setInitialScreen(it) }
+        }
+
         setContent {
             FujiCoffeeTheme {
-                ProductGridScreen()
+                AppRoot()
             }
         }
     }

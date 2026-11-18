@@ -1,6 +1,7 @@
 package com.vendsolution.fuji.coffee.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -17,6 +18,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.vendsolution.fuji.coffee.data.AppState
 import com.vendsolution.fuji.coffee.data.ProductCatalog
 import com.vendsolution.fuji.coffee.design.DesignSpec
 import com.vendsolution.fuji.coffee.design.FujiCoffeeTheme
@@ -60,9 +62,13 @@ fun ProductGridScreen() {
                 CartPill(
                     Modifier
                         .align(Alignment.BottomEnd)
-                        .padding(end = 24.sdp(), bottom = 20.sdp()),
+                        .padding(end = 24.sdp(), bottom = 20.sdp())
+                        .clickable { AppState.cartOpen = true },
                 )
             }
+
+            if (AppState.cartOpen) CartDrawer()
+            if (AppState.customizeProductId != null) CustomizationDrawer()
         }
     }
 }
@@ -93,7 +99,12 @@ private fun ProductStage(modifier: Modifier = Modifier) {
                     for (col in 0 until 3) {
                         val item = items.getOrNull(row * 3 + col)
                         if (item != null) {
-                            ProductCard(item, Modifier.weight(1f).fillMaxHeight())
+                            ProductCard(
+                                item,
+                                Modifier.weight(1f).fillMaxHeight(),
+                                onAdd = { AppState.addToCart(item) },
+                                onCustomize = { AppState.customizeProductId = item.id },
+                            )
                         } else {
                             Spacer(Modifier.weight(1f).fillMaxHeight())
                         }

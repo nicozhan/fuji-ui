@@ -3,6 +3,16 @@
 本目录（`android/`）是一个**自包含、可直接交付研发**的独立 Gradle 工程，
 与仓库根目录的 Web 原型版本线（`v3.x.x`）互不混用。
 
+## android-v0.3.0
+
+- **范围**：完成全部 7 个横屏咖啡页面（1920×1080 设计画布，10 寸横屏设备），单 Activity + Compose 页面路由
+- **页面**：`WELCOME` 欢迎页（3 张海报 5 秒轮播 + 7 语言）、`PRODUCTS` 商品页（真实图 + 加购/定制抽屉/购物车抽屉/售罄）、`PAYMENT` 支付方式（订单摘要 + 帮助弹窗 + 返回确认）、`QR_PAYMENT` 扫码支付（三渠道 + 真实二维码 + 90 秒倒计时 + 结果层）、`PREPARATION` 制作中（每杯 5 秒、做好即停、取走下一杯、末杯回首页）、`OUT_OF_SERVICE` 暂停服务（3 秒自检后停机 + 恢复入口）、`SETUP` 设备设置（s10/m21/l27 档位 + 自定义宽高）
+- **架构**：`data/AppState.kt` 集中管理订单、购物车、语言、设备档位、支付状态；`ui/AppRoot.kt` 统一路由；`ui/DesignFrame.kt` 统一 1920×1080 缩放。后续可平滑替换为 Repository + ViewModel
+- **调试**：任意页面点左上角 `FE` 打开调试浮窗，可直接跳转 7 页；也支持 `adb shell am start -n com.vendsolution.fuji.coffee/.MainActivity -e screen PAYMENT`
+- **新增素材**：`welcome_slide_1..3.jpg`、`payment_methods.jpg`、`payment_methods_square.jpg`，全部来自用户指定目录；二维码用 ZXing 3.5.3 实时生成，非图片素材
+- **验证**：`./gradlew assembleDebug` 通过；1920×1080 模拟器逐页截图 `preview/v0.3.0/`、总览 `preview/android-v0.3.0-all-pages.png`；加购 → 购物车抽屉交互实测通过
+- **版本**：`versionCode=3`，`versionName=0.3.0`；回滚 `git checkout android-v0.2.0`
+
 ## android-v0.2.0
 
 - **变更**：接入用户提供的真实素材，移除首版占位图

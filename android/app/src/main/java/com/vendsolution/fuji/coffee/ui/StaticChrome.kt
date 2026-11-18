@@ -137,14 +137,7 @@ fun MainHeader(modifier: Modifier = Modifier) {
             .padding(horizontal = 34.sdp()),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(
-            text = "FE",
-            color = FujiColor.Accent,
-            fontSize = 31.ssp(),
-            fontStyle = FontStyle.Italic,
-            fontWeight = FontWeight.W900,
-            letterSpacing = (-3.7f).ssp(),
-        )
+        BrandMark(size = 31)
         Spacer(Modifier.width(10.sdp()))
         Text(
             "Fuji Electric",
