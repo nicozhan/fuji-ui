@@ -17,8 +17,8 @@ enum class Temperature(val label: String) {
 }
 
 /**
- * 商品图占位配色。本期不引入任何图片素材，杯型由 Compose Canvas 绘制；
- * 后续拿到真实商品图时，把资源放进 res/drawable 并填写 [Product.imageRes] 即可。
+ * 商品图占位配色。真实图由 [Product.imageRes] 提供，本枚举仅作无图时的兜底；
+ * 杯型由 Compose Canvas 绘制，不作为素材使用。
  */
 enum class CupStyle(
     val bottom: Color,
@@ -38,7 +38,7 @@ enum class CupStyle(
 /**
  * 商品数据模型。
  *
- * @param imageRes 真实商品图资源 ID；为 null 时渲染 [CupPlaceholder] 占位杯型。
+ * @param imageRes 真实商品图资源 ID（见 [ProductImages]）；为 null 时渲染 [CupPlaceholder] 占位杯型。
  * @param showStrikePrice 是否显示划线原价（Web 稿中由调试开关控制，默认关闭）。
  */
 data class Product(

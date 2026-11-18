@@ -7,7 +7,7 @@ package com.vendsolution.fuji.coffee.data
  * 调试入口：
  * - 修改 [DEMO_SOLD_OUT_IDS] 可切换售罄商品；
  * - 修改 [FIRST_PAGE] 的取数即可调整本页展示件数；
- * - 拿到真实商品图后，给对应 Product 填 `imageRes = R.drawable.xxx`。
+ * - 商品图资源见 [ProductImages]，替换 res/drawable-nodpi/pXX.ext 即可换图。
  */
 object ProductCatalog {
 
@@ -62,6 +62,7 @@ object ProductCatalog {
             tag = spec.tag,
             soldOut = spec.id in DEMO_SOLD_OUT_IDS,
             cup = CUP_CYCLE[(spec.id - 1) % CUP_CYCLE.size],
+            imageRes = ProductImages.resFor(spec.id),
         )
     }
 

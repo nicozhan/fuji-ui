@@ -3,6 +3,17 @@
 本目录（`android/`）是一个**自包含、可直接交付研发**的独立 Gradle 工程，
 与仓库根目录的 Web 原型版本线（`v3.x.x`）互不混用。
 
+## android-v0.2.0
+
+- **变更**：接入用户提供的真实素材，移除首版占位图
+- **素材来源**：`/Users/qian2/Downloads/coffee/assets`（用户指定）；同时把该目录文件恢复进 Web 原型的 `assets/`，工作区已无未提交删除
+- **商品图**：27 件商品按 id 映射到 `res/drawable-nodpi/p01…p27`，新增 `data/ProductImages.kt` 作为换图入口；首屏 6 件分别为美式 / 焦糖玛奇朵 / 冰拿铁 / 冰摩卡 / 意式浓缩 / 冰澳白
+- **广告位**：`AdSidebar` 改用 `ad-poster-1.jpg`（848×1855，与 Web 同一张海报），删除原 Canvas 咖啡杯剪影与文案占位
+- **售罄态**：真实图同时做 `ColorMatrix.setToSaturation(0)` 灰度处理，白雾与禁止圆牌规格不变
+- **兜底**：`Product.imageRes == null` 时仍渲染 `CupPlaceholder`，便于单件商品缺图时调试
+- **验证**：`./gradlew assembleDebug` 通过；1920×1080 模拟器实跑截图见 `preview/android-v0.2.0.png`，无系统栏、无裁切、六卡三态正常
+- **回滚**：`git checkout android-v0.2.0` 回到本版；`git checkout android-v0.1.0` 回到占位图首版
+
 ## android-v0.1.0
 
 - **范围**：横屏 1920 × 1080 咖啡商品展示页，仅商品网格卡片（图 / 名 / 价 / 促销 / 售罄）

@@ -1,6 +1,7 @@
 package com.vendsolution.fuji.coffee.ui
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -28,6 +29,10 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.TextStyle
@@ -79,14 +84,28 @@ fun ProductCard(
                 .fillMaxHeight(FujiDimens.CARD_MEDIA_RATIO)
                 .align(Alignment.TopCenter),
         ) {
-            CupPlaceholder(
-                product = product,
-                soldOut = soldOut,
-                modifier = Modifier
-                    .fillMaxWidth(0.90f)
-                    .fillMaxHeight(0.96f)
-                    .align(Alignment.BottomCenter),
-            )
+            val imageModifier = Modifier
+                .fillMaxWidth(0.90f)
+                .fillMaxHeight(0.96f)
+                .align(Alignment.BottomCenter)
+            val imageRes = product.imageRes
+            if (imageRes != null) {
+                Image(
+                    painter = painterResource(imageRes),
+                    contentDescription = product.name,
+                    modifier = imageModifier,
+                    contentScale = ContentScale.Fit,
+                    colorFilter = if (soldOut) {
+                        ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0f) })
+                    } else null,
+                )
+            } else {
+                CupPlaceholder(
+                    product = product,
+                    soldOut = soldOut,
+                    modifier = imageModifier,
+                )
+            }
             product.tag?.let { tag ->
                 PromoBadge(
                     tag = tag,

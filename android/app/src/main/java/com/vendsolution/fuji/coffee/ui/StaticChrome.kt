@@ -1,6 +1,7 @@
 package com.vendsolution.fuji.coffee.ui
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -29,8 +30,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import com.vendsolution.fuji.coffee.R
 import com.vendsolution.fuji.coffee.data.ProductCatalog
 import com.vendsolution.fuji.coffee.design.FujiColor
 import com.vendsolution.fuji.coffee.design.FujiDimens
@@ -208,126 +212,37 @@ private fun CategoryNav() {
     }
 }
 
-/** 广告位占位：不引入图片素材，待后续提供海报后替换本组件内容。 */
+/** 广告位：使用用户提供的 ad-poster-1.jpg，与 index.html 同一张海报、同一比例。 */
 @Composable
 fun AdSidebar(modifier: Modifier = Modifier) {
-    Box(
-        modifier
-            .fillMaxHeight()
-            .background(
-                Brush.verticalGradient(
-                    listOf(FujiColor.AdPlaceholderTop, FujiColor.AdPlaceholderBottom),
-                ),
-            )
-            .padding(start = 26.sdp(), top = 34.sdp(), end = 26.sdp(), bottom = 26.sdp()),
-    ) {
-        // 装饰圆，纯代码绘制
-        Canvas(Modifier.fillMaxSize()) {
-            drawCircle(
-                color = Color(0x22FFFFFF),
-                radius = size.width * 0.72f,
-                center = Offset(size.width * 0.95f, size.height * 0.72f),
-            )
-        }
-        Column(Modifier.fillMaxSize()) {
+    Box(modifier.fillMaxHeight()) {
+        Image(
+            painter = painterResource(R.drawable.ad_poster_1),
+            contentDescription = "精选咖啡广告",
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop,
+        )
+        // 轮播指示点：本期静态，仅还原视觉
+        Row(
+            Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 18.sdp()),
+            horizontalArrangement = Arrangement.spacedBy(8.sdp()),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             Box(
                 Modifier
+                    .size(width = 22.sdp(), height = 8.sdp())
                     .clip(CircleShape)
-                    .background(Color.White)
-                    .padding(horizontal = 14.sdp(), vertical = 7.sdp()),
-            ) {
-                Text(
-                    "FUJI SELECTION · AD",
-                    color = FujiColor.AccentDark,
-                    fontSize = 13.ssp(),
-                    fontWeight = FontWeight.W800,
-                )
-            }
-            Spacer(Modifier.height(38.sdp()))
-            Text(
-                "精选咖啡\n体验",
-                color = FujiColor.AccentDeep,
-                fontSize = 44.ssp(),
-                fontWeight = FontWeight.W800,
-                lineHeight = 52.ssp(),
+                    .background(Color.White),
             )
-            Spacer(Modifier.height(16.sdp()))
-            Text(
-                "香醇一杯，特别时刻。",
-                color = FujiColor.TextSecondary,
-                fontSize = 20.ssp(),
-                fontWeight = FontWeight.W500,
-            )
-            Spacer(Modifier.weight(1f))
-            CoffeeCupSilhouette(
+            Box(
                 Modifier
-                    .fillMaxWidth(0.72f)
-                    .height(300.sdp())
-                    .align(Alignment.CenterHorizontally),
+                    .size(8.sdp())
+                    .clip(CircleShape)
+                    .background(Color(0x80FFFFFF)),
             )
-            Spacer(Modifier.weight(1f))
-            Row(
-                Modifier.align(Alignment.CenterHorizontally),
-                horizontalArrangement = Arrangement.spacedBy(8.sdp()),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Box(
-                    Modifier
-                        .size(width = 22.sdp(), height = 8.sdp())
-                        .clip(CircleShape)
-                        .background(Color.White),
-                )
-                Box(
-                    Modifier
-                        .size(8.sdp())
-                        .clip(CircleShape)
-                        .background(Color(0x80FFFFFF)),
-                )
-            }
         }
-    }
-}
-
-@Composable
-private fun CoffeeCupSilhouette(modifier: Modifier = Modifier) {
-    Canvas(modifier) {
-        val w = size.width
-        val h = size.height
-        val cx = w / 2f
-        val cupTop = h * 0.30f
-        val cupBottom = h * 0.88f
-        val cupHalf = w * 0.34f
-        val cup = Path().apply {
-            moveTo(cx - cupHalf, cupTop)
-            lineTo(cx + cupHalf, cupTop)
-            lineTo(cx + cupHalf * 0.78f, cupBottom)
-            lineTo(cx - cupHalf * 0.78f, cupBottom)
-            close()
-        }
-        drawPath(cup, color = Color(0xFFFDFEFF))
-        drawOval(
-            color = Color(0xFFC58A54),
-            topLeft = Offset(cx - cupHalf * 0.92f, cupTop - h * 0.015f),
-            size = Size(cupHalf * 1.84f, h * 0.10f),
-        )
-        drawOval(
-            color = Color(0x66FFFFFF),
-            topLeft = Offset(cx - cupHalf * 0.34f, cupTop + h * 0.01f),
-            size = Size(cupHalf * 0.68f, h * 0.055f),
-        )
-        // 杯托
-        drawOval(
-            color = Color(0xFFFDFEFF).copy(alpha = 0.90f),
-            topLeft = Offset(cx - w * 0.46f, cupBottom - h * 0.02f),
-            size = Size(w * 0.92f, h * 0.11f),
-        )
-        // 把手
-        drawCircle(
-            color = Color.White,
-            radius = w * 0.12f,
-            center = Offset(cx + cupHalf * 1.05f, cupTop + (cupBottom - cupTop) * 0.42f),
-            style = Stroke(width = w * 0.055f),
-        )
     }
 }
 
