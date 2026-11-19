@@ -11,10 +11,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -121,19 +123,29 @@ fun QrPaymentScreen() {
         ) {
             Text("应付 ¥$total", color = FujiColor.Text, fontSize = 36.ssp(), fontWeight = FontWeight(800))
             Spacer(Modifier.height(20.sdp()))
-            Row(
-                Modifier.weight(1f),
-                horizontalArrangement = Arrangement.spacedBy(28.sdp()),
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                contentAlignment = Alignment.TopCenter,
             ) {
-                // 左侧：支付渠道图 + 三渠道选择
-                Column(
+                // 左右两框等宽，在 1500 设计像素内居中分布
+                Row(
                     Modifier
-                        .weight(1.06f)
-                        .clip(RoundedCornerShape(22.sdp()))
-                        .background(Color.White)
-                        .border(1.sdp(), FujiColor.Border, RoundedCornerShape(22.sdp()))
-                        .padding(20.sdp()),
+                        .fillMaxHeight()
+                        .widthIn(max = 1500.sdp()),
+                    horizontalArrangement = Arrangement.spacedBy(28.sdp()),
                 ) {
+                    // 左侧：支付渠道图 + 三渠道选择
+                    Column(
+                        Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .clip(RoundedCornerShape(22.sdp()))
+                            .background(Color.White)
+                            .border(1.sdp(), FujiColor.Border, RoundedCornerShape(22.sdp()))
+                            .padding(20.sdp()),
+                    ) {
                     Image(
                         painter = painterResource(R.drawable.payment_methods),
                         contentDescription = "支付方式",
@@ -168,10 +180,11 @@ fun QrPaymentScreen() {
                     }
                 }
 
-                // 右侧：二维码与状态
+                // 右侧：二维码与状态（与左框等高等宽）
                 Box(
                     Modifier
                         .weight(1f)
+                        .fillMaxHeight()
                         .clip(RoundedCornerShape(22.sdp()))
                         .background(Color.White)
                         .border(1.sdp(), FujiColor.Border, RoundedCornerShape(22.sdp()))
@@ -217,6 +230,7 @@ fun QrPaymentScreen() {
                 }
             }
         }
+    }
     }
 
     when (state) {

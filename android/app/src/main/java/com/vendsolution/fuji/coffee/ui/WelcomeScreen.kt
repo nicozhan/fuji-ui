@@ -6,7 +6,9 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -39,14 +41,15 @@ private val SLIDES = listOf(
     R.drawable.welcome_slide_3,
 )
 
+/** 语言项：与 Web welcome.html 一致，每语配国旗 emoji（flag 在名称上方）。 */
 private val LANGUAGES = listOf(
-    "ja" to "日本語",
-    "zh" to "中文",
-    "en" to "English",
-    "ko" to "한국어",
-    "fr" to "Français",
-    "vi" to "Tiếng Việt",
-    "th" to "ไทย",
+    Triple("ja", "日本語", "🇯🇵"),
+    Triple("zh", "中文", "🇨🇳"),
+    Triple("en", "English", "🇺🇸"),
+    Triple("ko", "한국어", "🇰🇷"),
+    Triple("fr", "Français", "🇫🇷"),
+    Triple("vi", "Tiếng Việt", "🇻🇳"),
+    Triple("th", "ไทย", "🇹🇭"),
 )
 
 /** 欢迎页：3 张海报 5 秒轮播，7 语言平铺，点任意区域进入商品页。 */
@@ -93,38 +96,47 @@ fun WelcomeScreen() {
             )
         }
 
-        // 7 语言按钮：bottom 7%，gap 20，点击即保存语言并跳页
-        Row(
+        // 7 语言按钮：与开始按钮同为 left 10.5%（start=202），纵向国旗 + 名称，
+        // 规格对应 welcome.html 的 .welcome-tools / .language-button
+        Column(
             Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 76.sdp()),
-            horizontalArrangement = Arrangement.spacedBy(20.sdp()),
+                .align(Alignment.BottomStart)
+                .padding(start = 202.sdp(), bottom = 76.sdp()),
         ) {
-            LANGUAGES.forEach { (code, label) ->
-                val active = AppState.language == code
-                Box(
-                    Modifier
-                        .width(120.sdp())
-                        .height(78.sdp())
-                        .clip(RoundedCornerShape(13.sdp()))
-                        .border(
-                            1.sdp(),
-                            if (active) Color(0xFF075B9E) else Color(0xD1FFFFFF),
-                            RoundedCornerShape(13.sdp()),
+            Row(horizontalArrangement = Arrangement.spacedBy(16.sdp())) {
+                LANGUAGES.forEach { (code, label, flag) ->
+                    val active = AppState.language == code
+                    Column(
+                        Modifier
+                            .width(132.sdp())
+                            .height(108.sdp())
+                            .clip(RoundedCornerShape(13.sdp()))
+                            .border(
+                                1.sdp(),
+                                if (active) Color(0xFF075B9E) else Color(0xD1FFFFFF),
+                                RoundedCornerShape(13.sdp()),
+                            )
+                            .background(if (active) Color(0xE0075B9E) else Color(0xB8FFFFFF))
+                            .clickable {
+                                AppState.language = code
+                                AppState.navigate(AppScreen.PRODUCTS)
+                            },
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                    ) {
+                        Text(
+                            flag,
+                            color = if (active) Color.White else Color(0xFF17384E),
+                            fontSize = 26.ssp(),
                         )
-                        .background(if (active) Color(0xE0075B9E) else Color(0xB8FFFFFF))
-                        .clickable {
-                            AppState.language = code
-                            AppState.navigate(AppScreen.PRODUCTS)
-                        },
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        label,
-                        color = if (active) Color.White else Color(0xFF17384E),
-                        fontSize = 14.ssp(),
-                        fontWeight = FontWeight(600),
-                    )
+                        Spacer(Modifier.height(4.sdp()))
+                        Text(
+                            label,
+                            color = if (active) Color.White else Color(0xFF17384E),
+                            fontSize = 14.ssp(),
+                            fontWeight = FontWeight(600),
+                        )
+                    }
                 }
             }
         }

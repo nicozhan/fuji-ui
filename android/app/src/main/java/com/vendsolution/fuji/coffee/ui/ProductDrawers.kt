@@ -1,5 +1,8 @@
 package com.vendsolution.fuji.coffee.ui
 
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -12,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -21,6 +25,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -41,27 +46,54 @@ import com.vendsolution.fuji.coffee.design.FujiColor
 import com.vendsolution.fuji.coffee.design.sdp
 import com.vendsolution.fuji.coffee.design.ssp
 
-/** 购物车抽屉，对应 Web 的 #cartPanel。 */
+/** 购物车抽屉，对应 Web 的 #cartPanel：从右侧滑入，标题栏通栏，宽 668。 */
 @Composable
 fun CartDrawer() {
     Scrim(onDismiss = { AppState.cartOpen = false })
-    Row(Modifier.fillMaxSize()) {
-        Spacer(Modifier.weight(1f))
+
+    var entered by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { entered = true }
+    val offsetX by animateDpAsState(
+        targetValue = if (entered) 0.sdp() else 720.sdp(),
+        animationSpec = tween(280),
+        label = "cart-slide",
+    )
+
+    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.CenterEnd) {
         Column(
             Modifier
                 .fillMaxHeight()
-                .width(620.sdp())
-                .background(Color.White)
-                .padding(horizontal = 38.sdp()),
+                .width(668.sdp())
+                .offset(x = offsetX)
+                .background(Color.White),
         ) {
+            // 标题栏通栏（不受内容左右留白影响），内含 38 内边距
             Box(
                 Modifier
                     .fillMaxWidth()
                     .height(100.sdp())
-                    .background(FujiColor.AccentDark),
+                    .background(FujiColor.AccentDark)
+                    .padding(horizontal = 38.sdp()),
                 contentAlignment = Alignment.CenterStart,
             ) {
-                Text("购物车", color = Color.White, fontSize = 26.ssp(), fontWeight = FontWeight(720))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("购物车", color = Color.White, fontSize = 26.ssp(), fontWeight = FontWeight(720))
+                    Spacer(Modifier.width(14.sdp()))
+                    Box(
+                        Modifier
+                            .clip(CircleShape)
+                            .background(Color.White)
+                            .padding(horizontal = 12.sdp(), vertical = 4.sdp()),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            "${AppState.cartCount}",
+                            color = FujiColor.AccentDark,
+                            fontSize = 15.ssp(),
+                            fontWeight = FontWeight(800),
+                        )
+                    }
+                }
                 Text(
                     "✕",
                     modifier = Modifier
@@ -74,13 +106,19 @@ fun CartDrawer() {
                 )
             }
 
-            LazyColumn(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(16.sdp())) {
+            LazyColumn(
+                Modifier
+                    .weight(1f)
+                    .padding(horizontal = 38.sdp()),
+                verticalArrangement = Arrangement.spacedBy(12.sdp()),
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 20.sdp()),
+            ) {
                 items(AppState.cart, key = { it.product.id }) { item ->
                     CartItemRow(item.product, item.quantity)
                 }
             }
 
-            Column(Modifier.padding(vertical = 24.sdp())) {
+            Column(Modifier.padding(horizontal = 38.sdp(), vertical = 24.sdp())) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("合计", color = FujiColor.Text, fontSize = 22.ssp(), fontWeight = FontWeight(650))
                     Spacer(Modifier.weight(1f))
@@ -124,21 +162,24 @@ private fun CartItemRow(product: Product, quantity: Int) {
             Image(
                 painter = painterResource(res),
                 contentDescription = product.name,
-                modifier = Modifier.size(110.sdp()),
+                modifier = Modifier.size(122.sdp()),
                 contentScale = ContentScale.Fit,
             )
         }
-        Spacer(Modifier.width(18.sdp()))
+        Spacer(Modifier.width(14.sdp()))
         Column(Modifier.weight(1f)) {
-            Text(product.name, color = FujiColor.Text, fontSize = 22.ssp(), fontWeight = FontWeight(750))
-            Text("¥${product.priceYen} × $quantity", color = FujiColor.TextSecondary, fontSize = 17.ssp())
+            Text(product.name, color = FujiColor.Text, fontSize = 21.ssp(), fontWeight = FontWeight(750))
+            Spacer(Modifier.height(6.sdp()))
+            Text("¥${product.priceYen}", color = FujiColor.AccentDark, fontSize = 18.ssp(), fontWeight = FontWeight(700))
+            Text("数量 × $quantity", color = FujiColor.TextSecondary, fontSize = 15.ssp())
         }
+        Spacer(Modifier.width(10.sdp()))
         Box(
             Modifier
                 .clip(RoundedCornerShape(10.sdp()))
                 .background(Color(0xFFF2F6F9))
                 .clickable { AppState.removeFromCart(product.id) }
-                .padding(horizontal = 16.sdp(), vertical = 12.sdp()),
+                .padding(horizontal = 14.sdp(), vertical = 12.sdp()),
         ) {
             Text("移除", color = FujiColor.TextSecondary, fontSize = 15.ssp())
         }
@@ -150,7 +191,8 @@ private val SIZES = listOf("小杯" to "small", "中杯" to "medium", "大杯" t
 private val SWEETS = listOf("无糖" to "none", "少糖" to "less", "半糖" to "half", "标准" to "standard")
 private val MILKS = listOf("全脂" to "milk", "低脂" to "lowfat", "燕麦" to "oat", "豆奶" to "soy")
 
-/** 定制饮品抽屉，对应 Web 的 #customizationLayer。 */
+/** 定制饮品抽屉，对应 Web 的 #customizationLayer.
+ *  从屏幕下端向上滑入（translateY 105%→0，0.34s），背景页面仍可透出，不铺满。 */
 @Composable
 fun CustomizationDrawer() {
     val productId = AppState.customizeProductId ?: return
@@ -162,15 +204,37 @@ fun CustomizationDrawer() {
     var milk by remember(productId) { mutableStateOf("milk") }
     var quantity by remember(productId) { mutableIntStateOf(1) }
 
-    Scrim(onDismiss = { AppState.customizeProductId = null })
+    // 进入动画：从底部滑入 + 遮罩淡入
+    var entered by remember(productId) { mutableStateOf(false) }
+    LaunchedEffect(productId) { entered = true }
+    val scrimAlpha by animateFloatAsState(
+        targetValue = if (entered) 1f else 0f,
+        animationSpec = tween(300),
+        label = "custom-scrim",
+    )
+    val sheetOffset by animateDpAsState(
+        targetValue = if (entered) 0.sdp() else 900.sdp(),
+        animationSpec = tween(340),
+        label = "custom-slide",
+    )
+
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(Color(0xFF091C2A).copy(alpha = 0.44f * scrimAlpha))
+            .clickable { AppState.customizeProductId = null },
+    )
+
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
         Column(
             Modifier
                 .width(1240.sdp())
                 .height(820.sdp())
+                .offset(y = sheetOffset)
                 .clip(RoundedCornerShape(topStart = 32.sdp(), topEnd = 32.sdp()))
                 .background(Color.White),
         ) {
+            // 头：居中标题，右侧关闭；两侧留边
             Box(
                 Modifier
                     .fillMaxWidth()
@@ -191,6 +255,7 @@ fun CustomizationDrawer() {
                 )
             }
 
+            // 身：左侧商品 380 + 间距 56，右侧选项区；整体左右留白 64
             Row(
                 Modifier
                     .weight(1f)
@@ -209,7 +274,10 @@ fun CustomizationDrawer() {
                     Text(product.name, color = FujiColor.Text, fontSize = 28.ssp(), fontWeight = FontWeight(750))
                     Text("¥${product.priceYen}", color = FujiColor.Accent, fontSize = 26.ssp(), fontWeight = FontWeight(800))
                 }
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(18.sdp())) {
+                Column(
+                    Modifier.weight(1f),
+                    verticalArrangement = Arrangement.SpaceEvenly,
+                ) {
                     OptionRow("温度", TEMPERATURES, temperature) { temperature = it }
                     OptionRow("杯型", SIZES, size) { size = it }
                     OptionRow("甜度", SWEETS, sweetness) { sweetness = it }
@@ -217,6 +285,7 @@ fun CustomizationDrawer() {
                 }
             }
 
+            // 尾：数量 / 小计 / 加入订单，与 Web 的 .customization-footer 同高
             Row(
                 Modifier
                     .fillMaxWidth()
