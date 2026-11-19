@@ -2,6 +2,7 @@ package com.vendsolution.fuji.coffee.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -86,6 +87,33 @@ fun DebugDock() {
                 color = Color(0xB3FFFFFF),
                 fontSize = 11.ssp(),
             )
+            Spacer(Modifier.height(10.sdp()))
+            Text(
+                "扫码支付状态",
+                color = Color(0xB3FFFFFF),
+                fontSize = 11.ssp(),
+            )
+            Spacer(Modifier.height(6.sdp()))
+            Row(horizontalArrangement = Arrangement.spacedBy(6.sdp())) {
+                listOf(
+                    "等待" to "waiting",
+                    "成功" to "paid",
+                    "失败" to "failed",
+                ).forEach { (label, value) ->
+                    val active = AppState.paymentState == value
+                    Text(
+                        label,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(8.sdp()))
+                            .background(if (active) Color(0x55FFFFFF) else Color(0x14FFFFFF))
+                            .clickable { AppState.paymentState = value }
+                            .padding(horizontal = 10.sdp(), vertical = 7.sdp()),
+                        color = Color.White,
+                        fontSize = 11.ssp(),
+                        fontWeight = if (active) FontWeight(750) else FontWeight(500),
+                    )
+                }
+            }
         }
         Spacer(Modifier.width(8.sdp()))
         Text(

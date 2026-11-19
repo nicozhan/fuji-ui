@@ -4,6 +4,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,6 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -71,56 +73,6 @@ fun StatusBar(modifier: Modifier = Modifier) {
         Spacer(Modifier.width(12.sdp()))
         Text("联系电话 800-1234-5678", color = FujiColor.StatusText, fontSize = 13.ssp())
         Spacer(Modifier.weight(1f))
-
-        Row(
-            Modifier
-                .height(30.sdp())
-                .clip(CircleShape)
-                .background(Color.White)
-                .padding(horizontal = 12.sdp()),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(6.sdp()),
-        ) {
-            HomeGlyph(Modifier.size(13.sdp()))
-            Text("首页", color = FujiColor.AccentDeep, fontSize = 12.ssp(), fontWeight = FontWeight.W600)
-        }
-
-        Row(
-            Modifier
-                .height(30.sdp())
-                .clip(CircleShape)
-                .background(Color(0x1F000000))
-                .border(1.sdp(), Color(0x42FFFFFF), CircleShape)
-                .padding(horizontal = 8.sdp()),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.sdp()),
-        ) {
-            Box(
-                Modifier
-                    .size(width = 28.sdp(), height = 18.sdp())
-                    .clip(CircleShape)
-                    .background(Color.White),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text("DEMO", color = FujiColor.AccentDeep, fontSize = 10.ssp(), fontWeight = FontWeight.W800)
-            }
-            Box(
-                Modifier
-                    .size(width = 34.sdp(), height = 19.sdp())
-                    .clip(CircleShape)
-                    .background(FujiColor.Accent),
-                contentAlignment = Alignment.CenterEnd,
-            ) {
-                Box(
-                    Modifier
-                        .padding(end = 2.sdp())
-                        .size(15.sdp())
-                        .clip(CircleShape)
-                        .background(Color.White),
-                )
-            }
-            Text("ON", color = Color.White, fontSize = 12.ssp())
-        }
 
         Text("11月4日 23:40", color = FujiColor.StatusText, fontSize = 13.ssp())
         SignalGlyph(Modifier.size(width = 22.sdp(), height = 14.sdp()))
@@ -240,31 +192,85 @@ fun AdSidebar(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun PaginationBar(modifier: Modifier = Modifier) {
+fun PaginationBar(
+    page: Int,
+    shownCount: Int,
+    onPageChange: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val pages = ProductCatalog.TOTAL_PAGES
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .height(FujiDimens.PAGER_H.sdp()),
+            .height(FujiDimens.PAGER_H.sdp())
+            .padding(bottom = 6.sdp()),
         horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.Bottom,
     ) {
-        PageArrowButton(isPrev = true, disabled = true)
-        repeat(ProductCatalog.TOTAL_PAGES) { index ->
-            PageButton((index + 1).toString(), active = index == 0)
+        PageArrowButton(
+            isPrev = true,
+            disabled = page <= 0,
+            onClick = { onPageChange(page - 1) },
+        )
+        repeat(pages) { index ->
+            PageButton(
+                label = (index + 1).toString(),
+                active = index == page,
+                onClick = { onPageChange(index) },
+            )
         }
-        PageArrowButton(isPrev = false)
+        PageArrowButton(
+            isPrev = false,
+            disabled = page >= pages - 1,
+            onClick = { onPageChange(page + 1) },
+        )
         Spacer(Modifier.width(14.sdp()))
         Text(
-            "1 / ${ProductCatalog.TOTAL_PAGES}　${ProductCatalog.FIRST_PAGE.size} 件商品",
+            "${page + 1} / $pages　$shownCount 件商品",
             color = FujiColor.TextSecondary,
             fontSize = 14.ssp(),
         )
     }
 }
 
+/** 商品区左右两侧的圆形翻页条，对应 index.html 的 .slide-arrow。 */
+@Composable
+fun SlideArrow(
+    isNext: Boolean,
+    enabled: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier
+            .alpha(if (enabled) 1f else 0f)
+            .size(56.sdp())
+            .clip(CircleShape)
+            .background(
+                Brush.linearGradient(listOf(Color(0xFF2B8FD6), Color(0xFF0F6CB0))),
+            )
+            .border(1.sdp(), Color(0xB8FFFFFF), CircleShape)
+            .clickable(enabled = enabled, onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        Canvas(Modifier.size(24.sdp())) {
+            val c = center
+            val d = size.width * 0.22f
+            val sw = size.minDimension * 0.09f
+            if (isNext) {
+                drawLine(Color.White, Offset(c.x - d * 0.55f, c.y - d), Offset(c.x + d * 0.55f, c.y), sw, StrokeCap.Round)
+                drawLine(Color.White, Offset(c.x + d * 0.55f, c.y), Offset(c.x - d * 0.55f, c.y + d), sw, StrokeCap.Round)
+            } else {
+                drawLine(Color.White, Offset(c.x + d * 0.55f, c.y - d), Offset(c.x - d * 0.55f, c.y), sw, StrokeCap.Round)
+                drawLine(Color.White, Offset(c.x - d * 0.55f, c.y), Offset(c.x + d * 0.55f, c.y + d), sw, StrokeCap.Round)
+            }
+        }
+    }
+}
+
 /** 前后翻页箭头：用 Canvas 绘制 chevron，避免字体缺字 / 字号过小。 */
 @Composable
-private fun PageArrowButton(isPrev: Boolean, disabled: Boolean = false) {
+private fun PageArrowButton(isPrev: Boolean, disabled: Boolean = false, onClick: () -> Unit) {
     val tint = if (disabled) Color(0x9A075B9E) else FujiColor.AccentDark
     val stroke = 2.2f.sdp()
     val background = if (disabled) {
@@ -278,7 +284,8 @@ private fun PageArrowButton(isPrev: Boolean, disabled: Boolean = false) {
             .size(width = 44.sdp(), height = 42.sdp())
             .clip(RoundedCornerShape(12.sdp()))
             .background(background)
-            .border(1.sdp(), FujiColor.PageBorder, RoundedCornerShape(12.sdp())),
+            .border(1.sdp(), FujiColor.PageBorder, RoundedCornerShape(12.sdp()))
+            .clickable(enabled = !disabled, onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
         Canvas(Modifier.size(18.sdp())) {
@@ -301,6 +308,7 @@ private fun PageButton(
     label: String,
     active: Boolean = false,
     disabled: Boolean = false,
+    onClick: () -> Unit,
 ) {
     val background = when {
         disabled -> Brush.verticalGradient(listOf(Color(0xFFF5F9FC), Color(0xFFF5F9FC)))
@@ -319,7 +327,8 @@ private fun PageButton(
                 1.sdp(),
                 if (active) Color.Transparent else FujiColor.PageBorder,
                 RoundedCornerShape(12.sdp()),
-            ),
+            )
+            .clickable(enabled = !disabled, onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
         Text(
@@ -385,23 +394,6 @@ private fun DeviceGlyph(modifier: Modifier = Modifier) {
             Offset(size.width * 0.55f, size.height * 0.93f),
             strokeWidth = 2f,
         )
-    }
-}
-
-@Composable
-private fun HomeGlyph(modifier: Modifier = Modifier) {
-    Canvas(modifier) {
-        val p = Path().apply {
-            moveTo(size.width * 0.5f, size.height * 0.12f)
-            lineTo(size.width * 0.92f, size.height * 0.48f)
-            lineTo(size.width * 0.78f, size.height * 0.48f)
-            lineTo(size.width * 0.78f, size.height * 0.90f)
-            lineTo(size.width * 0.22f, size.height * 0.90f)
-            lineTo(size.width * 0.22f, size.height * 0.48f)
-            lineTo(size.width * 0.08f, size.height * 0.48f)
-            close()
-        }
-        drawPath(p, color = FujiColor.AccentDeep, style = Stroke(width = 1.6f))
     }
 }
 

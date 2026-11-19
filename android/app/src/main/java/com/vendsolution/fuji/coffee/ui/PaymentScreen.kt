@@ -11,10 +11,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -117,19 +119,33 @@ fun PaymentScreen() {
             }
 
             Spacer(Modifier.height(28.sdp()))
-            Row(horizontalArrangement = Arrangement.spacedBy(28.sdp())) {
-                PaymentCard(
-                    title = "扫码支付",
-                    subtitle = "微信 / 支付宝",
-                    imageRes = R.drawable.payment_methods_square,
-                    onClick = { AppState.selectedChannel = "alipay"; AppState.navigate(AppScreen.QR_PAYMENT) },
-                )
-                PaymentCard(
-                    title = "POS 机支付",
-                    subtitle = "请到收银台完成",
-                    imageRes = null,
-                    onClick = {},
-                )
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                contentAlignment = Alignment.TopCenter,
+            ) {
+                Row(
+                    Modifier
+                        .fillMaxHeight()
+                        .widthIn(max = 1400.sdp()),
+                    horizontalArrangement = Arrangement.spacedBy(28.sdp()),
+                ) {
+                    PaymentCard(
+                        title = "扫码支付",
+                        subtitle = "微信 / 支付宝",
+                        imageRes = R.drawable.payment_methods_square,
+                        onClick = { AppState.selectedChannel = "alipay"; AppState.navigate(AppScreen.QR_PAYMENT) },
+                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                    )
+                    PaymentCard(
+                        title = "POS 机支付",
+                        subtitle = "请到收银台完成",
+                        imageRes = null,
+                        onClick = {},
+                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                    )
+                }
             }
         }
     }
@@ -139,18 +155,27 @@ fun PaymentScreen() {
 }
 
 @Composable
-private fun PaymentCard(title: String, subtitle: String, imageRes: Int?, onClick: () -> Unit) {
+private fun PaymentCard(
+    title: String,
+    subtitle: String,
+    imageRes: Int?,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Column(
-        Modifier
-            .width(680.sdp())
-            .height(520.sdp())
+        modifier
             .clip(RoundedCornerShape(20.sdp()))
             .background(
                 Brush.verticalGradient(listOf(Color.White, Color(0xFFF8FBFD))),
             )
             .border(1.sdp(), FujiColor.Border, RoundedCornerShape(20.sdp()))
             .clickable(onClick = onClick)
-            .padding(28.sdp()),
+            .padding(
+                start = 36.sdp(),
+                top = 28.sdp(),
+                end = 36.sdp(),
+                bottom = 32.sdp(),
+            ),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(title, color = FujiColor.Text, fontSize = 26.ssp(), fontWeight = FontWeight(700))

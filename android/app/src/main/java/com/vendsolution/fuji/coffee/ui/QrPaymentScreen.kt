@@ -213,15 +213,6 @@ fun QrPaymentScreen() {
                             fontWeight = FontWeight(750),
                         )
                         Spacer(Modifier.height(12.sdp()))
-                        Row(horizontalArrangement = Arrangement.spacedBy(12.sdp())) {
-                            PillButton("模拟支付成功", {
-                                AppState.paymentState = "paid"
-                                AppState.newOrderId().let { }
-                            }, height = 48, fontSize = 14)
-                            PillButton("模拟失败", {
-                                AppState.paymentState = "failed"
-                            }, height = 48, fontSize = 14)
-                        }
                     }
                 }
             }
