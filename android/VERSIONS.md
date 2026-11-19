@@ -3,6 +3,16 @@
 本目录（`android/`）是一个**自包含、可直接交付研发**的独立 Gradle 工程，
 与仓库根目录的 Web 原型版本线（`v3.x.x`）互不混用。
 
+## android-v0.10.0
+
+本版三项改动，按用户确认执行：
+
+- **变更一｜logo 浮层支付方式快速切换**：任何页面点左上角 FE 品牌标弹出的浮窗，顶部新增醒目的「一种支付 / 两种支付 / 三种支付」大按钮（各带副标题「仅扫码 / 扫码+POS / 扫码+POS+现金」、当前高亮）。点选立即改 `AppState.paymentMethodCount` 并自动关闭浮窗；移除了原来埋在浮窗底部的三个小数字按钮。
+- **变更二｜手机支付改为现金支付**：`PaymentScreen.kt` 第三种支付方式由「手机支付 / 扫码唤起手机付款 / 开始支付」改为「现金支付 / 请到收银台付款 / 使用现金支付」；枚举 `PaymentGlyph.MOBILE`→`CASH`，图标改为 `CashPaymentGlyph`（Canvas 绘制钞票外框 + 中心圆 + ¥ + 两端印章圆）；`onClick` 为空实现（示意，不接真实流程）。
+- **变更三｜支付成功在二维码页原地切换**：去掉原全屏白底 `ResultOverlay`；`QrPaymentScreen.kt` 右侧白框内用 `Crossfade` + `when(panel)` 切换二维码面板 / 成功面板 / 失败面板，对应 Web `qr-payment.html` 的 `payment-state-panel` 同容器切换。页面框架（状态栏、Fuji Electric、四步进度条、应付金额、左框支付方式图）全程保留；paid 时进度条「开始制作」高亮打勾（对应 Web `updateProgress`）；1.4s 后自动跳制作页。新增调试入口：`adb shell am start ... --es screen QR_PAYMENT --es payState paid --es freezePaid 1` 可直达并冻结成功态便于截图（`freezePaid` 仅调试用，`clearSession` 会重置）。
+
+验证截图：`preview/v0.10.0/`（logo 支付切换、现金支付三卡、支付成功原地、支付失败原地）。
+
 ## android-v0.9.0
 
 本版对照 Web 原型（index / payment / qr-payment / preparation.html）集中修订 6 项：

@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import com.vendsolution.fuji.coffee.data.AppScreen
 import com.vendsolution.fuji.coffee.data.AppState
+import com.vendsolution.fuji.coffee.design.FujiColor
 import com.vendsolution.fuji.coffee.design.sdp
 import com.vendsolution.fuji.coffee.design.ssp
 
@@ -56,6 +57,39 @@ fun DebugDock() {
                 fontSize = 11.ssp(),
             )
             Spacer(Modifier.height(16.sdp()))
+            Text(
+                "支付方式（点击快速切换）",
+                color = Color.White,
+                fontSize = 13.ssp(),
+                fontWeight = FontWeight(750),
+            )
+            Spacer(Modifier.height(8.sdp()))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.sdp())) {
+                listOf(
+                    Triple(1, "一种支付", "仅扫码"),
+                    Triple(2, "两种支付", "扫码+POS"),
+                    Triple(3, "三种支付", "扫码+POS+现金"),
+                ).forEach { (count, label, hint) ->
+                    val active = AppState.paymentMethodCount == count
+                    Column(
+                        Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(10.sdp()))
+                            .background(if (active) FujiColor.Accent else Color(0x1AFFFFFF))
+                            .clickable {
+                                AppState.paymentMethodCount = count
+                                AppState.debugOpen = false
+                            }
+                            .padding(vertical = 10.sdp()),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Text(label, color = Color.White, fontSize = 12.ssp(), fontWeight = FontWeight(750))
+                        Spacer(Modifier.height(3.sdp()))
+                        Text(hint, color = Color(0xB3FFFFFF), fontSize = 9.ssp())
+                    }
+                }
+            }
+            Spacer(Modifier.height(16.sdp()))
             val items = listOf(
                 "欢迎页" to AppScreen.WELCOME,
                 "商品页（咖啡）" to AppScreen.PRODUCTS,
@@ -87,29 +121,6 @@ fun DebugDock() {
                 color = Color(0xB3FFFFFF),
                 fontSize = 11.ssp(),
             )
-            Spacer(Modifier.height(12.sdp()))
-            Text(
-                "支付方式数量",
-                color = Color(0xB3FFFFFF),
-                fontSize = 11.ssp(),
-            )
-            Spacer(Modifier.height(6.sdp()))
-            Row(horizontalArrangement = Arrangement.spacedBy(6.sdp())) {
-                listOf(1, 2, 3).forEach { count ->
-                    val active = AppState.paymentMethodCount == count
-                    Text(
-                        "$count",
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(8.sdp()))
-                            .background(if (active) Color(0x55FFFFFF) else Color(0x14FFFFFF))
-                            .clickable { AppState.paymentMethodCount = count }
-                            .padding(horizontal = 14.sdp(), vertical = 7.sdp()),
-                        color = Color.White,
-                        fontSize = 11.ssp(),
-                        fontWeight = if (active) FontWeight(750) else FontWeight(500),
-                    )
-                }
-            }
             Spacer(Modifier.height(12.sdp()))
             Text(
                 "制作流程",

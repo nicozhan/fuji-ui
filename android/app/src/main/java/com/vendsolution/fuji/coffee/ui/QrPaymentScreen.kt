@@ -1,5 +1,6 @@
 package com.vendsolution.fuji.coffee.ui
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -66,7 +67,7 @@ fun QrPaymentScreen() {
     val total = if (AppState.cart.isEmpty()) 1040 else AppState.cartTotal
 
     LaunchedEffect(state) {
-        if (state == "paid") {
+        if (state == "paid" && !AppState.freezePaid) {
             delay(1400)
             AppState.navigate(AppScreen.PREPARATION)
         }
@@ -189,7 +190,9 @@ fun QrPaymentScreen() {
                     }
                 }
 
-                // 右侧：二维码与状态（与左框等高等宽）
+                // 右侧：二维码 / 支付结果原地切换（与左框等高等宽）
+                // 对应 Web qr-payment.html：waiting/channels/paid/failed 共用同一容器，
+                // 状态变化时只切换框内内容，不新开页面、不遮挡状态栏与顶部进度条。
                 Box(
                     Modifier
                         .weight(1f)
@@ -200,41 +203,13 @@ fun QrPaymentScreen() {
                         .padding(24.sdp()),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("请扫码支付", color = FujiColor.Text, fontSize = 30.ssp(), fontWeight = FontWeight(750))
-                        Spacer(Modifier.height(8.sdp()))
-                        Text("订单号 ${AppState.orderId}", color = FujiColor.TextSecondary, fontSize = 14.ssp())
-                        Spacer(Modifier.height(16.sdp()))
-                        Box(
-                            Modifier
-                                .size(260.sdp())
-                                .clip(RoundedCornerShape(16.sdp()))
-                                .background(Color.White)
-                                .border(1.sdp(), FujiColor.Border, RoundedCornerShape(16.sdp()))
-                                .padding(12.sdp()),
-                        ) {
-                            QrCode(
-                                when (AppState.selectedChannel) {
-                                    "wechat" -> "weixin://wxpay/bizpayurl?pr=${AppState.orderId}"
-                                    "wechatqr" -> "https://pay.example.com/fuji/wxscan?order=${AppState.orderId}"
-                                    else -> "https://qr.alipay.com/fuji-${AppState.orderId}"
-                                },
-                                modifier = Modifier.fillMaxSize(),
-                            )
+                    val panel = if (state == "waiting" || state == "channels") "qr" else state
+                    Crossfade(targetState = panel, label = "qr-state") { target ->
+                        when (target) {
+                            "paid" -> ResultPanel(success = true)
+                            "failed" -> ResultPanel(success = false)
+                            else -> QrPanel(seconds = seconds)
                         }
-                        Spacer(Modifier.height(16.sdp()))
-                        Text(
-                            "剩余时间",
-                            color = FujiColor.TextSecondary,
-                            fontSize = 15.ssp(),
-                        )
-                        Text(
-                            "%02d:%02d".format(seconds / 60, seconds % 60),
-                            color = FujiColor.Accent,
-                            fontSize = 30.ssp(),
-                            fontWeight = FontWeight(750),
-                        )
-                        Spacer(Modifier.height(12.sdp()))
                     }
                 }
             }
@@ -242,10 +217,6 @@ fun QrPaymentScreen() {
     }
     }
 
-    when (state) {
-        "paid" -> ResultOverlay(success = true)
-        "failed" -> ResultOverlay(success = false)
-    }
     if (showHomeConfirm) {
         Scrim(onDismiss = { showHomeConfirm = false })
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -273,9 +244,46 @@ fun QrPaymentScreen() {
     }
 }
 
-/** 支付结果面板，严格对照 qr-payment.html 的 .result-panel。 */
+/** 二维码面板（waiting / channels），严格对照 qr-payment.html 的扫码 state-panel。 */
 @Composable
-private fun ResultOverlay(success: Boolean) {
+private fun QrPanel(seconds: Int) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text("请扫码支付", color = FujiColor.Text, fontSize = 30.ssp(), fontWeight = FontWeight(750))
+        Spacer(Modifier.height(8.sdp()))
+        Text("订单号 ${AppState.orderId}", color = FujiColor.TextSecondary, fontSize = 14.ssp())
+        Spacer(Modifier.height(16.sdp()))
+        Box(
+            Modifier
+                .size(260.sdp())
+                .clip(RoundedCornerShape(16.sdp()))
+                .background(Color.White)
+                .border(1.sdp(), FujiColor.Border, RoundedCornerShape(16.sdp()))
+                .padding(12.sdp()),
+        ) {
+            QrCode(
+                when (AppState.selectedChannel) {
+                    "wechat" -> "weixin://wxpay/bizpayurl?pr=${AppState.orderId}"
+                    "wechatqr" -> "https://pay.example.com/fuji/wxscan?order=${AppState.orderId}"
+                    else -> "https://qr.alipay.com/fuji-${AppState.orderId}"
+                },
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
+        Spacer(Modifier.height(16.sdp()))
+        Text("剩余时间", color = FujiColor.TextSecondary, fontSize = 15.ssp())
+        Text(
+            "%02d:%02d".format(seconds / 60, seconds % 60),
+            color = FujiColor.Accent,
+            fontSize = 30.ssp(),
+            fontWeight = FontWeight(750),
+        )
+        Spacer(Modifier.height(12.sdp()))
+    }
+}
+
+/** 支付结果面板（paid / failed），在二维码框内原地切换，对照 qr-payment.html 的 .result-panel。 */
+@Composable
+private fun ResultPanel(success: Boolean) {
     val green = Color(0xFF168565)
     val greenWeak = Color(0xFFEAF7F2)
     val red = Color(0xFFC64747)
@@ -297,13 +305,7 @@ private fun ResultOverlay(success: Boolean) {
         )
     }
 
-    Box(
-        Modifier
-            .fillMaxSize()
-            .background(Color.White),
-        contentAlignment = Alignment.Center,
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
             // 圆形结果图标：淡色圆底 + 对勾/叉（Canvas 绘制，对应 Web .state-icon svg）
             Canvas(Modifier.size(146.sdp())) {
                 drawCircle(tintWeak, radius = size.minDimension / 2f, center = center)
@@ -370,6 +372,5 @@ private fun ResultOverlay(success: Boolean) {
                     )
                 }
             }
-        }
     }
 }

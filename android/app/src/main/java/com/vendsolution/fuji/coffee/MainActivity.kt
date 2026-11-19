@@ -27,6 +27,10 @@ class MainActivity : ComponentActivity() {
         intent.getStringExtra("screen")?.let { name ->
             runCatching { AppScreen.valueOf(name) }.onSuccess { AppState.setInitialScreen(it) }
         }
+        // 调试入口：直接指定支付状态（waiting/channels/paid/failed），便于验证结果面板原地切换。
+        // -e freezePaid 1 可让 paid 态停留更久再跳制作页，便于截图。
+        intent.getStringExtra("payState")?.let { AppState.paymentState = it }
+        AppState.freezePaid = intent.getStringExtra("freezePaid") == "1"
 
         setContent {
             FujiCoffeeTheme {

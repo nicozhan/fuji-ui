@@ -176,11 +176,11 @@ fun PaymentScreen() {
                                 modifier = Modifier.weight(1f).fillMaxHeight(),
                             )
                             PaymentCard(
-                                title = "手机支付",
-                                subtitle = "扫码唤起手机付款",
+                                title = "现金支付",
+                                subtitle = "请到收银台付款",
                                 imageRes = null,
-                                glyph = PaymentGlyph.MOBILE,
-                                action = "开始支付",
+                                glyph = PaymentGlyph.CASH,
+                                action = "使用现金支付",
                                 onClick = {},
                                 modifier = Modifier.weight(1f).fillMaxHeight(),
                             )
@@ -245,7 +245,7 @@ private fun HelpButton(onClick: () -> Unit) {
     }
 }
 
-private enum class PaymentGlyph { POS, MOBILE }
+private enum class PaymentGlyph { POS, CASH }
 
 @Composable
 private fun PaymentCard(
@@ -291,7 +291,7 @@ private fun PaymentCard(
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Fit,
                 )
-                glyph == PaymentGlyph.MOBILE -> MobilePaymentGlyph(Modifier.fillMaxSize(0.7f))
+                glyph == PaymentGlyph.CASH -> CashPaymentGlyph(Modifier.fillMaxSize(0.7f))
                 else -> PosPaymentGlyph(Modifier.fillMaxSize(0.7f))
             }
         }
@@ -337,35 +337,49 @@ private fun PosPaymentGlyph(modifier: Modifier) {
     }
 }
 
-/** 无素材时的手机支付示意图，对应 Web paymentMethods.mobile.illustration。 */
+/** 无素材时的现金支付示意图：钞票外框 + 中心圆 + ¥ 符号。 */
 @Composable
-private fun MobilePaymentGlyph(modifier: Modifier) {
+private fun CashPaymentGlyph(modifier: Modifier) {
     androidx.compose.foundation.Canvas(modifier) {
         val w = size.width
         val h = size.height
         val stroke = Stroke(width = w * 0.018f)
         val blue = FujiColor.Accent
         val light = Color(0xFF75B9E5)
+        // 钞票外框
         drawRoundRect(
             blue,
-            topLeft = Offset(w * 0.28f, h * 0.04f),
-            size = Size(w * 0.44f, h * 0.92f),
-            cornerRadius = CornerRadius(w * 0.09f),
+            topLeft = Offset(w * 0.10f, h * 0.26f),
+            size = Size(w * 0.80f, h * 0.48f),
+            cornerRadius = CornerRadius(w * 0.035f),
             style = stroke,
         )
+        // 内描边
+        drawRoundRect(
+            light,
+            topLeft = Offset(w * 0.14f, h * 0.31f),
+            size = Size(w * 0.72f, h * 0.38f),
+            cornerRadius = CornerRadius(w * 0.02f),
+            style = stroke,
+        )
+        // 中心圆
         drawCircle(
             blue,
-            radius = w * 0.14f,
-            center = Offset(w * 0.5f, h * 0.45f),
+            radius = w * 0.13f,
+            center = Offset(w * 0.5f, h * 0.50f),
             style = stroke,
         )
-        // 圆环内的 ¥ 符号（两斜线 + 竖线）
-        drawLine(blue, Offset(w * 0.44f, h * 0.38f), Offset(w * 0.5f, h * 0.45f), stroke.width)
-        drawLine(blue, Offset(w * 0.56f, h * 0.38f), Offset(w * 0.5f, h * 0.45f), stroke.width)
-        drawLine(blue, Offset(w * 0.44f, h * 0.52f), Offset(w * 0.5f, h * 0.45f), stroke.width)
-        drawLine(blue, Offset(w * 0.56f, h * 0.52f), Offset(w * 0.5f, h * 0.45f), stroke.width)
-        drawLine(blue, Offset(w * 0.5f, h * 0.34f), Offset(w * 0.5f, h * 0.56f), stroke.width)
-        drawLine(light, Offset(w * 0.42f, h * 0.84f), Offset(w * 0.58f, h * 0.84f), stroke.width)
+        // ¥ 符号（两斜线 + 两横线 + 竖线）
+        drawLine(blue, Offset(w * 0.455f, h * 0.435f), Offset(w * 0.5f, h * 0.49f), stroke.width)
+        drawLine(blue, Offset(w * 0.545f, h * 0.435f), Offset(w * 0.5f, h * 0.49f), stroke.width)
+        drawLine(blue, Offset(w * 0.465f, h * 0.52f), Offset(w * 0.5f, h * 0.49f), stroke.width)
+        drawLine(blue, Offset(w * 0.535f, h * 0.52f), Offset(w * 0.5f, h * 0.49f), stroke.width)
+        drawLine(blue, Offset(w * 0.5f, h * 0.49f), Offset(w * 0.5f, h * 0.565f), stroke.width)
+        drawLine(blue, Offset(w * 0.475f, h * 0.515f), Offset(w * 0.525f, h * 0.515f), stroke.width)
+        drawLine(blue, Offset(w * 0.475f, h * 0.545f), Offset(w * 0.525f, h * 0.545f), stroke.width)
+        // 左右两端小印章圆
+        drawCircle(light, radius = w * 0.045f, center = Offset(w * 0.22f, h * 0.50f), style = stroke)
+        drawCircle(light, radius = w * 0.045f, center = Offset(w * 0.78f, h * 0.50f), style = stroke)
     }
 }
 

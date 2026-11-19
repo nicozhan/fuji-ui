@@ -37,6 +37,8 @@ object AppState {
     var salesMode by mutableStateOf("cart")
     var orderId by mutableStateOf("FUJI-DEMO-0001")
     var paymentState by mutableStateOf("waiting") // waiting / channels / paid / failed
+    /** 调试用：paid 态是否冻结不自动跳制作页（adb -e freezePaid 1）。 */
+    var freezePaid by mutableStateOf(false)
     var selectedChannel by mutableStateOf("alipay")
     /** 启用的支付方式数量 1/2/3，对应 Web 的 .payment-grid.count-N 与调试浮窗 1/2/3 切换。 */
     var paymentMethodCount by mutableIntStateOf(2)
@@ -84,6 +86,7 @@ object AppState {
         orderId = "FUJI-DEMO-0001"
         paymentState = "waiting"
         selectedChannel = "alipay"
+        freezePaid = false
     }
 
     fun newOrderId(): String {
