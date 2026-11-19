@@ -1,6 +1,7 @@
 package com.vendsolution.fuji.coffee.data
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -37,6 +38,10 @@ object AppState {
     var orderId by mutableStateOf("FUJI-DEMO-0001")
     var paymentState by mutableStateOf("waiting") // waiting / channels / paid / failed
     var selectedChannel by mutableStateOf("alipay")
+    /** 启用的支付方式数量 1/2/3，对应 Web 的 .payment-grid.count-N 与调试浮窗 1/2/3 切换。 */
+    var paymentMethodCount by mutableIntStateOf(2)
+    /** 制作页调试动作（start/taken/last），由调试浮窗发出、制作页消费；序号保证重复点击可触发。 */
+    var prepDemoAction by mutableStateOf("" to 0)
     var debugOpen by mutableStateOf(false)
     var helpOpen by mutableStateOf(false)
     var cartOpen by mutableStateOf(false)

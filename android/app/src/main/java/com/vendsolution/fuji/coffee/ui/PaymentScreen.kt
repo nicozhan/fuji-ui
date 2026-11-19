@@ -28,8 +28,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -71,7 +77,7 @@ fun PaymentScreen() {
             Spacer(Modifier.width(10.sdp()))
             Text("Fuji Electric", color = Color(0xFF101C26), fontSize = 22.ssp(), fontWeight = FontWeight(750))
             Spacer(Modifier.weight(1f))
-            PillButton("帮助", { AppState.helpOpen = true }, modifier = Modifier.width(132.sdp()), height = 54, fontSize = 16)
+            HelpButton(onClick = { AppState.helpOpen = true })
             Spacer(Modifier.width(20.sdp()))
             PillButton("简体中文", {}, modifier = Modifier.width(166.sdp()), height = 54, fontSize = 16)
         }
@@ -81,7 +87,12 @@ fun PaymentScreen() {
                 .fillMaxSize()
                 .padding(horizontal = 48.sdp(), vertical = 36.sdp()),
         ) {
-            Text("选择支付方式", color = FujiColor.Text, fontSize = 32.ssp(), fontWeight = FontWeight(750))
+            Text(
+                if (AppState.paymentMethodCount == 1) "扫码支付" else "请选择支付方式",
+                color = FujiColor.Text,
+                fontSize = 32.ssp(),
+                fontWeight = FontWeight(750),
+            )
             Spacer(Modifier.height(24.sdp()))
 
             Row(
@@ -125,26 +136,75 @@ fun PaymentScreen() {
                     .weight(1f),
                 contentAlignment = Alignment.TopCenter,
             ) {
+                // count-1=680 / count-2=1400 / count-3=1728 设计像素（对应 Web .payment-grid.count-N 的 max-width）
+                val gridMax = when (AppState.paymentMethodCount) {
+                    1 -> 680
+                    3 -> 1728
+                    else -> 1400
+                }
                 Row(
                     Modifier
                         .fillMaxHeight()
-                        .widthIn(max = 1400.sdp()),
+                        .widthIn(max = gridMax.sdp()),
                     horizontalArrangement = Arrangement.spacedBy(28.sdp()),
                 ) {
-                    PaymentCard(
-                        title = "扫码支付",
-                        subtitle = "微信 / 支付宝",
-                        imageRes = R.drawable.payment_methods_square,
-                        onClick = { AppState.selectedChannel = "alipay"; AppState.navigate(AppScreen.QR_PAYMENT) },
-                        modifier = Modifier.weight(1f).fillMaxHeight(),
-                    )
-                    PaymentCard(
-                        title = "POS 机支付",
-                        subtitle = "请到收银台完成",
-                        imageRes = null,
-                        onClick = {},
-                        modifier = Modifier.weight(1f).fillMaxHeight(),
-                    )
+                    when (AppState.paymentMethodCount) {
+                        1 -> PaymentCard(
+                            title = "扫码支付",
+                            subtitle = "微信 / 支付宝",
+                            imageRes = R.drawable.payment_methods_square,
+                            action = "显示付款码",
+                            onClick = { AppState.selectedChannel = "alipay"; AppState.navigate(AppScreen.QR_PAYMENT) },
+                            modifier = Modifier.weight(1f).fillMaxHeight(),
+                        )
+                        3 -> {
+                            PaymentCard(
+                                title = "扫码支付",
+                                subtitle = "微信 / 支付宝",
+                                imageRes = R.drawable.payment_methods_square,
+                                action = "显示付款码",
+                                onClick = { AppState.selectedChannel = "alipay"; AppState.navigate(AppScreen.QR_PAYMENT) },
+                                modifier = Modifier.weight(1f).fillMaxHeight(),
+                            )
+                            PaymentCard(
+                                title = "POS 机支付",
+                                subtitle = "请到收银台完成",
+                                imageRes = null,
+                                glyph = PaymentGlyph.POS,
+                                action = "使用 POS 机支付",
+                                onClick = {},
+                                modifier = Modifier.weight(1f).fillMaxHeight(),
+                            )
+                            PaymentCard(
+                                title = "手机支付",
+                                subtitle = "扫码唤起手机付款",
+                                imageRes = null,
+                                glyph = PaymentGlyph.MOBILE,
+                                action = "开始支付",
+                                onClick = {},
+                                modifier = Modifier.weight(1f).fillMaxHeight(),
+                            )
+                        }
+                        else -> {
+                            PaymentCard(
+                                title = "扫码支付",
+                                subtitle = "微信 / 支付宝",
+                                imageRes = R.drawable.payment_methods_square,
+                                action = "显示付款码",
+                                onClick = { AppState.selectedChannel = "alipay"; AppState.navigate(AppScreen.QR_PAYMENT) },
+                                modifier = Modifier.weight(1f).fillMaxHeight(),
+                            )
+                            PaymentCard(
+                                title = "POS 机支付",
+                                subtitle = "请到收银台完成",
+                                imageRes = null,
+                                glyph = PaymentGlyph.POS,
+                                action = "使用 POS 机支付",
+                                onClick = {},
+                                modifier = Modifier.weight(1f).fillMaxHeight(),
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -154,13 +214,48 @@ fun PaymentScreen() {
     if (confirmExit) ExitConfirmDialog(onCancel = { confirmExit = false })
 }
 
+/** 帮助按钮：问号图标 + 文案，对应 Web payment.html .header-button。 */
+@Composable
+private fun HelpButton(onClick: () -> Unit) {
+    Row(
+        Modifier
+            .height(54.sdp())
+            .clip(CircleShape)
+            .border(1.sdp(), FujiColor.Border, CircleShape)
+            .background(Color.White)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 22.sdp()),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(9.sdp()),
+    ) {
+        androidx.compose.foundation.Canvas(Modifier.size(22.sdp())) {
+            val c = center
+            val r = size.minDimension * 0.44f
+            val sw = size.minDimension * 0.08f
+            drawCircle(FujiColor.Accent, radius = r, center = c, style = Stroke(width = sw))
+            val qm = Path().apply {
+                moveTo(c.x - r * 0.42f, c.y - r * 0.28f)
+                cubicTo(c.x - r * 0.42f, c.y - r * 0.98f, c.x + r * 0.50f, c.y - r * 0.98f, c.x + r * 0.42f, c.y - r * 0.26f)
+                cubicTo(c.x + r * 0.38f, c.y + r * 0.06f, c.x - r * 0.02f, c.y + r * 0.10f, c.x - r * 0.02f, c.y + r * 0.34f)
+            }
+            drawPath(qm, FujiColor.Accent, style = Stroke(width = sw, cap = StrokeCap.Round))
+            drawCircle(FujiColor.Accent, radius = sw * 0.62f, center = Offset(c.x, c.y + r * 0.62f))
+        }
+        Text("帮助", color = FujiColor.Text, fontSize = 16.ssp(), fontWeight = FontWeight(700))
+    }
+}
+
+private enum class PaymentGlyph { POS, MOBILE }
+
 @Composable
 private fun PaymentCard(
     title: String,
     subtitle: String,
     imageRes: Int?,
+    action: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    glyph: PaymentGlyph? = null,
 ) {
     Column(
         modifier
@@ -189,19 +284,88 @@ private fun PaymentCard(
                 .background(FujiColor.Surface2),
             contentAlignment = Alignment.Center,
         ) {
-            if (imageRes != null) {
-                Image(
+            when {
+                imageRes != null -> Image(
                     painter = painterResource(imageRes),
                     contentDescription = subtitle,
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Fit,
                 )
-            } else {
-                Text("POS", color = FujiColor.AccentDark, fontSize = 64.ssp(), fontWeight = FontWeight(800))
+                glyph == PaymentGlyph.MOBILE -> MobilePaymentGlyph(Modifier.fillMaxSize(0.7f))
+                else -> PosPaymentGlyph(Modifier.fillMaxSize(0.7f))
             }
         }
         Spacer(Modifier.height(18.sdp()))
-        PillButton("立即支付", onClick, modifier = Modifier.fillMaxWidth(), height = 64, fontSize = 18)
+        PillButton(action, onClick, modifier = Modifier.fillMaxWidth(), height = 64, fontSize = 18)
+    }
+}
+
+/** 无素材时的 POS 机示意图，对应 Web paymentMethods.pos.illustration。 */
+@Composable
+private fun PosPaymentGlyph(modifier: Modifier) {
+    androidx.compose.foundation.Canvas(modifier) {
+        val w = size.width
+        val h = size.height
+        val stroke = Stroke(width = w * 0.018f)
+        val blue = FujiColor.Accent
+        val light = Color(0xFF75B9E5)
+        drawRoundRect(
+            blue,
+            topLeft = Offset(w * 0.26f, h * 0.06f),
+            size = Size(w * 0.48f, h * 0.88f),
+            cornerRadius = CornerRadius(w * 0.05f),
+            style = stroke,
+        )
+        drawRoundRect(
+            light,
+            topLeft = Offset(w * 0.31f, h * 0.13f),
+            size = Size(w * 0.38f, h * 0.26f),
+            cornerRadius = CornerRadius(w * 0.025f),
+            style = stroke,
+        )
+        repeat(2) { row ->
+            repeat(4) { col ->
+                drawRoundRect(
+                    light,
+                    topLeft = Offset(w * (0.31f + col * 0.10f), h * (0.48f + row * 0.14f)),
+                    size = Size(w * 0.08f, h * 0.10f),
+                    cornerRadius = CornerRadius(w * 0.015f),
+                    style = stroke,
+                )
+            }
+        }
+    }
+}
+
+/** 无素材时的手机支付示意图，对应 Web paymentMethods.mobile.illustration。 */
+@Composable
+private fun MobilePaymentGlyph(modifier: Modifier) {
+    androidx.compose.foundation.Canvas(modifier) {
+        val w = size.width
+        val h = size.height
+        val stroke = Stroke(width = w * 0.018f)
+        val blue = FujiColor.Accent
+        val light = Color(0xFF75B9E5)
+        drawRoundRect(
+            blue,
+            topLeft = Offset(w * 0.28f, h * 0.04f),
+            size = Size(w * 0.44f, h * 0.92f),
+            cornerRadius = CornerRadius(w * 0.09f),
+            style = stroke,
+        )
+        drawCircle(
+            blue,
+            radius = w * 0.14f,
+            center = Offset(w * 0.5f, h * 0.45f),
+            style = stroke,
+        )
+        // 圆环内的 ¥ 符号（两斜线 + 竖线）
+        drawLine(blue, Offset(w * 0.44f, h * 0.38f), Offset(w * 0.5f, h * 0.45f), stroke.width)
+        drawLine(blue, Offset(w * 0.56f, h * 0.38f), Offset(w * 0.5f, h * 0.45f), stroke.width)
+        drawLine(blue, Offset(w * 0.44f, h * 0.52f), Offset(w * 0.5f, h * 0.45f), stroke.width)
+        drawLine(blue, Offset(w * 0.56f, h * 0.52f), Offset(w * 0.5f, h * 0.45f), stroke.width)
+        drawLine(blue, Offset(w * 0.5f, h * 0.34f), Offset(w * 0.5f, h * 0.56f), stroke.width)
+        drawLine(light, Offset(w * 0.42f, h * 0.84f), Offset(w * 0.58f, h * 0.84f), stroke.width)
     }
 }
 

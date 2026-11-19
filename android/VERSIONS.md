@@ -3,6 +3,19 @@
 本目录（`android/`）是一个**自包含、可直接交付研发**的独立 Gradle 工程，
 与仓库根目录的 Web 原型版本线（`v3.x.x`）互不混用。
 
+## android-v0.9.0
+
+本版对照 Web 原型（index / payment / qr-payment / preparation.html）集中修订 6 项：
+
+- **变更一｜帮助按钮问号图标**：`StaticChrome.kt` 的 `HelpGlyph` 由「圆圈+点」改为 Web 的问号（圆圈 + 问号曲线，Canvas Path 绘制）；`PaymentScreen.kt` 帮助按钮也补上同一问号图标（新增 `HelpButton`）。
+- **变更二｜分页与页码对齐**：`PaginationBar` 由 `align-items: bottom` 改为 `CenterVertically`（对应 Web `.pagination` 的 `align-items:center`），右侧页数文字与页码按钮中线对齐。
+- **变更三｜左右滑动翻页**：`ProductGridScreen.kt` 重写商品区手势——因商品卡 clickable 会消费 down，`detectHorizontalDragGestures` 失效；改用 `awaitPointerEventScope` 在 `PointerEventPass.Final` 读取原始位移，`pointerInput(Unit)` 配合 `rememberUpdatedState` 避免翻页时协程重启；左滑下一页 / 右滑上一页，一次手势只翻一页，纯点击不受影响。
+- **变更四｜支付方式 1/2/3 选项**：`AppState.paymentMethodCount`（1/2/3）驱动；`PaymentScreen` 按数量渲染 1/2/3 张卡（扫码 / POS / 手机），卡片区最大宽度 680/1400/1728 设计像素（对应 Web `.payment-grid.count-N`），手机支付示意图用 Canvas 绘制；调试浮窗加「支付方式数量 1/2/3」切换；支付状态控件由三态扩为四态（请扫码/多码/成功/失败）。注：Web 的 count=1 为内联二维码，Android 仍显示单张扫码卡，属简化差异。
+- **变更五｜支付成功/失败页**：`QrPaymentScreen.kt` 的 `ResultOverlay` 按 Web `.result-panel` 重写——成功为淡绿圆底+绿对勾图标+「支付成功」+「正在为您制作饮品」+三个跳动圆点；失败为淡红圆底+红叉+「支付失败」+「支付未成功，请重试」+「重新支付/返回首页」按钮。
+- **变更六｜制作/取走杯**：`PreparationScreen.kt` 文案对齐 Web（待取走/已取走/等待制作、取走提示「请拿走您的饮品」、末杯「取走后本次订单结束，返回首页」）；页面上的 4 个调试按钮移入调试浮窗（开始制作/模拟取走/跳到末杯，经 `AppState.prepDemoAction` 触发）。
+- **验证**：`./gradlew assembleDebug` 通过；1920×1080 模拟器逐项实跑——帮助问号、分页对齐、左右滑动（1↔2↔3 一次一页）、1/2/3 支付卡切换、成功页、失败页、制作页末杯取走，均截图确认，无 ANR；截图见 `preview/v0.9.0/`。
+- **版本**：`versionCode=9`，`versionName=0.9.0`；回滚 `git checkout android-v0.8.0`。
+
 ## android-v0.8.0
 
 - **变更｜购物车抽屉顶部与商品区齐平**：修正 `ProductDrawers.kt` 的 `CartDrawer` 高度定位。Web 中 `.cart-panel` 的定位祖先是 `.workspace`（商品区，`position:relative`），顶部与语言/帮助栏下沿齐平；此前 Android 用 `fillMaxSize()` 覆盖全屏，导致购物车标题栏从屏幕最顶端开始、压住状态栏与语言帮助栏。现遮罩（`Scrim`）与面板均加 `padding(top = STATUS_BAR_H + HEADER_H = 160 设计像素)`，仅覆盖商品区，顶部 chrome 完整露出。

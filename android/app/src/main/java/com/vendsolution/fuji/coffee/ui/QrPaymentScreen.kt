@@ -1,5 +1,11 @@
 package com.vendsolution.fuji.coffee.ui
 
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -29,7 +35,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -264,8 +273,30 @@ fun QrPaymentScreen() {
     }
 }
 
+/** 支付结果面板，严格对照 qr-payment.html 的 .result-panel。 */
 @Composable
 private fun ResultOverlay(success: Boolean) {
+    val green = Color(0xFF168565)
+    val greenWeak = Color(0xFFEAF7F2)
+    val red = Color(0xFFC64747)
+    val redWeak = Color(0xFFFCEDED)
+    val tint = if (success) green else red
+    val tintWeak = if (success) greenWeak else redWeak
+
+    // 三个跳动圆点（Web .making-dots，1.2s 循环错相）
+    val transition = rememberInfiniteTransition(label = "making-dots")
+    val dots = (0..2).map { i ->
+        transition.animateFloat(
+            initialValue = 0.35f,
+            targetValue = 1f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(durationMillis = 600, delayMillis = i * 200),
+                repeatMode = RepeatMode.Reverse,
+            ),
+            label = "dot-$i",
+        )
+    }
+
     Box(
         Modifier
             .fillMaxSize()
@@ -273,34 +304,71 @@ private fun ResultOverlay(success: Boolean) {
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-                if (success) "✓" else "!",
-                color = if (success) Color(0xFF168565) else Color(0xFFC64747),
-                fontSize = 96.ssp(),
-                fontWeight = FontWeight(800),
-            )
-            Spacer(Modifier.height(12.sdp()))
+            // 圆形结果图标：淡色圆底 + 对勾/叉（Canvas 绘制，对应 Web .state-icon svg）
+            Canvas(Modifier.size(146.sdp())) {
+                drawCircle(tintWeak, radius = size.minDimension / 2f, center = center)
+                val c = center
+                val d = size.minDimension
+                if (success) {
+                    drawCircle(
+                        tint,
+                        radius = d * 0.43f / 2f,
+                        center = c,
+                        style = Stroke(width = d * 0.052f),
+                    )
+                    drawLine(tint, Offset(c.x - d * 0.20f, c.y + d * 0.01f), Offset(c.x - d * 0.05f, c.y + d * 0.16f), d * 0.072f, StrokeCap.Round)
+                    drawLine(tint, Offset(c.x - d * 0.05f, c.y + d * 0.16f), Offset(c.x + d * 0.22f, c.y - d * 0.14f), d * 0.072f, StrokeCap.Round)
+                } else {
+                    drawCircle(
+                        tint,
+                        radius = d * 0.43f / 2f,
+                        center = c,
+                        style = Stroke(width = d * 0.052f),
+                    )
+                    drawLine(tint, Offset(c.x - d * 0.13f, c.y - d * 0.13f), Offset(c.x + d * 0.13f, c.y + d * 0.13f), d * 0.072f, StrokeCap.Round)
+                    drawLine(tint, Offset(c.x + d * 0.13f, c.y - d * 0.13f), Offset(c.x - d * 0.13f, c.y + d * 0.13f), d * 0.072f, StrokeCap.Round)
+                }
+            }
+            Spacer(Modifier.height(28.sdp()))
             Text(
                 if (success) "支付成功" else "支付失败",
                 color = FujiColor.Text,
-                fontSize = 32.ssp(),
+                fontSize = 34.ssp(),
                 fontWeight = FontWeight(750),
             )
-            Spacer(Modifier.height(8.sdp()))
+            Spacer(Modifier.height(14.sdp()))
             Text(
-                if (success) "正在进入制作页…" else "二维码已过期，请重试",
+                if (success) "正在为您制作饮品" else "支付未成功，请重试",
                 color = FujiColor.TextSecondary,
                 fontSize = 17.ssp(),
                 textAlign = TextAlign.Center,
             )
-            if (!success) {
-                Spacer(Modifier.height(20.sdp()))
-                PillButton(
-                    "重新支付",
-                    { AppState.paymentState = "waiting" },
-                    modifier = Modifier.width(240.sdp()),
-                    height = 56,
-                )
+            if (success) {
+                Spacer(Modifier.height(30.sdp()))
+                Row(horizontalArrangement = Arrangement.spacedBy(12.sdp())) {
+                    dots.forEach { alpha ->
+                        Canvas(Modifier.size(14.sdp())) {
+                            drawCircle(green, radius = size.minDimension / 2f * alpha.value, center = center)
+                        }
+                    }
+                }
+            } else {
+                Spacer(Modifier.height(32.sdp()))
+                Row(horizontalArrangement = Arrangement.spacedBy(16.sdp())) {
+                    PillButton(
+                        "重新支付",
+                        { AppState.paymentState = "waiting" },
+                        modifier = Modifier.width(220.sdp()),
+                        height = 56,
+                    )
+                    PillButton(
+                        "返回首页",
+                        { AppState.clearSession(); AppState.navigate(AppScreen.WELCOME) },
+                        modifier = Modifier.width(220.sdp()),
+                        height = 56,
+                        filled = false,
+                    )
+                }
             }
         }
     }

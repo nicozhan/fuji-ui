@@ -19,10 +19,13 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.changedToUp
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import com.vendsolution.fuji.coffee.data.AppState
@@ -98,6 +101,10 @@ private fun ProductStage(
         .drop(page * FujiDimens.PAGE_SIZE)
         .take(FujiDimens.PAGE_SIZE)
     val swipeThreshold = 96f * LocalDesignScale.current * LocalDensity.current.density
+    // 手势协程用 Unit 作 key，不随翻页重启；通过 rememberUpdatedState 读取最新 page/callback
+    val currentPage by rememberUpdatedState(page)
+    val currentOnPageChange by rememberUpdatedState(onPageChange)
+    val pageCountState by rememberUpdatedState(pageCount)
 
     Column(
         modifier.padding(
@@ -110,23 +117,36 @@ private fun ProductStage(
             Modifier
                 .fillMaxWidth()
                 .weight(1f)
-                .pointerInput(page, pageCount) {
-                    var dragOffset = 0f
-                    detectHorizontalDragGestures(
-                        onDragEnd = { dragOffset = 0f },
-                        onDragCancel = { dragOffset = 0f },
-                        onHorizontalDrag = { _, dragAmount ->
-                            dragOffset += dragAmount
-                            // 触屏向右滑 → 下一页；向左滑 → 上一页
-                            if (dragOffset >= swipeThreshold && page < pageCount - 1) {
-                                onPageChange(page + 1)
-                                dragOffset = 0f
-                            } else if (dragOffset <= -swipeThreshold && page > 0) {
-                                onPageChange(page - 1)
-                                dragOffset = 0f
+                .pointerInput(Unit) {
+                    // 用最终阶段监听原始触摸位移：即使子卡片 clickable 消费了 down，
+                    // Final 阶段仍可读取到坐标；只在水平位移超过阈值时翻页，纯点击不受影响。
+                    awaitPointerEventScope {
+                        var startX = -1f
+                        var tracking = false
+                        var consumed = false // 一次手势只翻一页
+                        while (true) {
+                            val event = awaitPointerEvent(PointerEventPass.Final)
+                            val change = event.changes.firstOrNull() ?: continue
+                            if (change.pressed && !tracking) {
+                                startX = change.position.x
+                                tracking = true
+                                consumed = false
                             }
-                        },
-                    )
+                            if (tracking && change.pressed && !consumed) {
+                                val dx = change.position.x - startX
+                                if (kotlin.math.abs(dx) >= swipeThreshold) {
+                                    // 向左拖 → 下一页；向右拖 → 上一页
+                                    if (dx < 0 && currentPage < pageCountState - 1) currentOnPageChange(currentPage + 1)
+                                    else if (dx > 0 && currentPage > 0) currentOnPageChange(currentPage - 1)
+                                    consumed = true
+                                }
+                            }
+                            if (change.changedToUp()) {
+                                tracking = false
+                                consumed = false
+                            }
+                        }
+                    }
                 },
         ) {
             Column(

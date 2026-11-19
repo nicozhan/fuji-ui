@@ -87,7 +87,59 @@ fun DebugDock() {
                 color = Color(0xB3FFFFFF),
                 fontSize = 11.ssp(),
             )
-            Spacer(Modifier.height(10.sdp()))
+            Spacer(Modifier.height(12.sdp()))
+            Text(
+                "支付方式数量",
+                color = Color(0xB3FFFFFF),
+                fontSize = 11.ssp(),
+            )
+            Spacer(Modifier.height(6.sdp()))
+            Row(horizontalArrangement = Arrangement.spacedBy(6.sdp())) {
+                listOf(1, 2, 3).forEach { count ->
+                    val active = AppState.paymentMethodCount == count
+                    Text(
+                        "$count",
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(8.sdp()))
+                            .background(if (active) Color(0x55FFFFFF) else Color(0x14FFFFFF))
+                            .clickable { AppState.paymentMethodCount = count }
+                            .padding(horizontal = 14.sdp(), vertical = 7.sdp()),
+                        color = Color.White,
+                        fontSize = 11.ssp(),
+                        fontWeight = if (active) FontWeight(750) else FontWeight(500),
+                    )
+                }
+            }
+            Spacer(Modifier.height(12.sdp()))
+            Text(
+                "制作流程",
+                color = Color(0xB3FFFFFF),
+                fontSize = 11.ssp(),
+            )
+            Spacer(Modifier.height(6.sdp()))
+            Row(horizontalArrangement = Arrangement.spacedBy(6.sdp())) {
+                listOf(
+                    "开始制作" to "start",
+                    "模拟取走" to "taken",
+                    "跳到末杯" to "last",
+                ).forEach { (label, action) ->
+                    Text(
+                        label,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(8.sdp()))
+                            .background(Color(0x14FFFFFF))
+                            .clickable {
+                                AppState.prepDemoAction = action to AppState.prepDemoAction.second + 1
+                                AppState.navigate(AppScreen.PREPARATION)
+                            }
+                            .padding(horizontal = 9.sdp(), vertical = 7.sdp()),
+                        color = Color.White,
+                        fontSize = 10.ssp(),
+                        fontWeight = FontWeight(500),
+                    )
+                }
+            }
+            Spacer(Modifier.height(12.sdp()))
             Text(
                 "扫码支付状态",
                 color = Color(0xB3FFFFFF),
@@ -96,7 +148,8 @@ fun DebugDock() {
             Spacer(Modifier.height(6.sdp()))
             Row(horizontalArrangement = Arrangement.spacedBy(6.sdp())) {
                 listOf(
-                    "等待" to "waiting",
+                    "请扫码" to "waiting",
+                    "多码" to "channels",
                     "成功" to "paid",
                     "失败" to "failed",
                 ).forEach { (label, value) ->

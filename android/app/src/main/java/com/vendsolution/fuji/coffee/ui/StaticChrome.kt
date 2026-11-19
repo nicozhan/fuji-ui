@@ -202,10 +202,10 @@ fun PaginationBar(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .height(FujiDimens.PAGER_H.sdp())
-            .padding(bottom = 6.sdp()),
+            .height(FujiDimens.PAGER_H.sdp()),
         horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.Bottom,
+        // 对应 index.html .pagination 的 align-items:center：页码、箭头、页数文字中线对齐
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         PageArrowButton(
             isPrev = true,
@@ -400,13 +400,28 @@ private fun DeviceGlyph(modifier: Modifier = Modifier) {
 @Composable
 private fun HelpGlyph(modifier: Modifier = Modifier) {
     Canvas(modifier) {
-        drawCircle(
-            FujiColor.Accent,
-            radius = size.minDimension * 0.42f,
-            center = center,
-            style = Stroke(width = 1.8f),
-        )
-        drawCircle(FujiColor.Accent, radius = 1.8f, center = Offset(center.x, center.y + size.height * 0.24f))
+        val sw = size.minDimension * 0.075f
+        val c = center
+        val r = size.minDimension * 0.42f
+        // 外圈（问号气泡）
+        drawCircle(FujiColor.Accent, radius = r, center = c, style = Stroke(width = sw))
+        // 问号上半弧
+        val qm = Path().apply {
+            moveTo(c.x - r * 0.42f, c.y - r * 0.28f)
+            cubicTo(
+                c.x - r * 0.42f, c.y - r * 0.98f,
+                c.x + r * 0.50f, c.y - r * 0.98f,
+                c.x + r * 0.42f, c.y - r * 0.26f,
+            )
+            cubicTo(
+                c.x + r * 0.38f, c.y + r * 0.06f,
+                c.x - r * 0.02f, c.y + r * 0.10f,
+                c.x - r * 0.02f, c.y + r * 0.34f,
+            )
+        }
+        drawPath(qm, FujiColor.Accent, style = Stroke(width = sw, cap = StrokeCap.Round))
+        // 问号下方一点
+        drawCircle(FujiColor.Accent, radius = sw * 0.62f, center = Offset(c.x, c.y + r * 0.62f))
     }
 }
 

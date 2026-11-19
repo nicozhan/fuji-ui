@@ -66,6 +66,30 @@ fun PreparationScreen() {
 
     val pickup = active in 0..2 && states[active] == "ready"
 
+    // 调试浮窗发出的制作动作（对应 Web preparation.html data-demo-action start/taken/last）
+    LaunchedEffect(AppState.prepDemoAction.second) {
+        when (AppState.prepDemoAction.first) {
+            "start" -> {
+                states.fill("waiting"); progress.fill(0f); active = 0
+                states[0] = "making"; running = true
+            }
+            "taken" -> if (states[active] == "ready") {
+                states[active] = "done"
+                active++
+                if (active < 3) {
+                    states[active] = "making"; progress[active] = 0f; running = true
+                } else {
+                    AppState.clearSession(); AppState.navigate(AppScreen.WELCOME)
+                }
+            }
+            "last" -> {
+                states[0] = "done"; states[1] = "done"; states[2] = "ready"
+                progress[0] = 100f; progress[1] = 100f; progress[2] = 100f
+                active = 2; running = false
+            }
+        }
+    }
+
     Column(Modifier.fillMaxSize()) {
         Row(
             Modifier
@@ -104,7 +128,9 @@ fun PreparationScreen() {
                 fontWeight = FontWeight(730),
             )
             Text(
-                if (pickup) "制作已完成，请从取货口取走" else "每杯约需 5 秒，请稍候",
+                if (pickup) {
+                    if (active == 2) "取走后本次订单结束，返回首页" else "取走后将立即制作下一杯"
+                } else "每杯约需 5 秒，请稍候",
                 color = FujiColor.TextSecondary,
                 fontSize = 18.ssp(),
             )
@@ -139,7 +165,7 @@ fun PreparationScreen() {
                         .background(Color(0xFFFFFAF0))
                         .padding(horizontal = 28.sdp(), vertical = 12.sdp()),
                 ) {
-                    Text("请取走", color = Color(0xFFB8791A), fontSize = 22.ssp(), fontWeight = FontWeight(780))
+                    Text("请拿走您的饮品", color = Color(0xFFB8791A), fontSize = 22.ssp(), fontWeight = FontWeight(780))
                 }
             }
 
@@ -164,54 +190,12 @@ fun PreparationScreen() {
                 }
             }
 
-            Spacer(Modifier.height(20.sdp()))
-            Row(horizontalArrangement = Arrangement.spacedBy(16.sdp())) {
-                PillButton(
-                    "开始制作",
-                    {
-                        states.fill("waiting"); progress.fill(0f); active = 0
-                        states[0] = "making"; running = true
-                    },
-                    height = 52,
-                    fontSize = 15,
-                )
-                PillButton(
-                    "取走一杯",
-                    {
-                        if (states[active] == "ready") {
-                            states[active] = "done"
-                            active++
-                            if (active < 3) {
-                                states[active] = "making"
-                                progress[active] = 0f
-                                running = true
-                            } else {
-                                AppState.clearSession()
-                                AppState.navigate(AppScreen.WELCOME)
-                            }
-                        }
-                    },
-                    height = 52,
-                    fontSize = 15,
-                )
-                PillButton(
-                    "末杯 READY",
-                    {
-                        states[0] = "done"; states[1] = "done"; states[2] = "ready"
-                        progress[0] = 100f; progress[1] = 100f; progress[2] = 100f
-                        active = 2; running = false
-                    },
-                    height = 52,
-                    fontSize = 15,
-                )
-                PillButton(
-                    "返回主页",
-                    { AppState.clearSession(); AppState.navigate(AppScreen.WELCOME) },
-                    height = 52,
-                    fontSize = 15,
-                    filled = false,
-                )
-            }
+            Spacer(Modifier.height(18.sdp()))
+            Text(
+                "点左上角 FE 打开调试面板，可开始制作 / 模拟取走 / 跳到末杯",
+                color = FujiColor.TextSecondary,
+                fontSize = 14.ssp(),
+            )
         }
     }
 }
@@ -245,11 +229,15 @@ private fun CupCard(index: Int, state: String, progress: Float, modifier: Modifi
                 Text(
                     when (state) {
                         "making" -> "制作中 ${progress.toInt()}%"
-                        "ready" -> "请取走"
-                        "done" -> "已完成"
-                        else -> "等待中"
+                        "ready" -> "待取走"
+                        "done" -> "已取走"
+                        else -> "等待制作"
                     },
-                    color = if (state == "ready") Color(0xFFB8791A) else FujiColor.Text,
+                    color = when (state) {
+                        "ready" -> Color(0xFFB8791A)
+                        "done" -> Color(0xFF168565)
+                        else -> FujiColor.Text
+                    },
                     fontSize = 17.ssp(),
                     fontWeight = FontWeight(750),
                 )
