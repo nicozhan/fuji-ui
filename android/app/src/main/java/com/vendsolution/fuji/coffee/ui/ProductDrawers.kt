@@ -54,10 +54,17 @@ import com.vendsolution.fuji.coffee.design.FujiDimens
 import com.vendsolution.fuji.coffee.design.sdp
 import com.vendsolution.fuji.coffee.design.ssp
 
-/** 购物车抽屉，对应 Web 的 #cartPanel：从右侧滑入，左圆角 22，宽 668。 */
+/** 购物车抽屉，对应 Web 的 #cartPanel：从右侧滑入，左圆角 22，宽 668。
+ *  Web 中面板定位在 .workspace（商品区），顶部与语言/帮助栏下沿齐平，
+ *  故遮罩与面板都从状态栏 + header 下沿（160 设计像素）开始，不覆盖顶部 chrome。 */
 @Composable
 fun CartDrawer() {
-    Scrim(onDismiss = { AppState.cartOpen = false })
+    val workspaceTop = (FujiDimens.STATUS_BAR_H + FujiDimens.HEADER_H).sdp()
+
+    Scrim(
+        onDismiss = { AppState.cartOpen = false },
+        modifier = Modifier.padding(top = workspaceTop),
+    )
 
     var entered by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) { entered = true }
@@ -67,7 +74,10 @@ fun CartDrawer() {
         label = "cart-slide",
     )
 
-    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.CenterEnd) {
+    Box(
+        Modifier.fillMaxSize().padding(top = workspaceTop),
+        contentAlignment = Alignment.CenterEnd,
+    ) {
         Column(
             Modifier
                 .fillMaxHeight()

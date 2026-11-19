@@ -3,6 +3,12 @@
 本目录（`android/`）是一个**自包含、可直接交付研发**的独立 Gradle 工程，
 与仓库根目录的 Web 原型版本线（`v3.x.x`）互不混用。
 
+## android-v0.8.0
+
+- **变更｜购物车抽屉顶部与商品区齐平**：修正 `ProductDrawers.kt` 的 `CartDrawer` 高度定位。Web 中 `.cart-panel` 的定位祖先是 `.workspace`（商品区，`position:relative`），顶部与语言/帮助栏下沿齐平；此前 Android 用 `fillMaxSize()` 覆盖全屏，导致购物车标题栏从屏幕最顶端开始、压住状态栏与语言帮助栏。现遮罩（`Scrim`）与面板均加 `padding(top = STATUS_BAR_H + HEADER_H = 160 设计像素)`，仅覆盖商品区，顶部 chrome 完整露出。
+- **验证**：`./gradlew assembleDebug` 通过；1920×1080 模拟器加购 3 件后截图确认——状态栏与语言帮助栏完整露出、购物车标题栏顶部正好起于商品区顶部，条目/千分位合计/去结算箭头正常，无 ANR；截图见 `preview/v0.8.0/`。
+- **版本**：`versionCode=8`，`versionName=0.8.0`；回滚 `git checkout android-v0.7.0`。
+
 ## android-v0.7.0
 
 - **变更｜购物车抽屉按线上参考页重写**：严格对照 `https://fuji-ui.up.railway.app/` 与 `index.html` 的 `.cart-*` CSS 与用户截图，重写 `ProductDrawers.kt` 的 `CartDrawer` / `CartItemRow`。
