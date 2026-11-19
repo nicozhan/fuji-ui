@@ -54,7 +54,7 @@ import com.vendsolution.fuji.coffee.design.FujiDimens
 import com.vendsolution.fuji.coffee.design.sdp
 import com.vendsolution.fuji.coffee.design.ssp
 
-/** 购物车抽屉，对应 Web 的 #cartPanel：从右侧滑入，标题栏通栏，宽 668。 */
+/** 购物车抽屉，对应 Web 的 #cartPanel：从右侧滑入，左圆角 22，宽 668。 */
 @Composable
 fun CartDrawer() {
     Scrim(onDismiss = { AppState.cartOpen = false })
@@ -73,124 +73,222 @@ fun CartDrawer() {
                 .fillMaxHeight()
                 .width(668.sdp())
                 .offset(x = offsetX)
+                .clip(RoundedCornerShape(topStart = 22.sdp(), bottomStart = 22.sdp()))
                 .background(Color.White),
         ) {
-            // 标题栏通栏（不受内容左右留白影响），内含 38 内边距
-            Box(
+            // 头：100 高，购物车图标 + 标题 + 白底徽章；右侧 Canvas 关闭图标
+            Row(
                 Modifier
                     .fillMaxWidth()
                     .height(100.sdp())
                     .background(FujiColor.AccentDark)
                     .padding(horizontal = 38.sdp()),
-                contentAlignment = Alignment.CenterStart,
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("购物车", color = Color.White, fontSize = 26.ssp(), fontWeight = FontWeight(720))
-                    Spacer(Modifier.width(14.sdp()))
-                    Box(
-                        Modifier
-                            .clip(CircleShape)
-                            .background(Color.White)
-                            .padding(horizontal = 12.sdp(), vertical = 4.sdp()),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(
-                            "${AppState.cartCount}",
-                            color = FujiColor.AccentDark,
-                            fontSize = 15.ssp(),
-                            fontWeight = FontWeight(800),
-                        )
-                    }
-                }
-                Text(
-                    "✕",
-                    modifier = Modifier
-                        .align(Alignment.CenterEnd)
+                CartGlyph(Modifier.size(27.sdp()))
+                Spacer(Modifier.width(13.sdp()))
+                Text("购物车", color = Color.White, fontSize = 26.ssp(), fontWeight = FontWeight(720))
+                Spacer(Modifier.width(13.sdp()))
+                Box(
+                    Modifier
+                        .heightIn(min = 29.sdp())
                         .clip(CircleShape)
-                        .clickable { AppState.cartOpen = false }
-                        .padding(12.sdp()),
-                    color = Color.White,
-                    fontSize = 20.ssp(),
-                )
+                        .background(Color.White)
+                        .padding(horizontal = 8.sdp(), vertical = 2.sdp()),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        "${AppState.cartCount}",
+                        color = FujiColor.AccentDark,
+                        fontSize = 15.ssp(),
+                        fontWeight = FontWeight(800),
+                    )
+                }
+                Spacer(Modifier.weight(1f))
+                Box(
+                    Modifier
+                        .size(40.sdp())
+                        .clip(CircleShape)
+                        .clickable { AppState.cartOpen = false },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    CloseGlyph(Modifier.size(26.sdp()), tint = Color.White)
+                }
             }
 
             LazyColumn(
                 Modifier
                     .weight(1f)
-                    .padding(horizontal = 38.sdp()),
-                verticalArrangement = Arrangement.spacedBy(12.sdp()),
-                contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 20.sdp()),
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(0.sdp()),
             ) {
-                items(AppState.cart, key = { it.product.id }) { item ->
-                    CartItemRow(item.product, item.quantity)
+                items(AppState.cart, key = { "${it.product.id}-${it.options}" }) { item ->
+                    CartItemRow(item.product, item.quantity, item.options)
                 }
             }
 
-            Column(Modifier.padding(horizontal = 38.sdp(), vertical = 24.sdp())) {
+            // 尾：合计（N 件）+ 千分位金额，去结算 → 胶囊
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .background(Color.White)
+                    .border(1.sdp(), FujiColor.Border, RoundedCornerShape(0))
+                    .padding(start = 38.sdp(), top = 25.sdp(), end = 38.sdp(), bottom = 34.sdp()),
+            ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("合计", color = FujiColor.Text, fontSize = 22.ssp(), fontWeight = FontWeight(650))
+                    Text(
+                        "合计（${AppState.cartCount} 件）",
+                        color = FujiColor.Text,
+                        fontSize = 19.ssp(),
+                        fontWeight = FontWeight(650),
+                    )
                     Spacer(Modifier.weight(1f))
                     Text(
-                        "¥${AppState.cartTotal}",
-                        color = FujiColor.Accent,
+                        yen(AppState.cartTotal),
+                        color = FujiColor.Text,
                         fontSize = 34.ssp(),
                         fontWeight = FontWeight(800),
                     )
                 }
-                Spacer(Modifier.height(18.sdp()))
-                PillButton(
-                    text = "去结算",
-                    onClick = {
-                        if (AppState.cart.isNotEmpty()) {
-                            AppState.newOrderId()
-                            AppState.navigate(AppScreen.PAYMENT)
+                Spacer(Modifier.height(23.sdp()))
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .height(64.sdp())
+                        .clip(CircleShape)
+                        .background(FujiColor.Accent)
+                        .clickable {
+                            if (AppState.cart.isNotEmpty()) {
+                                AppState.newOrderId()
+                                AppState.navigate(AppScreen.PAYMENT)
+                            }
+                        },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(18.sdp()),
+                    ) {
+                        Text("去结算", color = Color.White, fontSize = 17.ssp(), fontWeight = FontWeight(700))
+                        Canvas(Modifier.size(21.sdp())) {
+                            val d = this.size.minDimension
+                            val y = center.y
+                            val sw = d * 0.085f
+                            drawLine(Color.White, Offset(d * 0.08f, y), Offset(d * 0.92f, y), sw, StrokeCap.Round)
+                            drawLine(Color.White, Offset(d * 0.60f, y - d * 0.32f), Offset(d * 0.92f, y), sw, StrokeCap.Round)
+                            drawLine(Color.White, Offset(d * 0.92f, y), Offset(d * 0.60f, y + d * 0.32f), sw, StrokeCap.Round)
                         }
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    height = 64,
-                    fontSize = 17,
-                )
+                    }
+                }
             }
         }
     }
 }
 
+/** 购物车三列条目：thumb / 名称+配置小字 / 价格+删除。 */
 @Composable
-private fun CartItemRow(product: Product, quantity: Int) {
+private fun CartItemRow(product: Product, quantity: Int, options: String) {
     Row(
         Modifier
             .fillMaxWidth()
-            .height(150.sdp())
-            .clip(RoundedCornerShape(14.sdp()))
-            .background(FujiColor.Surface2)
-            .padding(12.sdp()),
+            .padding(horizontal = 38.sdp(), vertical = 16.sdp())
+            .border(1.sdp(), Color(0xFFEDF1F4), RoundedCornerShape(0)),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         product.imageRes?.let { res ->
             Image(
                 painter = painterResource(res),
                 contentDescription = product.name,
-                modifier = Modifier.size(122.sdp()),
+                modifier = Modifier.size(150.sdp()),
                 contentScale = ContentScale.Fit,
             )
         }
-        Spacer(Modifier.width(14.sdp()))
+        Spacer(Modifier.width(24.sdp()))
         Column(Modifier.weight(1f)) {
-            Text(product.name, color = FujiColor.Text, fontSize = 21.ssp(), fontWeight = FontWeight(750))
-            Spacer(Modifier.height(6.sdp()))
-            Text("¥${product.priceYen}", color = FujiColor.AccentDark, fontSize = 18.ssp(), fontWeight = FontWeight(700))
-            Text("数量 × $quantity", color = FujiColor.TextSecondary, fontSize = 15.ssp())
+            Text(
+                product.name,
+                color = FujiColor.Text,
+                fontSize = 22.ssp(),
+                fontWeight = FontWeight(750),
+                maxLines = 2,
+            )
+            Spacer(Modifier.height(9.sdp()))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(cartVariantLabel(product, options), color = FujiColor.TextSecondary, fontSize = 17.ssp())
+                if (quantity > 1) {
+                    Spacer(Modifier.width(8.sdp()))
+                    Box(
+                        Modifier
+                            .clip(CircleShape)
+                            .background(Color(0xFFEAF2FA))
+                            .padding(horizontal = 8.sdp(), vertical = 2.sdp()),
+                    ) {
+                        Text("× $quantity", color = FujiColor.AccentDark, fontSize = 14.ssp(), fontWeight = FontWeight(800))
+                    }
+                }
+            }
         }
-        Spacer(Modifier.width(10.sdp()))
-        Box(
-            Modifier
-                .clip(RoundedCornerShape(10.sdp()))
-                .background(Color(0xFFF2F6F9))
-                .clickable { AppState.removeFromCart(product.id) }
-                .padding(horizontal = 14.sdp(), vertical = 12.sdp()),
-        ) {
-            Text("移除", color = FujiColor.TextSecondary, fontSize = 15.ssp())
+        Spacer(Modifier.width(24.sdp()))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(yen(product.priceYen * quantity), color = FujiColor.Text, fontSize = 26.ssp(), fontWeight = FontWeight(750))
+            Spacer(Modifier.width(18.sdp()))
+            Box(
+                Modifier
+                    .size(56.sdp())
+                    .clip(RoundedCornerShape(14.sdp()))
+                    .background(Color(0xFFF2F6F9))
+                    .clickable { AppState.removeFromCart(product.id) },
+                contentAlignment = Alignment.Center,
+            ) {
+                TrashGlyph(Modifier.size(28.sdp()))
+            }
         }
+    }
+}
+
+/** ¥1,070 千分位格式，与 Web 的 yen() 一致。 */
+private fun yen(value: Int): String = "¥" + String.format(java.util.Locale.US, "%,d", value)
+
+/** 与 Web 的 variantLabel() 对应：温度 / 杯型 / 甜度 / 奶类。 */
+private fun cartVariantLabel(product: Product, options: String): String {
+    if (options.isBlank()) return "${product.temperature.label} / 标准杯"
+    val labels = mapOf(
+        "hot" to "热饮", "iced" to "冷饮",
+        "small" to "小杯", "medium" to "中杯", "large" to "大杯", "regular" to "标准杯",
+        "none" to "无糖", "light" to "微糖", "half" to "半糖", "less" to "少糖", "standard" to "标准糖",
+        "milk" to "牛奶", "lowfat" to "低脂奶", "oat" to "燕麦奶", "soy" to "豆奶",
+    )
+    return options.split("/").mapNotNull { labels[it.trim()] }.joinToString(" / ")
+}
+
+@Composable
+private fun CartGlyph(modifier: Modifier) {
+    Canvas(modifier) {
+        val d = this.size.minDimension
+        val sw = d * 0.075f
+        val color = Color.White
+        drawLine(color, Offset(d * 0.12f, d * 0.16f), Offset(d * 0.22f, d * 0.16f), sw, StrokeCap.Round)
+        drawLine(color, Offset(d * 0.22f, d * 0.16f), Offset(d * 0.34f, d * 0.83f), sw, StrokeCap.Round)
+        drawLine(color, Offset(d * 0.34f, d * 0.83f), Offset(d * 0.88f, d * 0.83f), sw, StrokeCap.Round)
+        drawLine(color, Offset(d * 0.88f, d * 0.83f), Offset(d * 0.96f, d * 0.32f), sw, StrokeCap.Round)
+        drawLine(color, Offset(d * 0.96f, d * 0.32f), Offset(d * 0.24f, d * 0.32f), sw, StrokeCap.Round)
+        drawCircle(color, radius = d * 0.055f, center = Offset(d * 0.43f, d * 0.93f))
+        drawCircle(color, radius = d * 0.055f, center = Offset(d * 0.79f, d * 0.93f))
+    }
+}
+
+@Composable
+private fun TrashGlyph(modifier: Modifier) {
+    Canvas(modifier) {
+        val d = this.size.minDimension
+        val c = Color(0xFF4C6172)
+        val sw = d * 0.065f
+        drawLine(c, Offset(d * 0.20f, d * 0.30f), Offset(d * 0.80f, d * 0.30f), sw, StrokeCap.Round)
+        drawLine(c, Offset(d * 0.42f, d * 0.30f), Offset(d * 0.42f, d * 0.20f), sw, StrokeCap.Round)
+        drawLine(c, Offset(d * 0.58f, d * 0.30f), Offset(d * 0.58f, d * 0.20f), sw, StrokeCap.Round)
+        drawLine(c, Offset(d * 0.28f, d * 0.30f), Offset(d * 0.34f, d * 0.82f), sw, StrokeCap.Round)
+        drawLine(c, Offset(d * 0.72f, d * 0.30f), Offset(d * 0.66f, d * 0.82f), sw, StrokeCap.Round)
+        drawLine(c, Offset(d * 0.34f, d * 0.82f), Offset(d * 0.66f, d * 0.82f), sw, StrokeCap.Round)
     }
 }
 
@@ -426,12 +524,12 @@ private fun ChevronDownGlyph(modifier: Modifier) {
 }
 
 @Composable
-private fun CloseGlyph(modifier: Modifier) {
+private fun CloseGlyph(modifier: Modifier, tint: Color = FujiColor.TextSecondary) {
     Canvas(modifier) {
         val d = this.size.minDimension
         val sw = d * 0.06f
-        drawLine(FujiColor.TextSecondary, Offset(d * 0.27f, d * 0.27f), Offset(d * 0.73f, d * 0.73f), sw, StrokeCap.Round)
-        drawLine(FujiColor.TextSecondary, Offset(d * 0.73f, d * 0.27f), Offset(d * 0.27f, d * 0.73f), sw, StrokeCap.Round)
+        drawLine(tint, Offset(d * 0.27f, d * 0.27f), Offset(d * 0.73f, d * 0.73f), sw, StrokeCap.Round)
+        drawLine(tint, Offset(d * 0.73f, d * 0.27f), Offset(d * 0.27f, d * 0.73f), sw, StrokeCap.Round)
     }
 }
 

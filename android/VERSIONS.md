@@ -3,6 +3,16 @@
 本目录（`android/`）是一个**自包含、可直接交付研发**的独立 Gradle 工程，
 与仓库根目录的 Web 原型版本线（`v3.x.x`）互不混用。
 
+## android-v0.7.0
+
+- **变更｜购物车抽屉按线上参考页重写**：严格对照 `https://fuji-ui.up.railway.app/` 与 `index.html` 的 `.cart-*` CSS 与用户截图，重写 `ProductDrawers.kt` 的 `CartDrawer` / `CartItemRow`。
+  - **标题栏**：通栏蓝底高 100、padding 38；新增购物车线性图标 + 文案「购物车」+ 白底数量徽章（蓝字）；右侧关闭按钮由文字 ✕ 改为 Canvas 绘制的白色叉号（新增 `CloseGlyph` 带 tint 重载）。
+  - **条目**：thumb 图 150、商品名 22、配置小字（如「冷饮 / 标准杯」，由 CartItem.options 映射）、价格 26；最右侧新增浅灰圆角垃圾桶删除按钮（Canvas 图标），整条圆角白底。
+  - **底部**：合计行文案改为「合计（N 件）」、价格带千分位格式化（¥1,070）、去结算按钮加「→」箭头。
+- **验证**：`./gradlew assembleDebug` 通过；1920×1080 模拟器加购 3 件后打开抽屉截图确认——标题栏图标/徽章/关闭图标、3 条商品的配置小字与垃圾桶按钮、底部「合计（3 件）」与千分位「¥1,070」、去结算箭头均正确显示，无重叠裁切、无 ANR；截图见 `preview/v0.7.0/`。
+- **稳定性**：模拟器 AVD `Jinuo_API36` 内存由 2048 提升至 3072MB，并禁用导致反复 ANR 的 `com.google.android.apps.wellbeing`，验证期间运行稳定。
+- **版本**：`versionCode=7`，`versionName=0.7.0`；回滚 `git checkout android-v0.6.0`。
+
 ## android-v0.6.0
 
 - **变更｜定制饮品弹窗按线上参考页重构**：严格对照 `https://fuji-ui.up.railway.app/` 与 `index.html` 的 `.customization-*` CSS 重写 `ProductDrawers.kt` 定制弹窗内部布局。弹窗外框仍为 1240×820、底部上滑、左右留白（v0.5.0 成果保留）；内部改为三段式：
