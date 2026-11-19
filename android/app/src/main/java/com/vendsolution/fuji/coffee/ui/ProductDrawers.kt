@@ -3,8 +3,10 @@ package com.vendsolution.fuji.coffee.ui
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,10 +17,12 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -34,15 +38,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import com.vendsolution.fuji.coffee.data.AppScreen
 import com.vendsolution.fuji.coffee.data.AppState
 import com.vendsolution.fuji.coffee.data.Product
 import com.vendsolution.fuji.coffee.data.ProductCatalog
 import com.vendsolution.fuji.coffee.design.FujiColor
+import com.vendsolution.fuji.coffee.design.FujiDimens
 import com.vendsolution.fuji.coffee.design.sdp
 import com.vendsolution.fuji.coffee.design.ssp
 
@@ -186,25 +194,29 @@ private fun CartItemRow(product: Product, quantity: Int) {
     }
 }
 
-private val TEMPERATURES = listOf("热" to "hot", "冰" to "iced")
+private val TEMPERATURES = listOf("热饮" to "hot", "冷饮" to "iced")
 private val SIZES = listOf("小杯" to "small", "中杯" to "medium", "大杯" to "large")
-private val SWEETS = listOf("无糖" to "none", "少糖" to "less", "半糖" to "half", "标准" to "standard")
-private val MILKS = listOf("全脂" to "milk", "低脂" to "lowfat", "燕麦" to "oat", "豆奶" to "soy")
+private val SWEETS = listOf(
+    "无糖" to "none",
+    "微糖" to "light",
+    "半糖" to "half",
+    "少糖" to "less",
+    "标准糖" to "standard",
+)
+private val MILKS = listOf("牛奶" to "milk", "低脂奶" to "lowfat", "燕麦奶" to "oat", "豆奶" to "soy")
 
-/** 定制饮品抽屉，对应 Web 的 #customizationLayer.
- *  从屏幕下端向上滑入（translateY 105%→0，0.34s），背景页面仍可透出，不铺满。 */
+/** 定制饮品弹窗，严格对应 index.html 的 .customization-sheet。 */
 @Composable
 fun CustomizationDrawer() {
     val productId = AppState.customizeProductId ?: return
     val product = ProductCatalog.ALL.firstOrNull { it.id == productId } ?: return
 
-    var temperature by remember(productId) { mutableStateOf("iced") }
+    var temperature by remember(productId) { mutableStateOf("hot") }
     var size by remember(productId) { mutableStateOf("medium") }
     var sweetness by remember(productId) { mutableStateOf("standard") }
     var milk by remember(productId) { mutableStateOf("milk") }
     var quantity by remember(productId) { mutableIntStateOf(1) }
 
-    // 进入动画：从底部滑入 + 遮罩淡入
     var entered by remember(productId) { mutableStateOf(false) }
     LaunchedEffect(productId) { entered = true }
     val scrimAlpha by animateFloatAsState(
@@ -217,12 +229,13 @@ fun CustomizationDrawer() {
         animationSpec = tween(340),
         label = "custom-slide",
     )
+    val close = { AppState.customizeProductId = null }
 
     Box(
         Modifier
             .fillMaxSize()
             .background(Color(0xFF091C2A).copy(alpha = 0.44f * scrimAlpha))
-            .clickable { AppState.customizeProductId = null },
+            .clickable(onClick = close),
     )
 
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
@@ -234,32 +247,37 @@ fun CustomizationDrawer() {
                 .clip(RoundedCornerShape(topStart = 32.sdp(), topEnd = 32.sdp()))
                 .background(Color.White),
         ) {
-            // 头：居中标题，右侧关闭；两侧留边
-            Box(
-                Modifier
-                    .fillMaxWidth()
-                    .height(92.sdp()),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text("定制饮品", color = FujiColor.Text, fontSize = 28.ssp(), fontWeight = FontWeight(750))
+            // 头：92 高 + 下分隔线；左收起、中标题、右关闭，两侧各 44
+            Box(Modifier.fillMaxWidth().height(92.sdp())) {
+                SheetCircleButton(
+                    Modifier.align(Alignment.CenterStart).padding(start = 44.sdp()),
+                    onClick = close,
+                ) { ChevronDownGlyph(Modifier.size(30.sdp())) }
                 Text(
-                    "✕",
-                    modifier = Modifier
-                        .align(Alignment.CenterEnd)
-                        .padding(end = 44.sdp())
-                        .clip(CircleShape)
-                        .clickable { AppState.customizeProductId = null }
-                        .padding(12.sdp()),
-                    color = FujiColor.TextSecondary,
-                    fontSize = 22.ssp(),
+                    "定制饮品",
+                    Modifier.align(Alignment.Center),
+                    color = FujiColor.Text,
+                    fontSize = 28.ssp(),
+                    fontWeight = FontWeight(750),
+                )
+                SheetCircleButton(
+                    Modifier.align(Alignment.CenterEnd).padding(end = 44.sdp()),
+                    onClick = close,
+                ) { CloseGlyph(Modifier.size(30.sdp())) }
+                Box(
+                    Modifier
+                        .align(Alignment.BottomStart)
+                        .fillMaxWidth()
+                        .height(1.sdp())
+                        .background(FujiColor.Border),
                 )
             }
 
-            // 身：左侧商品 380 + 间距 56，右侧选项区；整体左右留白 64
+            // 身：padding 26/64/28，左商品 380 + gap 56 + 右选项区
             Row(
                 Modifier
                     .weight(1f)
-                    .padding(horizontal = 64.sdp()),
+                    .padding(start = 64.sdp(), top = 26.sdp(), end = 64.sdp(), bottom = 28.sdp()),
                 horizontalArrangement = Arrangement.spacedBy(56.sdp()),
             ) {
                 Column(Modifier.width(380.sdp())) {
@@ -271,54 +289,113 @@ fun CustomizationDrawer() {
                             contentScale = ContentScale.Fit,
                         )
                     }
+                    Spacer(Modifier.height(20.sdp()))
                     Text(product.name, color = FujiColor.Text, fontSize = 28.ssp(), fontWeight = FontWeight(750))
-                    Text("¥${product.priceYen}", color = FujiColor.Accent, fontSize = 26.ssp(), fontWeight = FontWeight(800))
+                    Spacer(Modifier.height(6.sdp()))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            "¥${product.priceYen}",
+                            color = FujiColor.AccentDark,
+                            fontSize = 26.ssp(),
+                            fontWeight = FontWeight(800),
+                        )
+                        Spacer(Modifier.width(7.sdp()))
+                        Text(
+                            "¥${product.priceYen + FujiDimens.STRIKE_DELTA}",
+                            color = FujiColor.PriceWas,
+                            fontSize = 17.ssp(),
+                            fontWeight = FontWeight(650),
+                            textDecoration = TextDecoration.LineThrough,
+                        )
+                    }
                 }
                 Column(
                     Modifier.weight(1f),
-                    verticalArrangement = Arrangement.SpaceEvenly,
+                    verticalArrangement = Arrangement.SpaceBetween,
                 ) {
-                    OptionRow("温度", TEMPERATURES, temperature) { temperature = it }
-                    OptionRow("杯型", SIZES, size) { size = it }
-                    OptionRow("甜度", SWEETS, sweetness) { sweetness = it }
-                    OptionRow("奶类", MILKS, milk) { milk = it }
+                    OptionGroup("温度", TEMPERATURES, temperature) { temperature = it }
+                    OptionGroup("杯型", SIZES, size) { size = it }
+                    OptionGroup("甜度", SWEETS, sweetness) { sweetness = it }
+                    OptionGroup("奶类", MILKS, milk, last = true) { milk = it }
                 }
             }
 
-            // 尾：数量 / 小计 / 加入订单，与 Web 的 .customization-footer 同高
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .height(116.sdp())
-                    .padding(horizontal = 64.sdp()),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text("数量", color = FujiColor.Text, fontSize = 18.ssp(), fontWeight = FontWeight(700))
-                Spacer(Modifier.width(16.sdp()))
-                PillButton("−", { if (quantity > 1) quantity-- }, height = 48, fontSize = 20)
-                Spacer(Modifier.width(10.sdp()))
-                Text("$quantity", color = FujiColor.Text, fontSize = 22.ssp(), fontWeight = FontWeight(800))
-                Spacer(Modifier.width(10.sdp()))
-                PillButton("+", { if (quantity < 3) quantity++ }, height = 48, fontSize = 20)
-                Spacer(Modifier.weight(1f))
-                Text(
-                    "¥${product.priceYen * quantity}",
-                    color = FujiColor.AccentDark,
-                    fontSize = 36.ssp(),
-                    fontWeight = FontWeight(800),
-                )
-                Spacer(Modifier.width(36.sdp()))
-                PillButton(
-                    "加入订单",
-                    onClick = {
-                        val options = listOf(temperature, size, sweetness, milk).joinToString("/")
-                        repeat(quantity) { AppState.addToCart(product, options) }
-                        AppState.customizeProductId = null
-                        AppState.cartOpen = true
-                    },
-                    modifier = Modifier.width(350.sdp()),
-                    height = 72,
-                    fontSize = 20,
+            // 尾：116 高 + 上分隔线；数量 / 合计 / 加入订单
+            Box(Modifier.fillMaxWidth().height(116.sdp())) {
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .height(116.sdp())
+                        .padding(horizontal = 64.sdp()),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text("数量", color = FujiColor.Text, fontSize = 19.ssp(), fontWeight = FontWeight(700))
+                    Spacer(Modifier.width(20.sdp()))
+                    RoundStepper("−", enabled = quantity > 1) { quantity-- }
+                    Spacer(Modifier.width(20.sdp()))
+                    Text(
+                        "$quantity",
+                        modifier = Modifier.width(32.sdp()),
+                        color = FujiColor.Text,
+                        fontSize = 24.ssp(),
+                        fontWeight = FontWeight(700),
+                    )
+                    Spacer(Modifier.width(20.sdp()))
+                    RoundStepper("+", enabled = quantity < 3) { quantity++ }
+                    Spacer(Modifier.weight(1f))
+                    Text("合计", color = FujiColor.TextSecondary, fontSize = 18.ssp())
+                    Spacer(Modifier.width(12.sdp()))
+                    Text(
+                        "¥${product.priceYen * quantity}",
+                        color = FujiColor.Text,
+                        fontSize = 36.ssp(),
+                        fontWeight = FontWeight(800),
+                    )
+                    Spacer(Modifier.width(7.sdp()))
+                    Text(
+                        "¥${(product.priceYen + FujiDimens.STRIKE_DELTA) * quantity}",
+                        color = FujiColor.PriceWas,
+                        fontSize = 17.ssp(),
+                        fontWeight = FontWeight(650),
+                        textDecoration = TextDecoration.LineThrough,
+                    )
+                    Spacer(Modifier.width(28.sdp()))
+                    Box(
+                        Modifier
+                            .width(350.sdp())
+                            .height(72.sdp())
+                            .clip(CircleShape)
+                            .background(FujiColor.Accent)
+                            .clickable {
+                                val options = listOf(temperature, size, sweetness, milk).joinToString("/")
+                                repeat(quantity) { AppState.addToCart(product, options) }
+                                close()
+                                AppState.cartOpen = true
+                            },
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(24.sdp()),
+                        ) {
+                            Text("加入订单", color = Color.White, fontSize = 20.ssp(), fontWeight = FontWeight(700))
+                            Canvas(Modifier.size(24.sdp())) {
+                                val d = this.size.minDimension
+                                val y = center.y
+                                val sw = d * 0.075f
+                                drawLine(FujiColor.Surface, Offset(d * 0.08f, y), Offset(d * 0.86f, y), sw, StrokeCap.Round)
+                                drawLine(FujiColor.Surface, Offset(d * 0.55f, y - d * 0.30f), Offset(d * 0.86f, y), sw, StrokeCap.Round)
+                                drawLine(FujiColor.Surface, Offset(d * 0.86f, y), Offset(d * 0.55f, y + d * 0.30f), sw, StrokeCap.Round)
+                            }
+                        }
+                    }
+                }
+                Box(
+                    Modifier
+                        .align(Alignment.TopStart)
+                        .fillMaxWidth()
+                        .height(1.sdp())
+                        .background(FujiColor.Border),
                 )
             }
         }
@@ -326,32 +403,95 @@ fun CustomizationDrawer() {
 }
 
 @Composable
-private fun OptionRow(
+private fun SheetCircleButton(modifier: Modifier, onClick: () -> Unit, icon: @Composable () -> Unit) {
+    Box(
+        modifier
+            .size(64.sdp())
+            .clip(CircleShape)
+            .background(Color.White)
+            .border(1.sdp(), Color(0xFFD9E6ED), CircleShape)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) { icon() }
+}
+
+@Composable
+private fun ChevronDownGlyph(modifier: Modifier) {
+    Canvas(modifier) {
+        val d = this.size.minDimension
+        val sw = d * 0.065f
+        drawLine(FujiColor.AccentDark, Offset(d * 0.22f, d * 0.40f), Offset(d * 0.50f, d * 0.66f), sw, StrokeCap.Round)
+        drawLine(FujiColor.AccentDark, Offset(d * 0.50f, d * 0.66f), Offset(d * 0.78f, d * 0.40f), sw, StrokeCap.Round)
+    }
+}
+
+@Composable
+private fun CloseGlyph(modifier: Modifier) {
+    Canvas(modifier) {
+        val d = this.size.minDimension
+        val sw = d * 0.06f
+        drawLine(FujiColor.TextSecondary, Offset(d * 0.27f, d * 0.27f), Offset(d * 0.73f, d * 0.73f), sw, StrokeCap.Round)
+        drawLine(FujiColor.TextSecondary, Offset(d * 0.73f, d * 0.27f), Offset(d * 0.27f, d * 0.73f), sw, StrokeCap.Round)
+    }
+}
+
+@Composable
+private fun RoundStepper(text: String, enabled: Boolean, onClick: () -> Unit) {
+    Box(
+        Modifier
+            .size(52.sdp())
+            .clip(CircleShape)
+            .background(Color.White)
+            .border(1.sdp(), Color(0xFFC9DFE9), CircleShape)
+            .clickable(enabled = enabled, onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text,
+            color = if (enabled) FujiColor.Accent else FujiColor.Border,
+            fontSize = 28.ssp(),
+            fontWeight = FontWeight(500),
+        )
+    }
+}
+
+@Composable
+private fun OptionGroup(
     label: String,
     options: List<Pair<String, String>>,
     selected: String,
+    last: Boolean = false,
     onSelect: (String) -> Unit,
 ) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Text(label, modifier = Modifier.width(90.sdp()), color = FujiColor.Text, fontSize = 18.ssp(), fontWeight = FontWeight(700))
+    Column(Modifier.fillMaxWidth().padding(top = 8.sdp())) {
+        Text(label, color = FujiColor.Text, fontSize = 18.ssp(), fontWeight = FontWeight(700))
+        Spacer(Modifier.height(16.sdp()))
         Row(horizontalArrangement = Arrangement.spacedBy(12.sdp())) {
             options.forEach { (text, value) ->
                 val active = selected == value
                 Box(
                     Modifier
+                        .heightIn(min = 52.sdp())
+                        .widthIn(min = 108.sdp())
                         .clip(CircleShape)
                         .background(if (active) FujiColor.Accent else Color.White)
+                        .border(1.sdp(), if (active) FujiColor.Accent else Color(0xFFCEDFE8), CircleShape)
                         .clickable { onSelect(value) }
-                        .padding(horizontal = 23.sdp(), vertical = 13.sdp()),
+                        .padding(horizontal = 23.sdp(), vertical = 6.sdp()),
+                    contentAlignment = Alignment.Center,
                 ) {
                     Text(
                         text,
                         color = if (active) Color.White else FujiColor.Text,
                         fontSize = 16.ssp(),
-                        fontWeight = FontWeight(650),
+                        fontWeight = FontWeight(500),
                     )
                 }
             }
+        }
+        Spacer(Modifier.height(if (last) 8.sdp() else 22.sdp()))
+        if (!last) {
+            Box(Modifier.fillMaxWidth().height(1.sdp()).background(FujiColor.Border))
         }
     }
 }
