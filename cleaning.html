@@ -198,10 +198,9 @@
     .pause-card {
       position: relative;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: clamp(12px, 1.9vh, 20px);
+      overflow: hidden;
       width: clamp(196px, 29.4vh, 318px);
       height: clamp(196px, 29.4vh, 318px);
       border: 1px solid #d4e7f6;
@@ -211,21 +210,21 @@
         0 30px 66px rgba(9,80,140,.14),
         inset 0 1px 0 #fff;
     }
-    .pause-card::after {
-      position: absolute;
-      inset: clamp(10px, 1.5vh, 16px);
-      border: 1px solid rgba(154,203,235,.5);
-      border-radius: clamp(20px, 3.2vh, 34px);
-      content: "";
-      pointer-events: none;
-    }
 
-    /* 清洗主图形：咖啡机 + 清洗进度环 + 水滴 / 气泡 / 星光，取自提供的清洗动画 */
-    .clean-glyph { display: flex; align-items: center; justify-content: center; }
+    /* 清洗主图形：咖啡机 + 清洗进度环 + 水滴 / 气泡 / 星光，取自提供的清洗动画。
+       去掉 Please / Wait 文案后图形铺满整张卡，SVG 内再整体放大到接近满框。 */
+    .clean-glyph {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+    }
     .clean-glyph svg {
-      width: clamp(104px, 15.6vh, 168px);
-      height: clamp(104px, 15.6vh, 168px);
-      overflow: visible;
+      display: block;
+      width: 100%;
+      height: 100%;
       filter: drop-shadow(0 6px 10px rgba(4,60,110,.09));
     }
     .clean-glyph .clean-progress {
@@ -260,16 +259,6 @@
       .clean-glyph .clean-drop,
       .clean-glyph .clean-bubble,
       .clean-glyph .clean-sparkle { animation: none; }
-    }
-
-    .pause-caption {
-      font-size: clamp(9.5px, 1.15vh, 12px);
-      font-weight: 750;
-      line-height: 1.75;
-      letter-spacing: .32em;
-      text-indent: .32em;
-      color: #5d89a9;
-      text-transform: uppercase;
     }
 
     .fault-title {
@@ -462,7 +451,7 @@
       <div class="pause-wrap">
         <div class="pause-halo" aria-hidden="true"></div>
         <div class="pause-ring" aria-hidden="true"></div>
-        <div class="pause-card" role="img" aria-label="Cleaning, please wait">
+        <div class="pause-card" role="img" aria-label="Cleaning in progress">
           <div class="clean-glyph" aria-hidden="true">
             <svg viewBox="0 0 400 400" fill="none">
               <defs>
@@ -472,33 +461,35 @@
                 <radialGradient id="cleanMachineBubble" cx="35%" cy="25%"><stop stop-color="#fff"/><stop offset=".55" stop-color="#dff2ff"/><stop offset="1" stop-color="#9ed3fa"/></radialGradient>
                 <filter id="cleanMachineShadow" x="-30%" y="-30%" width="160%" height="170%"><feGaussianBlur stdDeviation="8"/></filter>
               </defs>
-              <circle cx="200" cy="200" r="151" fill="none" stroke="#d8edff" stroke-width="13" opacity=".8"/>
-              <g class="clean-progress"><circle cx="200" cy="200" r="151" fill="none" stroke="#58b7f4" stroke-width="13" stroke-linecap="round" stroke-dasharray="300 650"/></g>
-              <ellipse cx="203" cy="316" rx="92" ry="17" fill="#70b4e8" opacity=".2" filter="url(#cleanMachineShadow)"/>
-              <rect x="112" y="94" width="176" height="190" rx="25" fill="url(#cleanMachineBody)"/>
-              <rect x="99" y="78" width="202" height="78" rx="24" fill="url(#cleanMachinePanel)" stroke="#c5e5ff" stroke-width="2"/>
-              <rect x="137" y="91" width="126" height="57" rx="13" fill="#5ca8e8" opacity=".78"/>
-              <path d="M174 109h34v16c0 13-8 21-18 21s-16-8-16-21z" stroke="#f4fbff" stroke-width="5" stroke-linejoin="round"/>
-              <path d="M208 114h7c10 0 10 15 0 15h-7" stroke="#f4fbff" stroke-width="5" stroke-linecap="round"/>
-              <path d="M169 151h62" stroke="#d9efff" stroke-width="3" stroke-linecap="round"/>
-              <path d="M153 156h94l-12 34h-70z" fill="#d9efff"/>
-              <rect x="181" y="184" width="38" height="23" rx="8" fill="#eaf7ff"/>
-              <rect x="190" y="203" width="20" height="17" rx="5" fill="#d4edff"/>
-              <g fill="#f4fbff">
-                <rect class="clean-drop" x="171" y="231" width="7" height="17" rx="4"/>
-                <rect class="clean-drop clean-drop-2" x="196" y="235" width="7" height="22" rx="4"/>
-                <rect class="clean-drop" x="221" y="231" width="7" height="17" rx="4"/>
+              <!-- 原始 viewBox 四周留有透明留白，这里整体放大 1.2 倍，让清洗环接近卡片边缘 -->
+              <g transform="translate(200 200) scale(1.2) translate(-200 -200)">
+                <circle cx="200" cy="200" r="151" fill="none" stroke="#d8edff" stroke-width="13" opacity=".8"/>
+                <g class="clean-progress"><circle cx="200" cy="200" r="151" fill="none" stroke="#58b7f4" stroke-width="13" stroke-linecap="round" stroke-dasharray="300 650"/></g>
+                <ellipse cx="203" cy="316" rx="92" ry="17" fill="#70b4e8" opacity=".2" filter="url(#cleanMachineShadow)"/>
+                <rect x="112" y="94" width="176" height="190" rx="25" fill="url(#cleanMachineBody)"/>
+                <rect x="99" y="78" width="202" height="78" rx="24" fill="url(#cleanMachinePanel)" stroke="#c5e5ff" stroke-width="2"/>
+                <rect x="137" y="91" width="126" height="57" rx="13" fill="#5ca8e8" opacity=".78"/>
+                <path d="M174 109h34v16c0 13-8 21-18 21s-16-8-16-21z" stroke="#f4fbff" stroke-width="5" stroke-linejoin="round"/>
+                <path d="M208 114h7c10 0 10 15 0 15h-7" stroke="#f4fbff" stroke-width="5" stroke-linecap="round"/>
+                <path d="M169 151h62" stroke="#d9efff" stroke-width="3" stroke-linecap="round"/>
+                <path d="M153 156h94l-12 34h-70z" fill="#d9efff"/>
+                <rect x="181" y="184" width="38" height="23" rx="8" fill="#eaf7ff"/>
+                <rect x="190" y="203" width="20" height="17" rx="5" fill="#d4edff"/>
+                <g fill="#f4fbff">
+                  <rect class="clean-drop" x="171" y="231" width="7" height="17" rx="4"/>
+                  <rect class="clean-drop clean-drop-2" x="196" y="235" width="7" height="22" rx="4"/>
+                  <rect class="clean-drop" x="221" y="231" width="7" height="17" rx="4"/>
+                </g>
+                <path d="M112 276h176l-12 30H124z" fill="url(#cleanMachineTray)" stroke="#b7ddfb" stroke-width="2"/>
+                <path d="M148 284l-7 12M174 284l-7 12M200 284l-7 12M226 284l-7 12M252 284l-7 12" stroke="#277fc4" stroke-width="7" stroke-linecap="round"/>
+                <g class="clean-bubble"><circle cx="274" cy="282" r="25" fill="url(#cleanMachineBubble)"/><circle cx="266" cy="273" r="7" fill="#fff" opacity=".8"/></g>
+                <g class="clean-bubble clean-bubble-2"><circle cx="306" cy="297" r="18" fill="url(#cleanMachineBubble)"/><circle cx="301" cy="291" r="5" fill="#fff" opacity=".8"/></g>
+                <g class="clean-bubble clean-bubble-3"><circle cx="250" cy="308" r="21" fill="url(#cleanMachineBubble)"/><circle cx="244" cy="301" r="6" fill="#fff" opacity=".8"/></g>
+                <g class="clean-sparkle" fill="#2998e8"><path d="M75 177c5 18 9 22 27 27-18 5-22 9-27 27-5-18-9-22-27-27 18-5 22-9 27-27z"/></g>
+                <g class="clean-sparkle clean-sparkle-2" fill="#2998e8"><path d="M326 222c4 14 7 17 21 21-14 4-17 7-21 21-4-14-7-17-21-21 14-4 17-7 21-21z"/></g>
               </g>
-              <path d="M112 276h176l-12 30H124z" fill="url(#cleanMachineTray)" stroke="#b7ddfb" stroke-width="2"/>
-              <path d="M148 284l-7 12M174 284l-7 12M200 284l-7 12M226 284l-7 12M252 284l-7 12" stroke="#277fc4" stroke-width="7" stroke-linecap="round"/>
-              <g class="clean-bubble"><circle cx="274" cy="282" r="25" fill="url(#cleanMachineBubble)"/><circle cx="266" cy="273" r="7" fill="#fff" opacity=".8"/></g>
-              <g class="clean-bubble clean-bubble-2"><circle cx="306" cy="297" r="18" fill="url(#cleanMachineBubble)"/><circle cx="301" cy="291" r="5" fill="#fff" opacity=".8"/></g>
-              <g class="clean-bubble clean-bubble-3"><circle cx="250" cy="308" r="21" fill="url(#cleanMachineBubble)"/><circle cx="244" cy="301" r="6" fill="#fff" opacity=".8"/></g>
-              <g class="clean-sparkle" fill="#2998e8"><path d="M75 177c5 18 9 22 27 27-18 5-22 9-27 27-5-18-9-22-27-27 18-5 22-9 27-27z"/></g>
-              <g class="clean-sparkle clean-sparkle-2" fill="#2998e8"><path d="M326 222c4 14 7 17 21 21-14 4-17 7-21 21-4-14-7-17-21-21 14-4 17-7 21-21z"/></g>
             </svg>
           </div>
-          <div class="pause-caption">Please<br>Wait</div>
         </div>
       </div>
 
