@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- 首帧语言：样式生效前把 <html lang> 定到实际语言，避免中文界面先按日文字形渲染一帧 -->
+  <script>
+    (function () {
+      var map = { ja: "ja", zh: "zh-CN", en: "en", ko: "ko" };
+      var lang = null;
+      try {
+        var requested = new URLSearchParams(window.location.search).get("lang");
+        lang = map[requested] || map[localStorage.getItem("fujiLanguage")] || null;
+      } catch (error) {
+        console.warn("首帧语言读取失败。", error);
+      }
+      if (lang) document.documentElement.lang = lang;
+    })();
+  </script>
+
+  <!-- 设备配置引导：读取 setup.html 保存的档位，决定排版标记与根字号基准 -->
+  <script>
+    (function () {
+      var KEY = "fujiDevice";
+      var root = document.documentElement;
+      var device = null;
+      try {
+        var raw = localStorage.getItem(KEY);
+        if (raw) device = JSON.parse(raw);
+      } catch (error) {
+        console.warn("设备配置读取失败。", error);
+      }
+
+      // 与 setup.html 中的推断逻辑保持一致
+      function layoutForWidth(width) {
+        if (width >= 2200) return "l27";
+        if (width >= 1280) return "m21";
+        return "s10";
+      }
+
+      var mode = device && device.mode ? device.mode : "auto";
+      var layout = null;
+      var base = null;
+
+      if (mode === "preset" && device.layout) {
+        layout = device.layout;
+      } else if (mode === "custom" && device.w > 0 && device.h > 0) {
+        layout = layoutForWidth(device.w);
+        base = Math.min(device.w / 120, device.h / 67.5);
+      } else {
+        mode = "auto";
+        layout = layoutForWidth(window.innerWidth);
+      }
+
+      root.dataset.deviceMode = mode;
+      root.dataset.deviceLayout = layout;
+      window.FUJI_DEVICE = { mode: mode, layout: layout };
+
+      // 自定义分辨率：把根字号钳到该基准对应的设计字号，且不超过真实视口允许的尺寸
+      if (base && base > 0) {
+        var style = document.createElement("style");
+        style.textContent =
+          'html[data-device-mode="custom"]{font-size:max(12px,min(' +
+          base.toFixed(3) +
+          'px,100vw / 120,100vh / 67.5));}';
+        document.head.appendChild(style);
+      }
+    })();
+  </script>
+  <title>清洗中 - Fuji Electric</title>
+  <style>
+    :root {
+      --blue: #0877c9;
+      --blue-dark: #075b9e;
+      --blue-deep: #064b83;
+      --blue-soft: #e9f5fc;
+      --ink: #102d43;
+      --muted: #6d8494;
+      --line: #dbe9f3;
+      --warn: #e0912f;
+      /* 与商品页一致的状态栏高度（56 设计像素） */
+      --status-h: 3.5rem;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-width: 47.5rem; }
+    /* 与商品售卖页相同的等比缩放基准：设计稿 1920×1080，1rem = 16 设计像素。
+       状态栏直接复用商品页的 rem 尺寸，两页在任意屏幕上宽度/高度/字号完全一致。 */
+    html {
+      font-size: min(100vw / 120, 100vh / 67.5);
+      font-size: min(100vw / 120, 100dvh / 67.5);
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
+    @media (orientation: landscape) {
+      html { font-size: max(12px, min(100vw / 120, 100vh / 67.5)); }
+      html { font-size: max(12px, min(100vw / 120, 100dvh / 67.5)); }
+    }
+    body {
+      color: var(--ink);
+      background: #f4f8fb;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, var(--font-cjk), sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    /* 统一字体：拉丁固定 SF Pro / Segoe UI；CJK 随文档语言切换，避免同一流程内跳字 */
+    :root { --font-cjk: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", "Source Han Sans SC"; }
+    html[lang="ja"] { --font-cjk: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Noto Sans JP", "Meiryo", "PingFang SC"; }
+    html[lang="ko"] { --font-cjk: "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", "Nanum Gothic", "PingFang SC"; }
+
+    button { font: inherit; }
+    button:focus-visible { outline: 3px solid rgba(8,119,201,.3); outline-offset: 3px; }
+
+    .fault-page {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100vh;
+      height: 100dvh;
+      min-height: 700px;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 50% 30%, rgba(178,216,243,.34), transparent 42%),
+        radial-gradient(circle at 8% 78%, rgba(200,229,246,.28), transparent 32%),
+        radial-gradient(circle at 92% 72%, rgba(200,229,246,.28), transparent 32%),
+        linear-gradient(180deg, #fbfdff 0%, #f4f9fd 62%, #e9f3fa 100%);
+    }
+    .fault-page::before,
+    .fault-page::after {
+      position: absolute;
+      z-index: 0;
+      border: 1px solid rgba(120,180,220,.14);
+      border-radius: 50%;
+      content: "";
+      pointer-events: none;
+    }
+    .fault-page::before { top: -180px; left: -140px; width: 620px; height: 620px; }
+    .fault-page::after { right: -190px; bottom: -220px; width: 720px; height: 720px; }
+
+    /* ── 顶部状态栏（与商品售卖页同一套样式、布局与文案） ── */
+    .status-bar {
+      position: relative;
+      z-index: 20;
+      display: flex;
+      flex: 0 0 var(--status-h);
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+      padding: 0 1.75rem;
+      border-bottom: 0.0625rem solid #dae5ee;
+      color: #4a6478;
+      background: #e9eff5;
+      font-size: 0.8125rem;
+      letter-spacing: .01em;
+    }
+    .status-left, .status-right, .status-item {
+      display: flex;
+      align-items: center;
+    }
+    .status-left, .status-right { gap: 1.75rem; }
+    .status-item { gap: 0.5rem; white-space: nowrap; }
+    .status-item svg { width: 1rem; height: 1rem; }
+    .status-right svg { color: #8ea6b6; }
+    .machine-id { color: #6d8598; }
+    .machine-id strong { color: #35566e; font-weight: 500; }
+
+    /* ── 主内容 ── */
+    .fault-body {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex: 1 1 auto;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 0;
+      padding: 24px 40px 8px;
+      text-align: center;
+    }
+
+    .pause-wrap { position: relative; display: flex; align-items: center; justify-content: center; }
+    .pause-halo {
+      position: absolute;
+      width: 430px;
+      height: 430px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(140,196,236,.26), rgba(190,224,246,.14) 58%, transparent 66%);
+    }
+    .pause-ring {
+      position: absolute;
+      width: 352px;
+      height: 352px;
+      border: 1px dashed rgba(120,180,220,.34);
+      border-radius: 50%;
+      animation: ring-spin 26s linear infinite;
+    }
+    @keyframes ring-spin { to { transform: rotate(360deg); } }
+
+    .pause-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(12px, 1.9vh, 20px);
+      width: clamp(196px, 29.4vh, 318px);
+      height: clamp(196px, 29.4vh, 318px);
+      border: 1px solid #d4e7f6;
+      border-radius: clamp(28px, 4.3vh, 46px);
+      background: linear-gradient(158deg, #ffffff 0%, #eaf5ff 54%, #d8ecfd 100%);
+      box-shadow:
+        0 30px 66px rgba(9,80,140,.14),
+        inset 0 1px 0 #fff;
+    }
+    .pause-card::after {
+      position: absolute;
+      inset: clamp(10px, 1.5vh, 16px);
+      border: 1px solid rgba(154,203,235,.5);
+      border-radius: clamp(20px, 3.2vh, 34px);
+      content: "";
+      pointer-events: none;
+    }
+
+    /* 清洗主图形：水滴 + 波浪，蓝色渐变，与整机暂停卡同族但语义为「请稍候」 */
+    .clean-glyph { display: flex; align-items: center; justify-content: center; }
+    .clean-glyph svg {
+      width: clamp(48px, 7.2vh, 78px);
+      height: clamp(56px, 8.6vh, 92px);
+      filter: drop-shadow(0 6px 10px rgba(4,60,110,.16));
+    }
+
+    .pause-caption {
+      font-size: clamp(9.5px, 1.15vh, 12px);
+      font-weight: 750;
+      line-height: 1.75;
+      letter-spacing: .32em;
+      text-indent: .32em;
+      color: #5d89a9;
+      text-transform: uppercase;
+    }
+
+    .fault-title {
+      margin: clamp(18px, 4vh, 44px) 0 0;
+      font-size: clamp(30px, 5.4vh, 58px);
+      font-weight: 750;
+      line-height: 1.24;
+      letter-spacing: .015em;
+      color: #0d3b5d;
+    }
+    .fault-message {
+      margin: clamp(10px, 1.7vh, 18px) 0 0;
+      max-width: 880px;
+      color: var(--muted);
+      font-size: clamp(15px, 2.15vh, 23px);
+      font-weight: 450;
+      line-height: 1.85;
+    }
+
+    .phone-card {
+      display: flex;
+      align-items: center;
+      gap: clamp(12px, 1.9vh, 20px);
+      margin-top: clamp(15px, 4.2vh, 46px);
+      padding: clamp(10px, 1.7vh, 20px) clamp(26px, 4.4vh, 50px) clamp(10px, 1.7vh, 20px) clamp(16px, 2.4vh, 28px);
+      border: 1px solid var(--line);
+      border-radius: clamp(17px, 2.4vh, 24px);
+      background: rgba(255,255,255,.94);
+      box-shadow: 0 16px 40px rgba(9,80,140,.08);
+    }
+    .phone-icon {
+      display: flex;
+      flex: 0 0 auto;
+      align-items: center;
+      justify-content: center;
+      width: clamp(44px, 6.2vh, 66px);
+      height: clamp(44px, 6.2vh, 66px);
+      border-radius: 50%;
+      color: var(--blue);
+      background: var(--blue-soft);
+    }
+    .phone-icon svg { width: clamp(21px, 2.8vh, 30px); height: clamp(21px, 2.8vh, 30px); }
+    .phone-copy { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; }
+    .phone-label {
+      color: #7d93a3;
+      font-size: clamp(11.5px, 1.4vh, 15px);
+      font-weight: 650;
+      letter-spacing: .14em;
+    }
+    .phone-number {
+      color: var(--blue-deep);
+      font-size: clamp(26px, 4.1vh, 44px);
+      font-weight: 750;
+      letter-spacing: .045em;
+      line-height: 1.15;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .fault-thanks {
+      margin: clamp(12px, 3.4vh, 36px) 0 0;
+      color: #8ba2b1;
+      font-size: clamp(13.5px, 1.7vh, 18px);
+      letter-spacing: .06em;
+    }
+
+    @media (max-width: 1400px) {
+      .pause-halo, .pause-ring { display: none; }
+    }
+    /* 窄屏状态栏：隐藏次要的联系电话，避免文字换行 */
+    @media (max-width: 1200px) {
+      .status-bar .contact-item { display: none; }
+    }
+    @media (max-height: 720px) {
+      .fault-body { padding: 12px 32px 4px; }
+      .fault-page { min-height: 600px; }
+    }
+    /* ===== 调试浮窗：点左侧 LOGO 唤出，默认不显示（上线前整块移除） ===== */
+    .debug-trigger { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    .debug-trigger:focus-visible { outline: 0.125rem solid rgba(7,91,158,.5); outline-offset: 0.25rem; border-radius: 0.5rem; }
+
+    .debug-dock { position: fixed; inset: 0; z-index: 200; display: none; }
+    .debug-dock.is-open { display: block; }
+    .debug-scrim { position: absolute; inset: 0; background: rgba(6,28,45,.24); }
+    .debug-panel {
+      position: absolute;
+      width: min(30rem, calc(100vw - 2rem));
+      max-height: calc(100vh - 6rem);
+      overflow: auto;
+      padding: 0.875rem 1rem 1rem;
+      border: 0.0625rem solid rgba(255,255,255,.18);
+      border-radius: 1.125rem;
+      color: #fff;
+      background: linear-gradient(158deg, #0b4f80 0%, #08395c 100%);
+      box-shadow: 0 1.5rem 3.5rem rgba(4,26,42,.42);
+      animation: debug-dock-in .16s ease-out;
+    }
+    @keyframes debug-dock-in { from { opacity: 0; transform: translateY(-0.375rem); } }
+
+    .debug-head { display: flex; align-items: center; gap: 0.5rem; padding-bottom: 0.6875rem; border-bottom: 0.0625rem solid rgba(255,255,255,.16); }
+    .debug-badge { padding: 0.125rem 0.4375rem; border-radius: 0.25rem; color: #08395c; background: #fff; font-size: 0.625rem; font-weight: 800; letter-spacing: .1em; }
+    .debug-head-title { font-size: 0.8125rem; font-weight: 700; letter-spacing: .02em; }
+    .debug-head-hint { margin-left: auto; color: rgba(255,255,255,.56); font-size: 0.6875rem; }
+    .debug-close {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.75rem;
+      height: 1.75rem;
+      margin-left: 0.375rem;
+      padding: 0;
+      border: 0;
+      border-radius: 50%;
+      color: #fff;
+      background: rgba(255,255,255,.14);
+      font: inherit;
+      font-size: 0.8125rem;
+      line-height: 1;
+      cursor: pointer;
+    }
+    .debug-close:hover { background: rgba(255,255,255,.28); }
+
+    .debug-group { padding-top: 0.6875rem; }
+    .debug-group + .debug-group { margin-top: 0.6875rem; border-top: 0.0625rem solid rgba(255,255,255,.12); }
+    .debug-label { margin: 0 0 0.4375rem; color: rgba(255,255,255,.62); font-size: 0.6875rem; font-weight: 700; letter-spacing: .08em; }
+    .debug-row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.375rem; }
+    .debug-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3125rem;
+      padding: 0.375rem 0.75rem;
+      border: 0.0625rem solid rgba(255,255,255,.26);
+      border-radius: 62.4375rem;
+      color: #fff;
+      background: rgba(255,255,255,.08);
+      font: inherit;
+      font-size: 0.75rem;
+      font-weight: 650;
+      letter-spacing: .01em;
+      white-space: nowrap;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background .15s ease, border-color .15s ease, color .15s ease;
+    }
+    .debug-chip:hover { background: rgba(255,255,255,.2); }
+    .debug-chip[aria-current="page"], .debug-chip[aria-pressed="true"] { border-color: #fff; color: #08395c; background: #fff; }
+    .debug-chip i { font-size: 0.625rem; font-style: normal; opacity: .66; }
+
+    /* 状态栏 FE 标：调试浮窗的隐藏触发点（上线前随浮窗一并移除） */
+    .status-logo {
+      display: inline-flex;
+      flex: 0 0 auto;
+      align-items: center;
+      padding: 0;
+      border: 0;
+      color: #a3b8c6;
+      background: none;
+      font: inherit;
+      font-size: 1.375rem;
+      font-style: italic;
+      font-weight: 900;
+      letter-spacing: -.12em;
+      line-height: 1;
+      cursor: pointer;
+    }
+    .status-logo span { transform: skew(-8deg); }
+    .status-logo:focus-visible { outline: 0.125rem solid rgba(7,91,158,.3); outline-offset: 0.25rem; border-radius: 0.25rem; }
+
+  </style>
+</head>
+<body>
+  <main class="fault-page" aria-label="Machine cleaning">
+    <section class="status-bar" aria-label="マシン情報">
+      <div class="status-left">
+        <button class="status-logo debug-trigger" id="debugTrigger" type="button" aria-expanded="false" aria-haspopup="dialog" aria-label="Fuji Electric"><span>FE</span></button>
+        <div class="status-item machine-id">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="5" y="2.5" width="14" height="19" rx="3"/><path d="M9 6h6M9 18h6"/></svg>
+          <span>Machine ID：<strong>fuji12345678</strong></span>
+        </div>
+        <div class="status-item contact-item">
+          <span><span data-i18n="contact">お問い合わせ</span>：800-1234-5678</span>
+        </div>
+      </div>
+      <div class="status-right">
+        <time class="status-item" datetime="2026-11-04T23:40" data-i18n="date">11月4日 23:40</time>
+        <svg width="18" height="16" viewBox="0 0 18 16" fill="currentColor" aria-label="電波状況"><rect x="1" y="11" width="3" height="4" rx="1"/><rect x="6" y="7" width="3" height="8" rx="1"/><rect x="11" y="3" width="3" height="12" rx="1"/></svg>
+      </div>
+    </section>
+
+    <section class="fault-body">
+      <div class="pause-wrap">
+        <div class="pause-halo" aria-hidden="true"></div>
+        <div class="pause-ring" aria-hidden="true"></div>
+        <div class="pause-card" role="img" aria-label="Cleaning, please wait">
+          <div class="clean-glyph" aria-hidden="true">
+            <svg viewBox="0 0 120 120" fill="none">
+              <defs>
+                <linearGradient id="dropGradient" x1="60" y1="10" x2="60" y2="104" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#3ba3e4"/>
+                  <stop offset="1" stop-color="#0877c9"/>
+                </linearGradient>
+              </defs>
+              <path d="M60 10C60 10 28 44 28 68a32 32 0 0 0 64 0c0-24-32-58-32-58Z" fill="url(#dropGradient)"/>
+              <path d="M38 70c7-5 15-5 22 0s15 5 22 0" stroke="#eaf5ff" stroke-width="3.4" stroke-linecap="round" opacity=".92"/>
+              <path d="M42 84c6-4 12-4 18 0s12 4 18 0" stroke="#eaf5ff" stroke-width="3" stroke-linecap="round" opacity=".6"/>
+            </svg>
+          </div>
+          <div class="pause-caption">Please<br>Wait</div>
+        </div>
+      </div>
+
+      <h1 class="fault-title" data-i18n="title">设备正在清洗，请稍后</h1>
+      <p class="fault-message" data-i18n-html="message">清洗结束后即可继续购买</p>
+
+      <div class="phone-card">
+        <span class="phone-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 4h3l1.5 4-2 1.6a11 11 0 0 0 5.4 5.4L16 13l4 1.5v3a2 2 0 0 1-2.2 2A14.5 14.5 0 0 1 4 5.2 2 2 0 0 1 6 3z"/></svg>
+        </span>
+        <span class="phone-copy">
+          <span class="phone-label" data-i18n="phoneLabel">客服电话</span>
+          <span class="phone-number">800-1234-5678</span>
+        </span>
+      </div>
+
+      <p class="fault-thanks" data-i18n="thanks">感谢您的理解与支持</p>
+    </section>
+  </main>
+
+  <!-- 调试浮窗：点左侧 LOGO 唤出；默认隐藏，上线前整块移除 -->
+  <div class="debug-dock" id="debugDock">
+    <div class="debug-scrim" data-debug-close></div>
+    <div class="debug-panel" id="debugPanel" role="dialog" aria-label="调试面板">
+      <div class="debug-head">
+        <span class="debug-badge">DEBUG</span>
+        <span class="debug-head-title">测试入口</span>
+        <span class="debug-head-hint">上线前移除</span>
+        <button class="debug-close" type="button" data-debug-close aria-label="关闭">✕</button>
+      </div>
+
+      <section class="debug-group">
+        <p class="debug-label">屏幕尺寸</p>
+        <div class="debug-row">
+          <button class="debug-chip" type="button" data-size-preset="s10">10″ <i>5×2</i></button>
+          <button class="debug-chip" type="button" data-size-preset="m21">21″ <i>5×3</i></button>
+          <button class="debug-chip" type="button" data-size-preset="l27">27″ <i>6×3</i></button>
+          <button class="debug-chip" type="button" data-size-preset="auto">自动</button>
+          <a class="debug-chip" href="setup.html?return=cleaning.html">自定义…</a>
+        </div>
+      </section>
+
+      <section class="debug-group">
+        <p class="debug-label">设备状态</p>
+        <div class="debug-row">
+          <button class="debug-chip" type="button" id="recoverButton">清洗结束 → 售卖界面</button>
+        </div>
+      </section>
+
+      <section class="debug-group">
+        <p class="debug-label">页面</p>
+        <div class="debug-row">
+          <button class="debug-chip" type="button" data-debug-nav="welcome.html">首页</button>
+          <button class="debug-chip" type="button" data-debug-nav="index.html">饮品</button>
+          <button class="debug-chip" type="button" data-debug-nav="packaged.html">包装商品</button>
+          <button class="debug-chip" type="button" data-debug-nav="out-of-service.html">故障</button>
+          <button class="debug-chip" type="button" data-debug-nav="cleaning.html" aria-current="page">清洗</button>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const I18N = {
+      zh: {
+        htmlLang: "zh-CN",
+        docTitle: "清洗中",
+        contact: "联系我们",
+        date: "11月4日 23:40",
+        title: "设备正在清洗，请稍后",
+        message: "清洗结束后即可继续购买",
+        phoneLabel: "客服电话",
+        thanks: "感谢您的理解与支持",
+      },
+      ja: {
+        htmlLang: "ja",
+        docTitle: "洗浄中",
+        contact: "お問い合わせ",
+        date: "11月4日 23:40",
+        title: "洗浄中です。しばらくお待ちください",
+        message: "洗浄終了後、ご購入いただけます",
+        phoneLabel: "お問い合わせ電話番号",
+        thanks: "ご理解とご協力をお願いいたします",
+      },
+      en: {
+        htmlLang: "en",
+        docTitle: "Cleaning",
+        contact: "Contact",
+        date: "Nov 4, 23:40",
+        title: "Cleaning in progress, please wait",
+        message: "You can continue purchasing once cleaning is complete",
+        phoneLabel: "Customer service",
+        thanks: "Thank you for your understanding",
+      },
+      ko: {
+        htmlLang: "ko",
+        docTitle: "세척 중",
+        contact: "문의",
+        date: "11월 4일 23:40",
+        title: "세척 중입니다. 잠시만 기다려 주세요",
+        message: "세척이 끝나면 바로 구매하실 수 있습니다",
+        phoneLabel: "고객센터 전화",
+        thanks: "양해해 주셔서 감사합니다"
+      }
+    };
+
+    function resolveLanguage() {
+      const requested = params.get("lang");
+      if (requested && I18N[requested]) return requested;
+      try {
+        const saved = localStorage.getItem("fujiLanguage");
+        if (saved && I18N[saved]) return saved;
+      } catch (error) { console.warn(error); }
+      return "zh";
+    }
+
+    let language = resolveLanguage();
+    const dictionary = I18N[language];
+    const t = key => dictionary[key] || key;
+
+    document.documentElement.lang = dictionary.htmlLang;
+    document.title = `${dictionary.docTitle} - Fuji Electric`;
+    document.querySelectorAll("[data-i18n]").forEach(element => {
+      element.textContent = t(element.dataset.i18n);
+    });
+    document.querySelectorAll("[data-i18n-html]").forEach(element => {
+      element.innerHTML = t(element.dataset.i18nHtml);
+    });
+    document.querySelector(".fault-page").setAttribute("aria-label", dictionary.docTitle);
+
+    // 清洗页只在设备真实完成清洗时离开：没有倒计时，不靠时间猜设备状态。
+    // 接入方在拿到后端/本地网关的恢复信号后调用 window.fujiDeviceState("ok")。
+    const RECOVERED_STATES = ["ok", "normal", "online", "ready", "recovered", "resumed"];
+    let leavingForSales = false;
+
+    function returnToSales() {
+      if (leavingForSales) return;
+      leavingForSales = true;
+      window.location.replace(`index.html?lang=${encodeURIComponent(language)}`);
+    }
+
+    window.fujiDeviceState = function (state) {
+      const value = typeof state === "string" ? state : state && state.status;
+      if (typeof value !== "string") return false;
+      if (!RECOVERED_STATES.includes(value.trim().toLowerCase())) return false;
+      if (leavingForSales) return false;
+      returnToSales();
+      return true;
+    };
+  </script>
+  <script>
+    // ===== 调试浮窗：点左侧 LOGO 唤出（默认不显示，上线前整块移除）=====
+    (function initDebugDock() {
+      const trigger = document.getElementById("debugTrigger");
+      const dock = document.getElementById("debugDock");
+      const panel = document.getElementById("debugPanel");
+      if (!trigger || !dock || !panel) return;
+
+      function place() {
+        const rect = trigger.getBoundingClientRect();
+        const left = Math.max(16, Math.min(rect.left, window.innerWidth - panel.offsetWidth - 16));
+        const top = Math.max(16, Math.min(rect.bottom + 12, window.innerHeight - 220));
+        panel.style.left = `${left}px`;
+        panel.style.top = `${top}px`;
+        panel.style.maxHeight = `${Math.max(240, window.innerHeight - top - 20)}px`;
+      }
+      function open() {
+        dock.classList.add("is-open");
+        trigger.setAttribute("aria-expanded", "true");
+        place();
+      }
+      function close() {
+        dock.classList.remove("is-open");
+        trigger.setAttribute("aria-expanded", "false");
+      }
+
+      trigger.addEventListener("click", event => {
+        event.stopPropagation();
+        if (dock.classList.contains("is-open")) close(); else open();
+      });
+      trigger.addEventListener("keydown", event => {
+        if (event.key === "Enter" || event.key === " ") { event.preventDefault(); open(); }
+      });
+      dock.addEventListener("click", event => {
+        if (event.target.closest("[data-debug-close]")) close();
+      });
+      document.addEventListener("keydown", event => { if (event.key === "Escape") close(); });
+      window.addEventListener("resize", () => { if (dock.classList.contains("is-open")) place(); });
+
+      // 屏幕尺寸：直接写入本机配置再重载，不用离开当前页
+      const device = window.FUJI_DEVICE || { mode: "auto", layout: "" };
+      const REF = { s10: [1024, 768], m21: [1920, 1080], l27: [2560, 1440] };
+      dock.querySelectorAll("[data-size-preset]").forEach(button => {
+        const preset = button.dataset.sizePreset;
+        const active = preset === "auto"
+          ? device.mode === "auto"
+          : device.mode === "preset" && device.layout === preset;
+        button.setAttribute("aria-pressed", String(active));
+        button.addEventListener("click", () => {
+          const payload = preset === "auto"
+            ? { mode: "auto", preset: null, layout: null, w: 0, h: 0 }
+            : { mode: "preset", preset, layout: preset, w: REF[preset][0], h: REF[preset][1] };
+          try { localStorage.setItem("fujiDevice", JSON.stringify(payload)); } catch (error) { console.warn(error); }
+          window.location.reload();
+        });
+      });
+
+      dock.querySelectorAll("[data-debug-nav]").forEach(button => {
+        button.addEventListener("click", () => { window.location.href = button.dataset.debugNav; });
+      });
+
+      // 模拟清洗结束：走和真实恢复信号同一条路径
+      const recoverButton = document.getElementById("recoverButton");
+      if (recoverButton) {
+        recoverButton.addEventListener("click", () => { window.fujiDeviceState("ok"); });
+      }
+    })();
+  </script>
+</body>
+</html>
