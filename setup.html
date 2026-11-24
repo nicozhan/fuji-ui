@@ -343,7 +343,8 @@
     // 从商品页/欢迎页带过来的返回地址，只允许站内已知页面（避免任意跳转）
     const RETURN_PAGES = new Set([
       "welcome.html", "index.html", "packaged.html",
-      "payment.html", "preparation.html", "qr-payment.html", "out-of-service.html"
+      "payment.html", "preparation.html", "qr-payment.html", "out-of-service.html",
+      "cleaning.html", "busy.html", "cup-blocking.html", "payment-error.html", "order-error.html"
     ]);
     const RETURN_PAGE = (function resolveReturn() {
       const raw = new URLSearchParams(window.location.search).get("return");
