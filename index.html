@@ -1245,23 +1245,25 @@
     .custom-total { display: flex; align-items: baseline; gap: 1.125rem; margin-left: auto; }
     .custom-total-label { color: var(--text-2); font-size: 1.125rem; }
     .custom-total-value { font-size: 2.25rem; font-weight: 800; }
-    .add-order-button {
+    .custom-actions { display: flex; align-items: center; gap: 1rem; }
+    .custom-action-button {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 1.5rem;
-      width: 21.875rem;
+      gap: 1rem;
+      width: 15rem;
       min-height: 4.5rem;
-      border: 0;
+      border: 0.0625rem solid var(--accent);
       border-radius: 62.4375rem;
-      color: #fff;
-      background: var(--accent);
       font-size: 1.25rem;
       font-weight: 700;
       cursor: pointer;
     }
-    .add-order-button:hover { background: var(--accent-dark); }
-    .add-order-button svg { width: 1.5rem; height: 1.5rem; }
+    .custom-action-button.primary { color: #fff; background: var(--accent); }
+    .custom-action-button.primary:hover { background: var(--accent-dark); }
+    .custom-action-button.secondary { color: var(--accent); background: #fff; }
+    .custom-action-button.secondary:hover { background: #f2f9fd; }
+    .custom-action-button svg { width: 1.5rem; height: 1.5rem; }
 
     /* 单笔订单上限：仅一行文字的轻提示，不遮挡操作，3 秒自动关闭 */
     .order-limit-layer {
@@ -1799,10 +1801,16 @@
           <span class="custom-total-label" data-i18n="customize.total">合计</span>
           <strong class="custom-total-value" id="customTotal">¥300</strong>
         </div>
-        <button class="add-order-button" id="addCustomizedOrder" type="button">
-          <span data-i18n="customize.submit">加入订单</span>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 12h15M14 7l5 5-5 5"/></svg>
-        </button>
+        <div class="custom-actions">
+          <button class="custom-action-button primary" id="addCustomizedOrder" type="button">
+            <span data-i18n="customize.submit">加入订单</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 12h15M14 7l5 5-5 5"/></svg>
+          </button>
+          <button class="custom-action-button secondary" id="buyCustomizedNow" type="button">
+            <span data-i18n="customize.buyNow">立即购买</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 12h15M14 7l5 5-5 5"/></svg>
+          </button>
+        </div>
       </footer>
     </section>
   </div>
@@ -1873,7 +1881,7 @@
         customize: {
           title: "カスタマイズ", collapse: "パネルを閉じる", close: "カスタマイズを終了",
           temperature: "温度", size: "杯型", sweetness: "甘さ", milk: "ミルク",
-          quantity: "数量", total: "合計", submit: "注文に追加"
+          quantity: "数量", total: "合計", submit: "注文に追加", buyNow: "今すぐ購入"
         },
         temperature: { hot: "ホット", iced: "アイス" },
         tags: { best: "冬の売れ筋", bogo: "2点目半額", limited: "当店限定", new: "新発売", top: "人気 No.1" },
@@ -1962,7 +1970,7 @@
         customize: {
           title: "定制饮品", collapse: "收起定制面板", close: "关闭并取消本次修改",
           temperature: "温度", size: "杯型", sweetness: "甜度", milk: "奶类",
-          quantity: "数量", total: "合计", submit: "加入订单"
+          quantity: "数量", total: "合计", submit: "加入订单", buyNow: "立即购买"
         },
         temperature: { hot: "热饮", iced: "冷饮" },
         tags: { best: "冬日畅销", bogo: "第二件半价", limited: "本店限量", new: "新品上市", top: "人气 No.1" },
@@ -2051,7 +2059,7 @@
         customize: {
           title: "Customize", collapse: "Collapse panel", close: "Close and discard changes",
           temperature: "Temperature", size: "Size", sweetness: "Sweetness", milk: "Milk",
-          quantity: "Quantity", total: "Total", submit: "Add to order"
+          quantity: "Quantity", total: "Total", submit: "Add to order", buyNow: "Buy now"
         },
         temperature: { hot: "Hot", iced: "Iced" },
         tags: { best: "Winter favorite", bogo: "2nd 50% off", limited: "Store limited", new: "New arrival", top: "No.1 seller" },
@@ -2140,7 +2148,7 @@
         customize: {
           title: "커스터마이즈", collapse: "패널 접기", close: "닫고 변경 취소",
           temperature: "온도", size: "사이즈", sweetness: "당도", milk: "우유",
-          quantity: "수량", total: "합계", submit: "주문에 추가"
+          quantity: "수량", total: "합계", submit: "주문에 추가", buyNow: "바로 구매"
         },
         temperature: { hot: "핫", iced: "아이스" },
         tags: { best: "겨울 베스트", bogo: "두 번째 반값", limited: "매장 한정", new: "신제품", top: "인기 1위" },
@@ -2229,7 +2237,7 @@
         customize: {
           title: "Personnaliser", collapse: "Réduire le panneau", close: "Fermer et annuler les modifications",
           temperature: "Température", size: "Format", sweetness: "Sucre", milk: "Lait",
-          quantity: "Quantité", total: "Total", submit: "Ajouter à la commande"
+          quantity: "Quantité", total: "Total", submit: "Ajouter à la commande", buyNow: "Acheter maintenant"
         },
         temperature: { hot: "Chaud", iced: "Glacé" },
         tags: { best: "Best-seller d'hiver", bogo: "2e à -50 %", limited: "Série limitée", new: "Nouveauté", top: "N°1 des ventes" },
@@ -2318,7 +2326,7 @@
         customize: {
           title: "Tùy chỉnh", collapse: "Thu gọn bảng", close: "Đóng và hủy thay đổi",
           temperature: "Nhiệt độ", size: "Cỡ ly", sweetness: "Đường", milk: "Sữa",
-          quantity: "Số lượng", total: "Tổng cộng", submit: "Thêm vào đơn"
+          quantity: "Số lượng", total: "Tổng cộng", submit: "Thêm vào đơn", buyNow: "Mua ngay"
         },
         temperature: { hot: "Nóng", iced: "Đá" },
         tags: { best: "Bán chạy mùa đông", bogo: "Ly 2 giảm 50%", limited: "Số lượng có hạn", new: "Mới ra mắt", top: "Bán chạy số 1" },
@@ -2407,7 +2415,7 @@
         customize: {
           title: "ปรับแต่ง", collapse: "ย่อแผง", close: "ปิดและยกเลิกการแก้ไข",
           temperature: "อุณหภูมิ", size: "ขนาดแก้ว", sweetness: "ความหวาน", milk: "นม",
-          quantity: "จำนวน", total: "รวม", submit: "เพิ่มในคำสั่งซื้อ"
+          quantity: "จำนวน", total: "รวม", submit: "เพิ่มในคำสั่งซื้อ", buyNow: "ซื้อทันที"
         },
         temperature: { hot: "ร้อน", iced: "เย็น" },
         tags: { best: "ขายดีฤดูหนาว", bogo: "แก้วที่ 2 ลด 50%", limited: "จำนวนจำกัด", new: "สินค้าใหม่", top: "ขายดีอันดับ 1" },
@@ -2876,12 +2884,12 @@
       const button = event.target.closest("[data-custom-quantity]");
       if (!button) return;
       const change = button.dataset.customQuantity === "increase" ? 1 : -1;
-      const nextQuantity = Math.max(1, customDraft.quantity + change);
-      if (change > 0 && nextQuantity > MAX_ORDER_ITEMS - cartItemCount()) {
+      const nextQuantity = Math.max(1, Math.min(MAX_ORDER_ITEMS, customDraft.quantity + change));
+      if (change > 0 && nextQuantity === MAX_ORDER_ITEMS && customDraft.quantity === MAX_ORDER_ITEMS) {
         showOrderLimit();
         return;
       }
-      customDraft.quantity = Math.min(MAX_ORDER_ITEMS, nextQuantity);
+      customDraft.quantity = nextQuantity;
       renderCustomization();
     });
 
@@ -2913,6 +2921,37 @@
         bumpCartBadge();
         if (cartItems.classList.contains("scrollable")) cartItems.scrollTop = cartItems.scrollHeight;
       }, 200);
+    });
+
+    document.getElementById("buyCustomizedNow").addEventListener("click", () => {
+      const product = getProduct(customDraft.productId);
+      if (!product) return;
+      const quantity = Math.max(1, Math.min(MAX_ORDER_ITEMS, customDraft.quantity));
+      const variant = {
+        temperature: `temperature.${customDraft.temperature}`,
+        size: `size.${customDraft.size}`,
+        sweetness: `sweetness.${customDraft.sweetness}`,
+        milk: `milk.${customDraft.milk}`
+      };
+      // 立即购买绕过购物车：仅把当前定制的单品写入订单，数量上限 3 件
+      const order = {
+        items: [{
+          productId: product.id,
+          name: productName(product),
+          price: product.price,
+          quantity,
+          image: product.image,
+          variant: variantLabel(variant),
+          variantData: variant
+        }],
+        language: currentLanguage
+      };
+      try {
+        localStorage.setItem("fujiOrder", JSON.stringify(order));
+      } catch (error) {
+        console.warn("订单暂存不可用，立即购买仍继续跳转。", error);
+      }
+      window.location.href = "payment.html";
     });
 
     document.addEventListener("keydown", event => {
