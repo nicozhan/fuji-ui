@@ -23,6 +23,14 @@
       if (modeParam ? modeParam === "direct" : savedMode === "direct") {
         document.documentElement.dataset.mode = "direct";
       }
+      // 首帧购物车标记：购物车关掉时右下角按钮与侧栏都不该先闪一帧
+      // URL 参数 ?cart=off 优先，其次读同一标签页保存的开关；新会话默认开启
+      var cartParam = new URLSearchParams(window.location.search).get("cart");
+      var savedCart = null;
+      try { savedCart = sessionStorage.getItem("fujiCartEnabled"); } catch (e) {}
+      if (cartParam ? cartParam === "off" : savedCart === "off") {
+        document.documentElement.dataset.cart = "off";
+      }
     })();
   </script>
 
@@ -1358,6 +1366,19 @@
     html[data-mode="direct"] .cart-panel,
     html[data-mode="direct"] .open-cart-button { display: none !important; }
 
+    /* ===== 购物车开关：关掉后不出现购物车，定制页只留「立即购买」 ===== */
+    html[data-cart="off"] .cart-panel,
+    html[data-cart="off"] .open-cart-button { display: none !important; }
+    html[data-cart="off"] .custom-actions { flex: 1 1 auto; justify-content: flex-end; }
+    html[data-cart="off"] #addCustomizedOrder { display: none; }
+    html[data-cart="off"] #buyCustomizedNow {
+      width: 17.5rem;
+      color: #fff;
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+    html[data-cart="off"] #buyCustomizedNow:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+
     .buy-now-button {
       display: inline-flex;
       align-items: center;
@@ -1667,7 +1688,13 @@
             <span class="demo-label">售罄演示 <strong id="soldOutState">ON</strong></span>
             <span class="switch-track" aria-hidden="true"><span class="switch-thumb"></span></span>
           </button>
+          <button class="demo-control" id="cartToggle" type="button" role="switch" aria-checked="true" aria-label="切换购物车功能">
+            <span class="demo-badge">DEMO</span>
+            <span class="demo-label">购物车 <strong id="cartState">ON</strong></span>
+            <span class="switch-track" aria-hidden="true"><span class="switch-thumb"></span></span>
+          </button>
         </div>
+        <p class="debug-note">购物车关：隐藏右下角购物车，定制页只保留「立即购买」。</p>
       </section>
 
       <section class="debug-group">
@@ -1864,6 +1891,8 @@
         cart: "カート",
         cartOpen: "カートを開く",
         cartClose: "カートを閉じる",
+        cartOn: "カートをオンにしました。",
+        cartOff: "カートをオフにしました。カスタマイズ後、そのまま購入できます。",
         cartTotal: "合計（{n}点）",
         checkout: "注文に進む",
         emptyCart: "カートに商品がありません。<br>商品の「＋」から追加してください。",
@@ -1953,6 +1982,8 @@
         cart: "购物车",
         cartOpen: "打开购物车",
         cartClose: "关闭购物车",
+        cartOn: "购物车已开启。",
+        cartOff: "购物车已关闭，定制后可直接购买。",
         cartTotal: "合计（{n} 件）",
         checkout: "去结算",
         emptyCart: "购物车中还没有商品。<br>点击商品的「＋」即可添加。",
@@ -2042,6 +2073,8 @@
         cart: "Cart",
         cartOpen: "Open cart",
         cartClose: "Close cart",
+        cartOn: "Cart turned on.",
+        cartOff: "Cart turned off. Buy directly after customizing.",
         cartTotal: "Total ({n} items)",
         checkout: "Checkout",
         emptyCart: "Your cart is empty.<br>Tap “+” on a product to add it.",
@@ -2131,6 +2164,8 @@
         cart: "장바구니",
         cartOpen: "장바구니 열기",
         cartClose: "장바구니 닫기",
+        cartOn: "장바구니를 켰습니다.",
+        cartOff: "장바구니를 껐습니다. 옵션 선택 후 바로 구매할 수 있습니다.",
         cartTotal: "합계 ({n}개)",
         checkout: "주문하기",
         emptyCart: "장바구니가 비어 있습니다.<br>상품의 “+”를 눌러 추가하세요.",
@@ -2220,6 +2255,8 @@
         cart: "Panier",
         cartOpen: "Ouvrir le panier",
         cartClose: "Fermer le panier",
+        cartOn: "Panier activé.",
+        cartOff: "Panier désactivé. Achat direct après personnalisation.",
         cartTotal: "Total ({n} articles)",
         checkout: "Commander",
         emptyCart: "Votre panier est vide.<br>Touchez « + » sur un produit pour l'ajouter.",
@@ -2309,6 +2346,8 @@
         cart: "Giỏ hàng",
         cartOpen: "Mở giỏ hàng",
         cartClose: "Đóng giỏ hàng",
+        cartOn: "Đã bật giỏ hàng.",
+        cartOff: "Đã tắt giỏ hàng. Có thể mua ngay sau khi tùy chỉnh.",
         cartTotal: "Tổng cộng ({n} món)",
         checkout: "Thanh toán",
         emptyCart: "Giỏ hàng đang trống.<br>Nhấn «+» trên sản phẩm để thêm.",
@@ -2398,6 +2437,8 @@
         cart: "ตะกร้า",
         cartOpen: "เปิดตะกร้า",
         cartClose: "ปิดตะกร้า",
+        cartOn: "เปิดตะกร้าแล้ว",
+        cartOff: "ปิดตะกร้าแล้ว ปรับแต่งเสร็จสามารถซื้อได้ทันที",
         cartTotal: "รวม ({n} ชิ้น)",
         checkout: "สั่งซื้อ",
         emptyCart: "ตะกร้ายังว่างอยู่<br>กด «+» ที่สินค้าเพื่อเพิ่ม",
@@ -2539,8 +2580,17 @@
       try { return sessionStorage.getItem("fujiSalesMode") === "direct"; } catch (error) { return false; }
     }
 
+    // 购物车开关：?cart=off 关闭，?cart=on 开启；同一标签页记住上次选择，新会话默认开启
+    function resolveCartEnabled() {
+      const requested = previewParams.get("cart");
+      if (requested === "off" || requested === "on") return requested === "on";
+      try { return sessionStorage.getItem("fujiCartEnabled") !== "off"; } catch (error) { return true; }
+    }
+
     const state = {
       adEnabled: previewParams.get("ad") !== "off",
+      // 购物车关掉后不显示右下角购物车，定制页也不出现「加入订单」
+      cartEnabled: resolveCartEnabled(),
       // 临时开关（Demo）：划线原价默认开启，可用状态栏开关或 ?strike=off 关闭
       strikeEnabled: previewParams.get("strike") !== "off",
       cartOpen: previewParams.get("cart") === "open",
@@ -2587,6 +2637,8 @@
     const openCartButton = document.getElementById("openCart");
     const cartItems = document.getElementById("cartItems");
     const cartTotal = document.getElementById("cartTotal");
+    const cartToggle = document.getElementById("cartToggle");
+    const cartState = document.getElementById("cartState");
     const toast = document.getElementById("toast");
     let toastTimer;
 
@@ -2619,6 +2671,12 @@
       const name = productName(product);
       const soldOut = state.soldOut.has(product.id);
       const disabled = soldOut ? " disabled" : "";
+      // 购物车关掉后卡片上的「＋」不再加购，改为直接打开定制页（定制页只剩「立即购买」）
+      const quickCustomize = !state.directMode && !state.cartEnabled;
+      const actionAttr = quickCustomize ? `data-customize="${product.id}"` : `data-add="${product.id}"`;
+      const actionAria = state.directMode ? dt("buyNowAria", { name })
+        : quickCustomize ? t("customizeAria", { name })
+        : t("addAria", { name });
       return `
         <article class="product-card${soldOut ? " is-sold-out" : ""}" data-product-id="${product.id}"${soldOut ? ' aria-disabled="true"' : ''} style="animation-delay:${index * 25}ms">
           <button class="product-media" type="button" data-customize="${product.id}" aria-label="${t("customizeAria", { name })}"${disabled}>
@@ -2630,7 +2688,7 @@
               <h2 class="product-name" title="${name}">${name}</h2>
               <p class="product-price">${priceMarkup(product.price)}</p>
             </div>
-            <button class="${state.directMode && !soldOut ? "buy-now-button" : "add-button"}" type="button" data-add="${product.id}" aria-label="${state.directMode && !soldOut ? dt("buyNowAria", { name }) : t("addAria", { name })}"${disabled}>${soldOut ? icons.ban : state.directMode ? `<span>${dt("buyNow")}</span>${DIRECT_BUY_ICON}` : icons.plus}</button>
+            <button class="${state.directMode && !soldOut ? "buy-now-button" : "add-button"}" type="button" ${actionAttr} aria-label="${actionAria}"${disabled}>${soldOut ? icons.ban : state.directMode ? `<span>${dt("buyNow")}</span>${DIRECT_BUY_ICON}` : icons.plus}</button>
           </div>
           ${soldOut ? `<span class="sold-out-veil" aria-hidden="true"></span><span class="sold-out-mark" aria-hidden="true">${icons.ban}</span>` : ""}
         </article>
@@ -2761,9 +2819,11 @@
     }
 
     function setCartOpen(open) {
+      // 购物车关掉后永远不展示侧栏，也不出现右下角按钮
+      if (!state.cartEnabled) open = false;
       state.cartOpen = open;
       cartPanel.classList.toggle("closed", !open);
-      openCartButton.classList.toggle("hidden", open);
+      openCartButton.classList.toggle("hidden", open || !state.cartEnabled);
       cartPanel.setAttribute("aria-hidden", String(!open));
     }
 
@@ -2797,6 +2857,8 @@
 
     function addToCart(id) {
       if (state.soldOut.has(Number(id))) return;
+      // 购物车关掉时没有可加的地方，直接进定制页走「立即购买」
+      if (!state.cartEnabled) { openCustomization(Number(id)); return; }
       if (cartItemCount() >= MAX_ORDER_ITEMS) {
         showOrderLimit();
         return;
@@ -3091,6 +3153,27 @@
 
     soldOutToggle.addEventListener("click", () => {
       setSoldOutIds(state.soldOut.size ? [] : DEMO_SOLD_OUT_IDS);
+    });
+
+    // 购物车开关：开＝现在的多杯购物车；关＝隐藏右下角购物车与侧栏，定制页只留「立即购买」
+    function applyCartMode(options = {}) {
+      const enabled = state.cartEnabled;
+      document.documentElement.dataset.cart = enabled ? "on" : "off";
+      cartToggle.setAttribute("aria-checked", String(enabled));
+      cartState.textContent = enabled ? "ON" : "OFF";
+      if (options.persist) {
+        try { sessionStorage.setItem("fujiCartEnabled", enabled ? "on" : "off"); } catch (error) { console.warn(error); }
+      }
+      // 关掉时把已展开的购物车收起；重新打开时按当前状态恢复右下角按钮
+      if (!enabled) setCartOpen(false);
+      if (options.rerender === false) setCartOpen(state.cartOpen);
+      else { renderProducts(); setCartOpen(state.cartOpen); }
+    }
+
+    cartToggle.addEventListener("click", () => {
+      state.cartEnabled = !state.cartEnabled;
+      applyCartMode({ persist: true });
+      showToast(t(state.cartEnabled ? "cartOn" : "cartOff"));
     });
 
     productTrack.addEventListener("click", event => {
@@ -3565,6 +3648,7 @@ totalLabel: "ยอดชำระ", qrHint: "ใช้โทรศัพท์�
       })
     };
 
+    applyCartMode({ rerender: false });
     applyLanguage(currentLanguage, { persist: false });
     if (state.directMode && previewParams.get("product")) openDirectPay(Number(previewParams.get("product")) || 1);
     setCartOpen(state.cartOpen);

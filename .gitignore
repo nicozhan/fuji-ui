@@ -8,3 +8,5 @@ assets/Create_*.png
 .rollback-preview/
 # 本地 QA 全页截图（非交付物）
 category-cart-type-1920.png
+# 本地 QA 截图目录（非交付物）
+.shots/
