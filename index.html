@@ -28,7 +28,8 @@
       var cartParam = new URLSearchParams(window.location.search).get("cart");
       var savedCart = null;
       try { savedCart = sessionStorage.getItem("fujiCartEnabled"); } catch (e) {}
-      if (cartParam ? cartParam === "off" : savedCart === "off") {
+      var cartOff = cartParam === "off" ? true : cartParam === "on" ? false : savedCart === "off";
+      if (cartOff) {
         document.documentElement.dataset.cart = "off";
       }
     })();
@@ -1378,6 +1379,9 @@
       border-color: var(--accent);
     }
     html[data-cart="off"] #buyCustomizedNow:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+    /* 非购物车模式一次只能出一杯：数量锁死 1，隐藏加减按钮 */
+    html[data-cart="off"] .custom-quantity { gap: 0.75rem; }
+    html[data-cart="off"] .custom-quantity-button { display: none; }
 
     .buy-now-button {
       display: inline-flex;
@@ -2896,6 +2900,8 @@
     function renderCustomization() {
       const product = getProduct(customDraft.productId);
       if (!product) return;
+      // 非购物车模式一次只能出一杯：任何入口都把数量归 1
+      if (!state.cartEnabled) customDraft.quantity = 1;
       const name = productName(product);
       const image = document.getElementById("customProductImage");
       image.src = product.image;
@@ -2945,6 +2951,7 @@
     document.querySelector(".custom-quantity").addEventListener("click", event => {
       const button = event.target.closest("[data-custom-quantity]");
       if (!button) return;
+      if (!state.cartEnabled) return; // 非购物车模式数量锁定 1，加减按钮也不响应
       const change = button.dataset.customQuantity === "increase" ? 1 : -1;
       const nextQuantity = Math.max(1, Math.min(MAX_ORDER_ITEMS, customDraft.quantity + change));
       if (change > 0 && nextQuantity === MAX_ORDER_ITEMS && customDraft.quantity === MAX_ORDER_ITEMS) {
@@ -2988,7 +2995,8 @@
     document.getElementById("buyCustomizedNow").addEventListener("click", () => {
       const product = getProduct(customDraft.productId);
       if (!product) return;
-      const quantity = Math.max(1, Math.min(MAX_ORDER_ITEMS, customDraft.quantity));
+      // 购物车模式最多 3 件；非购物车模式强制 1 杯，不信任草稿里的旧值
+      const quantity = state.cartEnabled ? Math.max(1, Math.min(MAX_ORDER_ITEMS, customDraft.quantity)) : 1;
       const variant = {
         temperature: `temperature.${customDraft.temperature}`,
         size: `size.${customDraft.size}`,
@@ -3165,7 +3173,14 @@
         try { sessionStorage.setItem("fujiCartEnabled", enabled ? "on" : "off"); } catch (error) { console.warn(error); }
       }
       // 关掉时把已展开的购物车收起；重新打开时按当前状态恢复右下角按钮
-      if (!enabled) setCartOpen(false);
+      if (!enabled) {
+        setCartOpen(false);
+        // 切到非购物车模式时，已打开的配置面板立刻回到 1 杯
+        if (customDraft.productId) {
+          customDraft.quantity = 1;
+          if (customizationLayer.classList.contains("open")) renderCustomization();
+        }
+      }
       if (options.rerender === false) setCartOpen(state.cartOpen);
       else { renderProducts(); setCartOpen(state.cartOpen); }
     }
@@ -3173,6 +3188,12 @@
     cartToggle.addEventListener("click", () => {
       state.cartEnabled = !state.cartEnabled;
       applyCartMode({ persist: true });
+      // 把开关同步进地址栏（不重载），刷新或回到本页时保持同一状态
+      try {
+        const url = new URL(window.location.href);
+        url.searchParams.set("cart", state.cartEnabled ? "on" : "off");
+        window.history.replaceState(null, "", url);
+      } catch (error) { console.warn(error); }
       showToast(t(state.cartEnabled ? "cartOn" : "cartOff"));
     });
 
