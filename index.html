@@ -1207,6 +1207,8 @@
       min-height: 0;
       overflow-y: auto;
     }
+    /* 只有一个配方组时（如冰拿铁仅咖啡浓度），整行在选项区垂直居中 */
+    .custom-options.is-single-option { justify-content: center; }
     .option-row { padding: 0.5rem 0 1.375rem; border-bottom: 0.0625rem solid var(--border); }
     .option-row:last-child { padding-bottom: 0.5rem; border-bottom: 0; }
     .option-label { display: block; margin-bottom: 1rem; font-size: 1.125rem; font-weight: 700; }
@@ -2939,12 +2941,15 @@
       document.getElementById("customQuantity").textContent = customDraft.quantity;
       document.getElementById("customTotal").textContent = yen(product.price * customDraft.quantity);
       const allowedGroups = product.options ? product.options.groups : null;
-      document.querySelectorAll("[data-group-row]").forEach(row => {
+      const rows = document.querySelectorAll("[data-group-row]");
+      rows.forEach(row => {
         const groupName = row.dataset.groupRow;
         row.hidden = allowedGroups
           ? !Object.prototype.hasOwnProperty.call(allowedGroups, groupName)
           : groupName === "strength";
       });
+      const visibleRows = [...rows].filter(row => !row.hidden);
+      document.querySelector(".custom-options").classList.toggle("is-single-option", visibleRows.length === 1);
       document.querySelectorAll("[data-option-group]").forEach(group => {
         const groupName = group.dataset.optionGroup;
         const allowedValues = allowedGroups ? allowedGroups[groupName] : null;
