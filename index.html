@@ -1224,6 +1224,7 @@
     }
     .option-button:hover { border-color: var(--accent); }
     .option-button.active { border-color: var(--accent); color: #fff; background: var(--accent); }
+    .option-row[hidden], .option-button[hidden] { display: none !important; }
     .customization-footer {
       display: flex;
       flex: 0 0 7.25rem;
@@ -1780,14 +1781,14 @@
         </section>
 
         <section class="custom-options" aria-label="饮品定制选项">
-          <div class="option-row">
+          <div class="option-row" data-group-row="temperature">
             <span class="option-label" data-i18n="customize.temperature">温度</span>
             <div class="option-buttons" data-option-group="temperature">
               <button class="option-button active" type="button" data-value="hot" aria-pressed="true"><span data-i18n="temperature.hot">热饮</span></button>
               <button class="option-button" type="button" data-value="iced" aria-pressed="false"><span data-i18n="temperature.iced">冷饮</span></button>
             </div>
           </div>
-          <div class="option-row">
+          <div class="option-row" data-group-row="size">
             <span class="option-label" data-i18n="customize.size">杯型</span>
             <div class="option-buttons" data-option-group="size">
               <button class="option-button" type="button" data-value="small" aria-pressed="false"><span data-i18n="size.small">小杯</span></button>
@@ -1795,7 +1796,7 @@
               <button class="option-button" type="button" data-value="large" aria-pressed="false"><span data-i18n="size.large">大杯</span></button>
             </div>
           </div>
-          <div class="option-row">
+          <div class="option-row" data-group-row="sweetness">
             <span class="option-label" data-i18n="customize.sweetness">甜度</span>
             <div class="option-buttons" data-option-group="sweetness">
               <button class="option-button" type="button" data-value="none" aria-pressed="false"><span data-i18n="sweetness.none">无糖</span></button>
@@ -1805,13 +1806,19 @@
               <button class="option-button active" type="button" data-value="standard" aria-pressed="true"><span data-i18n="sweetness.standard">标准糖</span></button>
             </div>
           </div>
-          <div class="option-row">
+          <div class="option-row" data-group-row="milk">
             <span class="option-label" data-i18n="customize.milk">奶类</span>
             <div class="option-buttons" data-option-group="milk">
               <button class="option-button active" type="button" data-value="milk" aria-pressed="true"><span data-i18n="milk.milk">牛奶</span></button>
               <button class="option-button" type="button" data-value="lowfat" aria-pressed="false"><span data-i18n="milk.lowfat">低脂奶</span></button>
               <button class="option-button" type="button" data-value="oat" aria-pressed="false"><span data-i18n="milk.oat">燕麦奶</span></button>
               <button class="option-button" type="button" data-value="soy" aria-pressed="false"><span data-i18n="milk.soy">豆奶</span></button>
+            </div>
+          </div>
+          <div class="option-row" data-group-row="strength" hidden>
+            <span class="option-label" data-i18n="customize.strength">咖啡浓度</span>
+            <div class="option-buttons" data-option-group="strength">
+              <button class="option-button" type="button" data-value="standard" aria-pressed="false"><span data-i18n="strength.standard">标准</span></button>
             </div>
           </div>
         </section>
@@ -1913,7 +1920,7 @@
         languageMenu: "言語",
         customize: {
           title: "カスタマイズ", collapse: "パネルを閉じる", close: "カスタマイズを終了",
-          temperature: "温度", size: "杯型", sweetness: "甘さ", milk: "ミルク",
+          temperature: "温度", size: "杯型", sweetness: "甘さ", milk: "ミルク", strength: "コーヒーの濃さ",
           quantity: "数量", total: "合計", submit: "注文に追加", buyNow: "今すぐ購入"
         },
         temperature: { hot: "ホット", iced: "アイス" },
@@ -1921,6 +1928,7 @@
         size: { small: "スモール", medium: "レギュラー", large: "ラージ", regular: "レギュラー" },
         sweetness: { none: "無糖", light: "微糖", half: "半糖", less: "甘さ控えめ", standard: "標準" },
         milk: { milk: "ミルク", lowfat: "低脂肪乳", oat: "オーツミルク", soy: "豆乳" },
+        strength: { standard: "標準" },
         products: {
           1: { name: "アイスアメリカーノ" },
           2: { name: "キャラメルマキアート" },
@@ -2004,7 +2012,7 @@
         languageMenu: "语言",
         customize: {
           title: "定制饮品", collapse: "收起定制面板", close: "关闭并取消本次修改",
-          temperature: "温度", size: "杯型", sweetness: "甜度", milk: "奶类",
+          temperature: "温度", size: "杯型", sweetness: "甜度", milk: "奶类", strength: "咖啡浓度",
           quantity: "数量", total: "合计", submit: "加入订单", buyNow: "立即购买"
         },
         temperature: { hot: "热饮", iced: "冷饮" },
@@ -2012,6 +2020,7 @@
         size: { small: "小杯", medium: "中杯", large: "大杯", regular: "标准杯" },
         sweetness: { none: "无糖", light: "微糖", half: "半糖", less: "少糖", standard: "标准糖" },
         milk: { milk: "牛奶", lowfat: "低脂奶", oat: "燕麦奶", soy: "豆奶" },
+        strength: { standard: "标准" },
         products: {
           1: { name: "冰美式" },
           2: { name: "焦糖玛奇朵" },
@@ -2095,7 +2104,7 @@
         languageMenu: "Language",
         customize: {
           title: "Customize", collapse: "Collapse panel", close: "Close and discard changes",
-          temperature: "Temperature", size: "Size", sweetness: "Sweetness", milk: "Milk",
+          temperature: "Temperature", size: "Size", sweetness: "Sweetness", milk: "Milk", strength: "Coffee strength",
           quantity: "Quantity", total: "Total", submit: "Add to order", buyNow: "Buy now"
         },
         temperature: { hot: "Hot", iced: "Iced" },
@@ -2103,6 +2112,7 @@
         size: { small: "Small", medium: "Medium", large: "Large", regular: "Regular" },
         sweetness: { none: "No sugar", light: "Light", half: "Half", less: "Less", standard: "Standard" },
         milk: { milk: "Milk", lowfat: "Low-fat", oat: "Oat", soy: "Soy" },
+        strength: { standard: "Standard" },
         products: {
           1: { name: "Iced Americano" },
           2: { name: "Caramel Macchiato" },
@@ -2186,7 +2196,7 @@
         languageMenu: "언어",
         customize: {
           title: "커스터마이즈", collapse: "패널 접기", close: "닫고 변경 취소",
-          temperature: "온도", size: "사이즈", sweetness: "당도", milk: "우유",
+          temperature: "온도", size: "사이즈", sweetness: "당도", milk: "우유", strength: "커피 농도",
           quantity: "수량", total: "합계", submit: "주문에 추가", buyNow: "바로 구매"
         },
         temperature: { hot: "핫", iced: "아이스" },
@@ -2194,6 +2204,7 @@
         size: { small: "스몰", medium: "미디엄", large: "라지", regular: "레귤러" },
         sweetness: { none: "무당", light: "약간", half: "반", less: "적게", standard: "표준" },
         milk: { milk: "우유", lowfat: "저지방", oat: "오트", soy: "두유" },
+        strength: { standard: "표준" },
         products: {
           1: { name: "아이스 아메리카노" },
           2: { name: "카라멜 마키아토" },
@@ -2277,7 +2288,7 @@
         languageMenu: "Langue",
         customize: {
           title: "Personnaliser", collapse: "Réduire le panneau", close: "Fermer et annuler les modifications",
-          temperature: "Température", size: "Format", sweetness: "Sucre", milk: "Lait",
+          temperature: "Température", size: "Format", sweetness: "Sucre", milk: "Lait", strength: "Intensité du café",
           quantity: "Quantité", total: "Total", submit: "Ajouter à la commande", buyNow: "Acheter maintenant"
         },
         temperature: { hot: "Chaud", iced: "Glacé" },
@@ -2285,6 +2296,7 @@
         size: { small: "Petit", medium: "Moyen", large: "Grand", regular: "Classique" },
         sweetness: { none: "Sans sucre", light: "Léger", half: "Moitié", less: "Peu sucré", standard: "Normal" },
         milk: { milk: "Lait", lowfat: "Écrémé", oat: "Avoine", soy: "Soja" },
+        strength: { standard: "Standard" },
         products: {
           1: { name: "Americano glacé" },
           2: { name: "Macchiato caramel" },
@@ -2368,7 +2380,7 @@
         languageMenu: "Ngôn ngữ",
         customize: {
           title: "Tùy chỉnh", collapse: "Thu gọn bảng", close: "Đóng và hủy thay đổi",
-          temperature: "Nhiệt độ", size: "Cỡ ly", sweetness: "Đường", milk: "Sữa",
+          temperature: "Nhiệt độ", size: "Cỡ ly", sweetness: "Đường", milk: "Sữa", strength: "Độ đậm cà phê",
           quantity: "Số lượng", total: "Tổng cộng", submit: "Thêm vào đơn", buyNow: "Mua ngay"
         },
         temperature: { hot: "Nóng", iced: "Đá" },
@@ -2376,6 +2388,7 @@
         size: { small: "Nhỏ", medium: "Vừa", large: "Lớn", regular: "Tiêu chuẩn" },
         sweetness: { none: "Không đường", light: "Ít đường", half: "Nửa đường", less: "Giảm đường", standard: "Tiêu chuẩn" },
         milk: { milk: "Sữa", lowfat: "Tách béo", oat: "Yến mạch", soy: "Đậu nành" },
+        strength: { standard: "Tiêu chuẩn" },
         products: {
           1: { name: "Americano đá" },
           2: { name: "Macchiato caramel" },
@@ -2459,7 +2472,7 @@
         languageMenu: "ภาษา",
         customize: {
           title: "ปรับแต่ง", collapse: "ย่อแผง", close: "ปิดและยกเลิกการแก้ไข",
-          temperature: "อุณหภูมิ", size: "ขนาดแก้ว", sweetness: "ความหวาน", milk: "นม",
+          temperature: "อุณหภูมิ", size: "ขนาดแก้ว", sweetness: "ความหวาน", milk: "นม", strength: "ความเข้มกาแฟ",
           quantity: "จำนวน", total: "รวม", submit: "เพิ่มในคำสั่งซื้อ", buyNow: "ซื้อทันที"
         },
         temperature: { hot: "ร้อน", iced: "เย็น" },
@@ -2467,6 +2480,7 @@
         size: { small: "เล็ก", medium: "กลาง", large: "ใหญ่", regular: "มาตรฐาน" },
         sweetness: { none: "ไม่หวาน", light: "หวานน้อย", half: "หวานครึ่ง", less: "ลดหวาน", standard: "มาตรฐาน" },
         milk: { milk: "นมสด", lowfat: "พร่องมันเนย", oat: "ข้าวโอ๊ต", soy: "ถั่วเหลือง" },
+        strength: { standard: "มาตรฐาน" },
         products: {
           1: { name: "อเมริกาโน่เย็น" },
           2: { name: "คาราเมลมัคคิอาโต้" },
@@ -2502,8 +2516,8 @@
     const MAX_ORDER_ITEMS = 3;
     const products = [
       { id: 1, price: 320, image: "product-cutout-27/331-01.webp", temperature: "iced", tag: "top" },
-      { id: 2, price: 380, image: "product-cutout-27/331-02.webp", temperature: "iced" },
-      { id: 3, price: 350, image: "product-cutout-27/331-03.webp", temperature: "iced", tag: "bogo" },
+      { id: 2, price: 380, image: "product-cutout-27/331-02.webp", temperature: "iced", options: { groups: { temperature: ["iced"], size: ["medium"], sweetness: ["standard"], milk: ["milk"] } } },
+      { id: 3, price: 350, image: "product-cutout-27/331-03.webp", temperature: "iced", tag: "bogo", options: { groups: { strength: ["standard"] } } },
       { id: 4, price: 400, image: "product-cutout-27/331-04.webp", temperature: "iced" },
       { id: 5, price: 280, image: "product-cutout-27/331-05.webp", temperature: "hot", tag: "best" },
       { id: 6, price: 360, image: "product-cutout-27/331-06.webp", temperature: "iced" },
@@ -2556,7 +2570,7 @@
     }
 
     const productName = product => t(`products.${product.id}.name`);
-    const variantLabel = variant => ["temperature", "size", "sweetness", "milk"]
+    const variantLabel = variant => ["temperature", "size", "sweetness", "milk", "strength"]
       .filter(group => variant[group])
       .map(group => {
         const value = variant[group];
@@ -2881,20 +2895,34 @@
       size: "medium",
       sweetness: "standard",
       milk: "milk",
+      strength: "",
       quantity: 1
     };
     let preserveCustomDraft = false;
 
     function resetCustomization(productId) {
       const product = getProduct(productId);
+      const groups = product && product.options ? product.options.groups : null;
+      const has = group => groups ? Object.prototype.hasOwnProperty.call(groups, group) : group !== "strength";
       Object.assign(customDraft, {
         productId,
-        temperature: product ? product.temperature : "hot",
-        size: "medium",
-        sweetness: "standard",
-        milk: "milk",
+        temperature: has("temperature") ? (product ? product.temperature : "hot") : "",
+        size: has("size") ? "medium" : "",
+        sweetness: has("sweetness") ? "standard" : "",
+        milk: has("milk") ? "milk" : "",
+        strength: has("strength") ? "standard" : "",
         quantity: 1
       });
+    }
+
+    // 只把当前商品实际提供的选项写进订单，避免空值出现在小票里
+    function currentVariant() {
+      const variant = {};
+      ["temperature", "size", "sweetness", "milk", "strength"].forEach(group => {
+        const value = customDraft[group];
+        if (value) variant[group] = `${group}.${value}`;
+      });
+      return variant;
     }
 
     function renderCustomization() {
@@ -2910,9 +2938,18 @@
       document.getElementById("customProductPrice").innerHTML = priceMarkup(product.price);
       document.getElementById("customQuantity").textContent = customDraft.quantity;
       document.getElementById("customTotal").textContent = yen(product.price * customDraft.quantity);
+      const allowedGroups = product.options ? product.options.groups : null;
+      document.querySelectorAll("[data-group-row]").forEach(row => {
+        const groupName = row.dataset.groupRow;
+        row.hidden = allowedGroups
+          ? !Object.prototype.hasOwnProperty.call(allowedGroups, groupName)
+          : groupName === "strength";
+      });
       document.querySelectorAll("[data-option-group]").forEach(group => {
         const groupName = group.dataset.optionGroup;
+        const allowedValues = allowedGroups ? allowedGroups[groupName] : null;
         group.querySelectorAll("[data-value]").forEach(button => {
+          button.hidden = !!allowedGroups && (!allowedValues || !allowedValues.includes(button.dataset.value));
           const active = customDraft[groupName] === button.dataset.value;
           button.classList.toggle("active", active);
           button.setAttribute("aria-pressed", String(active));
@@ -2971,12 +3008,7 @@
         return;
       }
       state.cart.set(product.id, (state.cart.get(product.id) || 0) + customDraft.quantity);
-      state.cartVariants.set(product.id, {
-        temperature: `temperature.${customDraft.temperature}`,
-        size: `size.${customDraft.size}`,
-        sweetness: `sweetness.${customDraft.sweetness}`,
-        milk: `milk.${customDraft.milk}`
-      });
+      state.cartVariants.set(product.id, currentVariant());
       const quantity = customDraft.quantity;
       renderCart();
       hideCustomization(true);
@@ -2997,12 +3029,7 @@
       if (!product) return;
       // 购物车模式最多 3 件；非购物车模式强制 1 杯，不信任草稿里的旧值
       const quantity = state.cartEnabled ? Math.max(1, Math.min(MAX_ORDER_ITEMS, customDraft.quantity)) : 1;
-      const variant = {
-        temperature: `temperature.${customDraft.temperature}`,
-        size: `size.${customDraft.size}`,
-        sweetness: `sweetness.${customDraft.sweetness}`,
-        milk: `milk.${customDraft.milk}`
-      };
+      const variant = currentVariant();
       // 立即购买绕过购物车：仅把当前定制的单品写入订单，数量上限 3 件
       const order = {
         items: [{
