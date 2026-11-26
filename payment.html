@@ -1098,7 +1098,7 @@
 
     // 单一扫码支付模式：不展示选择卡片，直接在原位置展示「左侧支付图 + 右侧二维码」
     const QR_TIMEOUT_SECONDS = 90;
-    const paymentDisplay = { image: "assets/payment-methods-square.jpg" };
+    const paymentDisplay = { image: "assets/payment-scan-methods.jpg" };
     let inlineQrActive = false;
     let qrState = "waiting";
     let qrDeadline = 0;
@@ -1381,7 +1381,7 @@
       }).join("");
       paymentGrid.innerHTML = `
         <section class="qr-media" id="qrMedia" aria-label="支付方式图片">
-          <img id="qrMediaImage" src="${paymentDisplay.image}" alt="支持的支付方式：微信支付、支付宝、银联支付、云闪付">
+          <img id="qrMediaImage" src="${paymentDisplay.image}" alt="支持微信支付与支付宝扫码支付">
           <div class="channel-picker" id="qrChannelPicker" role="group" aria-label="选择支付方式" hidden>${channelItems}</div>
         </section>
         <section class="qr-panel" id="qrPanel" aria-label="扫码支付">
